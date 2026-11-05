@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: 'Amplifier Guild KVKK aydınlatma metni, gizlilik politikası ve çerez politikası.',
 };
 
-const CONTACT = 'contact@amplifierguild.online';
+const CONTACT = 'fizkall34en@gmail.com';
 const UPDATED = '5 Kasım 2026';
 
 export default function KvkkPage() {
