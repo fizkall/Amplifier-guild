@@ -1,0 +1,10 @@
+node_modules/
+functions/lib/
+.env*
+!.env.example
+.firebase/
+*-debug.log
+firebase-debug.*
+ui-debug.log
+.next/
+firestore-debug.log

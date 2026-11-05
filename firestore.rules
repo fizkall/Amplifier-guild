@@ -1,0 +1,283 @@
+rules_version = '2';
+
+// Amfiplier Guild — Firestore Güvenlik Kuralları
+// İlke: Sayaçlar, doğrulanmış CV kalemleri ve başvuru kararları SADECE Cloud Functions
+// (Admin SDK, kuralları bypass eder) tarafından yazılır. İstemci bunlara dokunamaz.
+// Şema: docs/FIRESTORE_SCHEMA.md
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─────────────── Yardımcılar ───────────────
+    function signedIn()      { return request.auth != null; }
+    function uid()           { return request.auth.uid; }
+    function isSelf(userId)  { return signedIn() && uid() == userId; }
+    function isAdmin()       { return signedIn() && request.auth.token.admin == true; }
+    function isMod()         { return isAdmin() || (signedIn() && request.auth.token.moderator == true); }
+    function verifiedEmail() { return signedIn() && request.auth.token.email_verified == true; }
+
+    function incoming()      { return request.resource.data; }
+    function existing()      { return resource.data; }
+    function changedKeys()   { return incoming().diff(existing()).affectedKeys(); }
+    function onlyChanges(keys) { return changedKeys().hasOnly(keys); }
+    function str(v, min, max)  { return v is string && v.size() >= min && v.size() <= max; }
+
+    // Not: $(x) tek bir yol segmentidir; '/' içeren string birleştirmesi kullanılmamalı.
+    function handlePath(h)  { return /databases/$(database)/documents/handles/$(h); }
+    function userPath(u)    { return /databases/$(database)/documents/users/$(u); }
+    function projectPath(p) { return /databases/$(database)/documents/projects/$(p); }
+    function oppPath(p, o)  { return /databases/$(database)/documents/projects/$(p)/opportunities/$(o); }
+    function postPath(id)   { return /databases/$(database)/documents/posts/$(id); }
+    function project(pid) { return get(/databases/$(database)/documents/projects/$(pid)).data; }
+    function membership(pid) {
+      return /databases/$(database)/documents/projects/$(pid)/members/$(request.auth.uid);
+    }
+    function isProjectMember(pid)  { return signedIn() && exists(membership(pid)); }
+    function isProjectManager(pid) {
+      return isProjectMember(pid) && get(membership(pid)).data.role in ['owner', 'admin'];
+    }
+    function canManage(pid) { return isAdmin() || isProjectManager(pid); }
+
+    // ─────────────── Kullanıcılar ───────────────
+    match /users/{userId} {
+      allow read: if existing().visibility == 'public' || signedIn();
+
+      // İlk profil oluşturma (onboarding). Korunan alanlar başlangıç değerinde olmalı.
+      allow create: if isSelf(userId)
+        && incoming().uid == userId
+        && str(incoming().displayName, 1, 60)
+        && str(incoming().headline, 0, 120)
+        && str(incoming().bio, 0, 500)
+        && incoming().skills.size() <= 30
+        && incoming().stats == { 'followers': 0, 'following': 0, 'posts': 0, 'projectsJoined': 0 }
+        && incoming().badges.size() == 0
+        && existsAfter(handlePath(incoming().handle))
+        && getAfter(handlePath(incoming().handle)).data.uid == userId;
+
+      allow update: if isSelf(userId)
+        && !changedKeys().hasAny(['uid', 'stats', 'badges', 'createdAt'])
+        && str(incoming().displayName, 1, 60)
+        && str(incoming().headline, 0, 120)
+        && str(incoming().bio, 0, 500)
+        && incoming().skills.size() <= 30
+        // handle değişiyorsa aynı batch'te handles/{yeni} bu kullanıcıya ait olmalı
+        && (!('handle' in changedKeys())
+            || getAfter(handlePath(incoming().handle)).data.uid == userId);
+
+      allow delete: if false; // Hesap silme → callable Function (KVKK silme talebi)
+
+      match /private/{docId} {
+        allow read: if isSelf(userId) || isAdmin();
+        allow create, update: if isSelf(userId);
+        allow delete: if false;
+      }
+
+      match /experiences/{expId} {
+        allow read: if get(userPath(userId)).data.visibility == 'public' || signedIn();
+        allow create: if isSelf(userId)
+          && incoming().verified == false
+          && incoming().type != 'guild_project'
+          && incoming().source == null
+          && str(incoming().title, 1, 100)
+          && str(incoming().description, 0, 1000);
+        // Doğrulanmış (Guild) kalemler kullanıcı tarafından düzenlenemez/silinemez
+        allow update: if isSelf(userId)
+          && existing().verified == false
+          && !changedKeys().hasAny(['verified', 'source', 'type'])
+          || (isSelf(userId) && existing().verified == true && onlyChanges(['order']));
+        allow delete: if isSelf(userId) && existing().verified == false;
+      }
+
+      match /following/{targetId} {
+        allow read: if signedIn();
+        allow create: if isSelf(userId) && targetId != userId
+          && incoming().keys().hasOnly(['kind', 'createdAt'])
+          && incoming().kind in ['user', 'project'];
+        allow delete: if isSelf(userId);
+        allow update: if false;
+      }
+
+      match /followers/{followerId} {
+        allow read: if signedIn();
+        allow write: if false; // onFollowWrite Function aynalar
+      }
+
+      match /notifications/{notifId} {
+        allow read: if isSelf(userId);
+        allow update: if isSelf(userId) && onlyChanges(['read']);
+        allow delete: if isSelf(userId);
+        allow create: if false;
+      }
+
+      match /timeline/{postId} {
+        allow read: if isSelf(userId);
+        allow write: if false;
+      }
+    }
+
+    // ─────────────── Kullanıcı adı tekilliği ───────────────
+    match /handles/{handle} {
+      allow read: if true;
+      allow create: if signedIn()
+        && handle.matches('^[a-z0-9_.]{3,24}$')
+        && incoming().uid == uid();
+      allow delete: if signedIn() && existing().uid == uid();
+      allow update: if false;
+    }
+
+    // ─────────────── Projeler ───────────────
+    match /projects/{pid} {
+      allow read: if existing().status == 'active' || isProjectMember(pid) || isAdmin();
+
+      // Herkes proje önerebilir; admin onayına kadar 'pending' kalır.
+      allow create: if verifiedEmail()
+        && incoming().ownerId == uid()
+        && incoming().status == 'pending'
+        && incoming().stats == { 'members': 1, 'followers': 0, 'posts': 0, 'openOpportunities': 0 }
+        && str(incoming().name, 2, 60)
+        && str(incoming().tagline, 0, 100)
+        // Sahibin üyelik belgesi aynı batch içinde oluşturulmalı
+        && getAfter(membership(pid)).data.role == 'owner';
+
+      allow update: if (isProjectManager(pid)
+          && !changedKeys().hasAny(['status', 'ownerId', 'stats', 'createdAt', 'kind']))
+        || isAdmin();
+
+      allow delete: if isAdmin();
+
+      match /members/{memberId} {
+        allow read: if signedIn();
+        // Proje oluşturulurken sahibin kendini 'owner' olarak eklemesi (bootstrap)
+        allow create: if isSelf(memberId)
+          && !exists(projectPath(pid))
+          && getAfter(projectPath(pid)).data.ownerId == uid()
+          && incoming().role == 'owner';
+        // Diğer üyeler sadece başvuru kabulüyle (Function) eklenir.
+        // Yöneticiler unvan güncelleyebilir; rol değişimi sadece sahip/admin.
+        allow update: if (isProjectManager(pid) && onlyChanges(['title']))
+          || (signedIn() && project(pid).ownerId == uid() && existing().role != 'owner'
+              && onlyChanges(['role', 'title']) && incoming().role in ['admin', 'member'])
+          || isAdmin();
+        // Yönetici sahip olmayan üyeyi çıkarabilir; üye kendi ayrılabilir.
+        allow delete: if (canManage(pid) && existing().role != 'owner')
+          || (isSelf(memberId) && existing().role != 'owner');
+      }
+
+      match /opportunities/{oid} {
+        allow read: if existing().status != 'draft' || canManage(pid);
+
+        allow create: if isProjectManager(pid)
+          && project(pid).status == 'active'
+          && incoming().projectId == pid
+          && incoming().createdBy == uid()
+          && incoming().status in ['draft', 'open']
+          && incoming().applicationCount == 0
+          && incoming().filledCount == 0
+          && str(incoming().title, 3, 100)
+          && incoming().slots is int && incoming().slots >= 1 && incoming().slots <= 50
+          && incoming().questions.size() <= 3;
+
+        allow update: if canManage(pid)
+          && !changedKeys().hasAny(['projectId', 'applicationCount', 'filledCount', 'createdBy', 'createdAt'])
+          && incoming().status in ['draft', 'open', 'closed', 'filled'];
+
+        allow delete: if isAdmin() || (isProjectManager(pid) && existing().applicationCount == 0);
+      }
+
+      match /applications/{aid} {
+        allow read: if signedIn() && (existing().applicantId == uid() || canManage(pid));
+
+        // Tek tık başvuru: ID deterministik → aynı ilana tekrar başvuru imkânsız.
+        allow create: if verifiedEmail()
+          && aid == incoming().opportunityId + '_' + uid()
+          && incoming().applicantId == uid()
+          && incoming().projectId == pid
+          && incoming().status == 'submitted'
+          && incoming().matchScore == null
+          && incoming().statusHistory.size() == 0
+          && incoming().decidedBy == null
+          && str(incoming().message, 0, 1000)
+          && get(oppPath(pid, incoming().opportunityId)).data.status == 'open'
+          && !isProjectMember(pid);
+
+        allow update: if
+          // Başvuran: karar verilmeden geri çekebilir
+          (existing().applicantId == uid()
+            && existing().status in ['submitted', 'in_review', 'shortlisted']
+            && incoming().status == 'withdrawn'
+            && onlyChanges(['status', 'updatedAt']))
+          // Yönetici: "görüldü" işareti. Diğer kararlar callable reviewApplication ile.
+          || (canManage(pid)
+            && existing().status == 'submitted'
+            && incoming().status == 'in_review'
+            && onlyChanges(['status', 'updatedAt']));
+
+        allow delete: if false;
+
+        match /internal/{docId} {
+          allow read, write: if canManage(pid);
+        }
+      }
+    }
+
+    // Collection group sorguları: ilan tahtası + "Başvurularım" + admin paneli
+    match /{path=**}/opportunities/{oid} {
+      allow read: if resource.data.status in ['open', 'closed', 'filled'] || isAdmin();
+    }
+    match /{path=**}/applications/{aid} {
+      allow read: if signedIn() && (resource.data.applicantId == request.auth.uid || isAdmin());
+    }
+
+    // ─────────────── Akış ───────────────
+    match /posts/{postId} {
+      allow read: if existing().status == 'published' || existing().authorId == uid() || isMod();
+
+      allow create: if verifiedEmail()
+        && incoming().authorId == uid()
+        && incoming().status == 'published'
+        && str(incoming().text, 1, 500)
+        && incoming().media.size() <= 4
+        && incoming().replyCount == 0 && incoming().likeCount == 0 && incoming().repostCount == 0
+        && incoming().pinned == false
+        && incoming().type in ['text', 'update', 'announcement']
+        && (incoming().projectId == null || isProjectMember(incoming().projectId))
+        && (incoming().type != 'announcement'
+            || isAdmin()
+            || (incoming().projectId != null && isProjectManager(incoming().projectId)))
+        // Yanıtsa: parent mevcut ve yayında olmalı
+        && (incoming().parentId == null
+            || get(postPath(incoming().parentId)).data.status == 'published');
+
+      allow update: if (existing().authorId == uid()
+          && onlyChanges(['text', 'media', 'tags', 'mentions', 'editedAt', 'pinned'])
+          && str(incoming().text, 1, 500))
+        || (isMod() && onlyChanges(['status']));
+
+      allow delete: if existing().authorId == uid() || isMod();
+
+      match /likes/{likerId} {
+        allow read: if signedIn();
+        allow create: if isSelf(likerId) && incoming().keys().hasOnly(['createdAt']);
+        allow delete: if isSelf(likerId);
+        allow update: if false;
+      }
+    }
+
+    // ─────────────── Moderasyon / Sistem ───────────────
+    match /reports/{reportId} {
+      allow create: if signedIn() && incoming().reporterId == uid() && incoming().status == 'open';
+      allow read, update: if isMod();
+      allow delete: if isAdmin();
+    }
+
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /meta/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

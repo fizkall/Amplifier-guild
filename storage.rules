@@ -1,0 +1,39 @@
+rules_version = '2';
+// Amfiplier Guild — Storage kuralları
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() { return request.auth != null; }
+    function isImage(maxMb) {
+      return request.resource.contentType.matches('image/(png|jpeg|webp|gif)')
+        && request.resource.size < maxMb * 1024 * 1024;
+    }
+
+    // Profil fotoğrafı: herkes okur, sadece sahibi yazar
+    match /avatars/{uid}/{file} {
+      allow read: if true;
+      allow write: if signedIn() && request.auth.uid == uid && isImage(2);
+    }
+
+    // CV PDF: sadece sahibi + admin (yöneticiler kabul sonrası Function'dan imzalı URL alır)
+    match /cv/{uid}/{file} {
+      allow read: if signedIn() && (request.auth.uid == uid || request.auth.token.admin == true);
+      allow write: if signedIn() && request.auth.uid == uid
+        && request.resource.contentType == 'application/pdf'
+        && request.resource.size < 5 * 1024 * 1024;
+    }
+
+    // Gönderi medyası: yükleyen kendi klasörüne yazar
+    match /posts/{uid}/{postId}/{file} {
+      allow read: if true;
+      allow write: if signedIn() && request.auth.uid == uid && isImage(8);
+    }
+
+    // Proje logo/kapak: yükleme Function üzerinden veya admin
+    match /projects/{pid}/{file} {
+      allow read: if true;
+      allow write: if signedIn() && (request.auth.token.admin == true
+        || firestore.get(/databases/(default)/documents/projects/$(pid)/members/$(request.auth.uid)).data.role in ['owner', 'admin'])
+        && isImage(4);
+    }
+  }
+}
