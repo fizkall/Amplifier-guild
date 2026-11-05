@@ -27,7 +27,7 @@ function Jobs() {
     getDocs(query(collectionGroup(db, 'opportunities'), where('status', '==', 'open'), orderBy('createdAt', 'desc'), limit(50)))
       .then((s) => setOpps(s.docs.map((d) => ({ id: d.id, ...(d.data() as Opportunity) }))))
       .catch((e) => { console.error(e); setOpps([]); });
-    getDocs(query(collectionGroup(db, 'applications'), where('applicantId', '==', profile.uid)))
+    getDocs(query(collectionGroup(db, 'applications'), where('applicantId', '==', profile.uid), orderBy('createdAt', 'desc')))
       .then((s) => setApplied(new Set(s.docs.map((d) => d.get('opportunityId') as string))))
       .catch(() => {});
   }, [profile]);
