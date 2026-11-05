@@ -1,0 +1,61 @@
+# Firestore kuralları + indeksler + Storage kuralları → Firebase (amp-guild)
+# Kurulum (tek sefer): Firebase Console → Proje ayarları → Hizmet hesapları →
+# "Yeni özel anahtar oluştur" → indirilen JSON'un TAMAMINI GitHub repo →
+# Settings → Secrets and variables → Actions → New repository secret
+# adı: FIREBASE_SERVICE_ACCOUNT olarak ekle.
+name: Firebase kuralları ve indeksleri
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - firestore.rules
+      - firestore.indexes.json
+      - storage.rules
+      - firebase.json
+      - .github/workflows/firebase-deploy.yml
+  workflow_dispatch:
+
+concurrency:
+  group: firebase-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HAS_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+    steps:
+      - name: Anahtar kontrolü
+        if: env.HAS_KEY != 'true'
+        run: |
+          echo "::warning::FIREBASE_SERVICE_ACCOUNT secret'ı yok; dağıtım atlandı. Kurulum için bu dosyanın başındaki açıklamaya bakın."
+
+      - uses: actions/checkout@v4
+        if: env.HAS_KEY == 'true'
+
+      - uses: actions/setup-node@v4
+        if: env.HAS_KEY == 'true'
+        with:
+          node-version: 22
+
+      - name: Hizmet hesabı anahtarını yaz
+        if: env.HAS_KEY == 'true'
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/sa.json"
+
+      - name: Firestore kuralları + indeksler
+        if: env.HAS_KEY == 'true'
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+        run: npx -y firebase-tools@13 deploy --only firestore:rules,firestore:indexes --project amp-guild --non-interactive --force
+
+      - name: Storage kuralları (Storage açıksa)
+        if: env.HAS_KEY == 'true'
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+        run: npx -y firebase-tools@13 deploy --only storage --project amp-guild --non-interactive
+
+      - name: Anahtarı sil
+        if: always() && env.HAS_KEY == 'true'
+        run: rm -f "$RUNNER_TEMP/sa.json"
