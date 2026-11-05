@@ -216,3 +216,9 @@ html { scroll-behavior: smooth; }
 .ig-link { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
 .ig-link:hover { opacity: .75; }
 .main .site-footer { border-top: 0; padding-top: 20px; }
+.legal h3 { font-size: 16px; margin: 20px 0 8px; }
+.legal ul { margin: 0 0 12px; padding-left: 20px; color: var(--muted); font-size: 15px; line-height: 1.55; }
+.legal li { margin-bottom: 6px; }
+.legal li b, .legal p b { color: var(--text); }
+.legal a:not(.chip) { text-decoration: underline; text-underline-offset: 2px; color: var(--text); }
+.legal section { scroll-margin-top: 16px; }

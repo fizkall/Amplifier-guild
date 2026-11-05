@@ -16,6 +16,7 @@ export function Footer() {
       <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="ig-link">
         <InstagramIcon /> @amplifierguild
       </a>
+      <a href="/kvkk" className="meta" style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}>KVKK · Gizlilik · Çerezler</a>
       <div className="meta">Amplifier Guild ©2027</div>
     </footer>
   );

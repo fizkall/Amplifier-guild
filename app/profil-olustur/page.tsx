@@ -65,11 +65,14 @@ export default function Onboarding() {
     return () => clearTimeout(t);
   }, [handle, user?.uid]);
 
-  const isMinor = birthDate ? ageFrom(birthDate) < 18 : false;
+  const age = birthDate ? ageFrom(birthDate) : null;
+  const isMinor = age !== null && age < 18;
+  const tooYoung = age !== null && age < 13;
   const canSubmit = useMemo(
     () => handleState === 'free' && displayName.trim() && birthDate && kvkk && skills.length > 0
+      && !tooYoung
       && (!isMinor || (guardianName.trim() && /\S+@\S+\.\S+/.test(guardianEmail))),
-    [handleState, displayName, birthDate, kvkk, skills, isMinor, guardianName, guardianEmail],
+    [handleState, displayName, birthDate, kvkk, skills, isMinor, tooYoung, guardianName, guardianEmail],
   );
 
   function addSkill(s: string) {
@@ -183,7 +186,10 @@ export default function Onboarding() {
           </div>
         </div>
 
-        {isMinor && (
+        {tooYoung && (
+          <p className="error" role="alert" style={{ marginTop: 0 }}>Amplifier Guild'i kullanmak için en az 13 yaşında olmalısın.</p>
+        )}
+        {isMinor && !tooYoung && (
           <div className="notice" style={{ margin: '0 0 16px' }}>
             <p style={{ marginTop: 0 }}>18 yaşından küçük olduğun için veli bilgisi gerekiyor.</p>
             <div className="field"><label htmlFor="gn">Veli adı</label><input id="gn" className="input" value={guardianName} onChange={(e) => setGuardianName(e.target.value)} /></div>
@@ -243,7 +249,10 @@ export default function Onboarding() {
         </label>
         <label className="row" style={{ marginBottom: 20 }}>
           <input type="checkbox" checked={kvkk} onChange={(e) => setKvkk(e.target.checked)} />
-          KVKK aydınlatma metnini okudum, kişisel verilerimin işlenmesine onay veriyorum.
+          <span>
+            <a href="/kvkk" target="_blank" rel="noopener" style={{ textDecoration: 'underline' }}>KVKK aydınlatma metnini</a> okudum;
+            kişisel verilerimin işlenmesine ve yurt dışında (Firebase, Vercel) saklanmasına açık rıza veriyorum.
+          </span>
         </label>
 
         {err && <p className="error">{err}</p>}
