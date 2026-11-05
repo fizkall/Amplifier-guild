@@ -44,7 +44,10 @@ function ProjectView({ slug }: { slug: string }) {
         <div className="center" style={{ minHeight: 100 }}><div className="spinner" /></div>
       ) : opps.length ? opps.map((o) => (
         <Link key={o.id} href={`/ilan/${project.id}/${o.id}`} className="card row spread">
-          <div>
+          {o.coverUrl
+            ? <span className="opp-thumb" aria-hidden>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={o.coverUrl} alt="" /></span>
+            : <Avatar name={project.name} src={project.logoUrl} size={48} />}
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div className="post-name">{o.title}</div>
             <div className="meta">{ROLE_TYPE_LABEL[o.roleType]} · {o.commitment?.hoursPerWeek} sa/hafta · {o.location?.remote ? 'Uzaktan' : o.location?.city}</div>
           </div>

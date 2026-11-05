@@ -9,6 +9,7 @@ import type { Application, Opportunity } from '@/shared/models';
 import { computeMatchScore } from '@/shared/match';
 import { useAuth } from '@/lib/auth';
 import { db } from '@/lib/firebase';
+import { Avatar } from '@/components/Avatar';
 import { ROLE_TYPE_LABEL } from '@/lib/format';
 import { normalizeUrl } from '@/lib/image';
 
@@ -31,7 +32,11 @@ export function useOpenOpportunities(max = 50) {
       const errors: string[] = [];
       const lists = await Promise.all(projects.docs.map((p) =>
         getDocs(query(collection(db, 'projects', p.id, 'opportunities'), where('status', '==', 'open')))
-          .then((s) => s.docs.map((d) => ({ id: d.id, ...(d.data() as Opportunity) })))
+          .then((s) => s.docs.map((d) => {
+            const o = { id: d.id, ...(d.data() as Opportunity) };
+            const pr = p.data();
+            return { ...o, projectSnapshot: { name: pr.name ?? o.projectSnapshot?.name, slug: p.id, logoUrl: pr.logoUrl ?? null } };
+          }))
           .catch((e) => { console.error(e); errors.push(`${p.id}: ${(e as { code?: string }).code ?? e}`); return [] as Opp[]; })));
       if (errors.length && !cancelled) setError(errors.join(', '));
       const all = lists.flat()
@@ -131,18 +136,21 @@ export function OpportunityList({ max, filters = true, emptyText }: { max?: numb
       ) : (
         scored.map(({ o, score }) => (
           <div key={`${o.projectId}/${o.id}`} className="card stack">
-            {o.coverUrl && (
-              <Link href={`/ilan/${o.projectId}/${o.id}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={o.coverUrl} alt="" className="opp-cover" />
+            <div className="opp-head">
+              <Link href={`/proje/${o.projectId}`} aria-label={o.projectSnapshot?.name}>
+                <Avatar name={o.projectSnapshot?.name} src={o.projectSnapshot?.logoUrl} size={48} />
               </Link>
-            )}
-            <div className="row spread" style={{ alignItems: 'flex-start' }}>
-              <div>
+              <div style={{ minWidth: 0, flex: 1 }}>
                 <div className="meta"><Link href={`/proje/${o.projectId}`}>{o.projectSnapshot?.name}</Link></div>
                 <Link href={`/ilan/${o.projectId}/${o.id}`} className="post-name" style={{ fontSize: 16 }}>{o.title}</Link>
+                {score >= 50 && <div style={{ marginTop: 4 }}><span className={`badge-match${score >= 80 ? ' high' : ''}`}>%{score} uyum</span></div>}
               </div>
-              {score >= 50 && <span className={`badge-match${score >= 80 ? ' high' : ''}`}>%{score} uyum</span>}
+              {o.coverUrl && (
+                <Link href={`/ilan/${o.projectId}/${o.id}`} className="opp-thumb" aria-hidden tabIndex={-1}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={o.coverUrl} alt="" />
+                </Link>
+              )}
             </div>
             <div className="chips">
               <span className="chip solid">{ROLE_TYPE_LABEL[o.roleType] ?? o.roleType}</span>
