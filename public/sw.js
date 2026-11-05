@@ -1,7 +1,7 @@
 // Amplifier Guild — service worker
 // Sayfalar: ağ öncelikli, çevrimdışıysa önbellek. Statik dosyalar: önbellek öncelikli.
 // Firebase / Google istekleri hiç önbelleğe alınmaz.
-const CACHE = 'amplifier-v1';
+const CACHE = 'amplifier-v2';
 const PRECACHE = ['/', '/ana-sayfa', '/logo.png', '/icons/icon-192.png'];
 
 self.addEventListener('install', (e) => {

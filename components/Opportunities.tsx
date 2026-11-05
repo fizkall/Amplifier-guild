@@ -22,24 +22,30 @@ export type App = Application & { id: string };
 export function useOpenOpportunities(max = 50) {
   const { profile } = useAuth();
   const [opps, setOpps] = useState<Opp[] | null>(null);
+  const [error, setError] = useState('');
   useEffect(() => {
     if (!profile) return;
     let cancelled = false;
     (async () => {
       const projects = await getDocs(query(collection(db, 'projects'), where('status', '==', 'active')));
+      const errors: string[] = [];
       const lists = await Promise.all(projects.docs.map((p) =>
         getDocs(query(collection(db, 'projects', p.id, 'opportunities'), where('status', '==', 'open')))
           .then((s) => s.docs.map((d) => ({ id: d.id, ...(d.data() as Opportunity) })))
-          .catch(() => [] as Opp[])));
+          .catch((e) => { console.error(e); errors.push(`${p.id}: ${(e as { code?: string }).code ?? e}`); return [] as Opp[]; })));
+      if (errors.length && !cancelled) setError(errors.join(', '));
       const all = lists.flat()
         .filter((o) => !o.deadline || o.deadline.toDate() >= new Date())
         .sort((a, b) => (b.createdAt?.seconds ?? Date.now() / 1000) - (a.createdAt?.seconds ?? Date.now() / 1000))
         .slice(0, max);
       if (!cancelled) setOpps(all);
-    })().catch((e) => { console.error(e); if (!cancelled) setOpps([]); });
+    })().catch((e) => {
+      console.error(e);
+      if (!cancelled) { setError((e as { code?: string }).code ?? String(e)); setOpps([]); }
+    });
     return () => { cancelled = true; };
   }, [profile, max]);
-  return opps;
+  return { opps, error };
 }
 
 /**
@@ -74,7 +80,7 @@ export function useMyApplications() {
 /** İlan listesi: uyum skoruna göre sıralı kartlar + tek tık başvuru. */
 export function OpportunityList({ max, filters = true, emptyText }: { max?: number; filters?: boolean; emptyText?: string }) {
   const { profile } = useAuth();
-  const opps = useOpenOpportunities();
+  const { opps, error: loadError } = useOpenOpportunities();
   const { apps } = useMyApplications();
   const [extraApplied, setExtraApplied] = useState<string[]>([]);
   const [skill, setSkill] = useState<string | null>(null);
@@ -111,6 +117,13 @@ export function OpportunityList({ max, filters = true, emptyText }: { max?: numb
         </div>
       )}
 
+      {loadError && (
+        <div className="notice" role="alert">
+          <b>İlanlar yüklenirken bir sorun oldu.</b>
+          <div className="meta" style={{ wordBreak: 'break-all' }}>Hata: {loadError}</div>
+          <button className="btn" style={{ marginTop: 8 }} onClick={() => window.location.reload()}>Yeniden dene</button>
+        </div>
+      )}
       {opps === null ? (
         <div className="center" style={{ minHeight: 160 }}><div className="spinner" /></div>
       ) : scored.length === 0 ? (

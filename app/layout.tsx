@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { ServiceWorker } from '@/components/ServiceWorker';
+import { UpdateChecker } from '@/components/UpdateChecker';
 import { AuthProvider } from '@/lib/auth';
 import { THEME_INIT_SCRIPT } from '@/lib/theme-script';
 import './globals.css';
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthProvider>{children}</AuthProvider>
         <ServiceWorker />
+        <UpdateChecker />
       </body>
     </html>
   );

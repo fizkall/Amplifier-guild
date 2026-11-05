@@ -2,6 +2,10 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  env: {
+    // Vercel her deploy'da commit SHA'sını verir; istemci güncelleme kontrolü bunu kullanır
+    NEXT_PUBLIC_APP_VERSION: process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.VERCEL_DEPLOYMENT_ID ?? 'dev',
+  },
   async rewrites() {
     // amplifierguild.online/@ayse → profil sayfası
     return [{ source: '/@:handle', destination: '/profil/:handle' }];
