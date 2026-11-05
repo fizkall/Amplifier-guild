@@ -52,8 +52,8 @@ flowchart LR
 | **İstemci doğrudan Firestore'a yazar** (basit işlemler) | Gönderi atma, beğenme, profil düzenleme, başvuru → düşük gecikme, sunucu maliyeti yok. Güvenlik `firestore.rules`'ta. |
 | **Kritik işlemler Callable Function** | Başvuru kabul/ret, proje onayı, rol atama — birden fazla belgeyi atomik değiştirir, istemciye güvenilmez. |
 | **Sayaçlar trigger ile** | `likeCount`, `applicationCount` vb. istemciden yazılırsa manipüle edilir. |
-| **Ayrı Firebase projesi** | bumpermedia.online'dan bağımsız auth havuzu, kota, faturalandırma, KVKK sorumluluğu. Alan adı: ör. `guild.bumpermedia.online` (CNAME) veya bağımsız domain. |
-| **Hosting: Firebase App Hosting** (alternatif: Vercel) | Next.js SSR'ı native destekler, aynı GCP projesinde kalır, GitHub push → otomatik deploy. |
+| **Ayrı Firebase projesi + ayrı domain** | bumpermedia.online'dan bağımsız auth havuzu, kota, faturalandırma, KVKK sorumluluğu. Alan adı: **amplifierguild.online**. |
+| **Hosting: Vercel** (`amplifierguild` projesi) | GitHub repo bağlı: her push otomatik deploy (production + PR önizlemeleri). Next.js uygulaması repo kökünde. Firebase sadece backend (Auth, Firestore, Functions, Storage). |
 
 ---
 
@@ -277,7 +277,7 @@ Kod iskeleti: [`functions/src/index.ts`](../functions/src/index.ts)
 ## 4. Frontend mimarisi
 
 ```
-apps/web/                       (Next.js 15, TypeScript, Tailwind)
+/ (repo kökü)                   (Next.js 15, TypeScript, saf CSS tokenları — Vercel kökten derler)
 ├─ app/
 │  ├─ (auth)/login/             giriş
 │  ├─ (auth)/onboarding/        4 adımlı sihirbaz

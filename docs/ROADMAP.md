@@ -26,13 +26,15 @@ gantt
       Firestore bölgesi: `europe-west3` (KVKK + Türkiye'ye yakın gecikme). *Bölge sonradan değiştirilemez.*
 - [ ] Auth sağlayıcıları: Google + E-posta/Şifre. E-posta doğrulama şablonunu Türkçeleştir.
 - [ ] **App Check** (reCAPTCHA Enterprise) — önce *monitor* modda, Faz 5'te *enforce*.
-- [ ] Repo yapısı: `apps/web` (Next.js 15 + TS + Tailwind), `functions/`, `shared/`, `tests/`.
+- [x] Repo yapısı: kökte Next.js 15 uygulaması (`app/`, `components/`, `lib/`), `functions/`, `shared/`, `tests/`.
 - [ ] `firebase.json`, `firestore.rules`, `firestore.indexes.json`, `storage.rules` (bu repoda hazır).
 - [ ] Yerel geliştirme: `npm run emulators` → Auth + Firestore + Functions + Storage emülatörleri.
 - [ ] CI (GitHub Actions): PR'da `npm run test:rules` + `functions` tsc + web lint/build.
       `main`'e merge → dev ortamına deploy; tag → prod.
-- [ ] Hosting: **Firebase App Hosting** (Next.js SSR) ve alan adı (ör. `guild.bumpermedia.online` CNAME
-      ya da ayrı domain). bumpermedia.online ile sadece link/ortak marka paylaşılır, kod ve auth ayrı.
+- [x] Hosting: **Vercel** (`amplifierguild` projesi, GitHub'a bağlı → push = otomatik deploy), alan adı
+      **amplifierguild.online**. bumpermedia.online ile sadece link/ortak marka paylaşılır, kod ve auth ayrı.
+- [ ] Vercel → Environment Variables: `NEXT_PUBLIC_FIREBASE_*` (bkz. `.env.example`), Firebase Auth →
+      Authorized domains: `amplifierguild.online`, `www.amplifierguild.online`, `*.vercel.app` önizlemeleri.
 - [ ] Tasarım tokenları + temel UI bileşenleri ([DESIGN_SYSTEM.md](DESIGN_SYSTEM.md)): Button, Avatar,
       PostCard iskeleti, BottomNav/SideRail, Sheet (mobil alt panel), Skeleton.
 
@@ -120,10 +122,9 @@ gantt
 ## Hızlı başlangıç komutları
 
 ```bash
-npm install                       # kök: firebase-tools + kural testi bağımlılıkları
+npm install && npm run dev        # web uygulaması: http://localhost:3000 (.env.local gerekli)
 (cd functions && npm install)
-npm run emulators                 # http://localhost:4000 emülatör arayüzü
-npm run test:rules                # Firestore kural testleri (emülatörde)
+(cd tests && npm install && npm run test:rules)   # Firestore kural testleri (emülatörde)
 (cd functions && npm run build)   # Functions derleme
 firebase deploy --only firestore:rules,firestore:indexes,storage,functions --project <proje-id>
 ```

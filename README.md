@@ -35,6 +35,7 @@ bumpermedia.online'dan bağımsız, ayrı bir site ve Firebase projesi olarak ç
 
 ```
 .
+├─ app/ components/ lib/   Next.js web uygulaması (Vercel otomatik deploy)
 ├─ docs/                     Mimari, şema, yol haritası, tasarım sistemi
 ├─ shared/                   models.ts (ortak tipler) · match.ts (eşleştirme skoru)
 ├─ functions/                Cloud Functions v2 (TypeScript)
@@ -44,18 +45,19 @@ bumpermedia.online'dan bağımsız, ayrı bir site ve Firebase projesi olarak ç
 ├─ firestore.indexes.json    Bileşik indeksler
 ├─ storage.rules
 └─ firebase.json             Emülatör + deploy yapılandırması
-   (apps/web — Next.js istemcisi Faz 0'da eklenecek)
 ```
 
 ## Teknoloji
 
-Next.js 15 · TypeScript · Tailwind · Firebase Auth · Cloud Firestore · Cloud Storage ·
-Cloud Functions v2 · App Check · Firebase App Hosting
+Next.js 15 · TypeScript · Firebase Auth · Cloud Firestore · Cloud Storage ·
+Cloud Functions v2 · App Check · Vercel
 
 ## Başlangıç
 
 ```bash
-npm install && (cd functions && npm install)
-npm run emulators      # Firebase emülatörleri (UI: http://localhost:4000)
-npm run test:rules     # Firestore kural testleri
+cp .env.example .env.local   # Firebase web yapılandırmasını doldur
+npm install && npm run dev   # http://localhost:3000
+(cd tests && npm install && npm run test:rules)   # Firestore kural testleri
 ```
+
+Canlı: **https://amplifierguild.online** — `git push` → Vercel otomatik yayınlar.

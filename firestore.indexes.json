@@ -1,78 +1,330 @@
 {
   "indexes": [
-    { "collectionGroup": "posts", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "parentId", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
-    { "collectionGroup": "posts", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "parentId", "order": "ASCENDING" },
-      { "fieldPath": "authorId", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
-    { "collectionGroup": "posts", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "authorId", "order": "ASCENDING" },
-      { "fieldPath": "parentId", "order": "ASCENDING" },
-      { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
-    { "collectionGroup": "posts", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "authorId", "order": "ASCENDING" },
-      { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
-    { "collectionGroup": "posts", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "rootId", "order": "ASCENDING" },
-      { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "ASCENDING" } ] },
-    { "collectionGroup": "posts", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "projectId", "order": "ASCENDING" },
-      { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
-
-    { "collectionGroup": "opportunities", "queryScope": "COLLECTION_GROUP", "fields": [
-      { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
-    { "collectionGroup": "opportunities", "queryScope": "COLLECTION_GROUP", "fields": [
-      { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "requiredSkillSlugs", "arrayConfig": "CONTAINS" },
-      { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
-    { "collectionGroup": "opportunities", "queryScope": "COLLECTION_GROUP", "fields": [
-      { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "roleType", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
-    { "collectionGroup": "opportunities", "queryScope": "COLLECTION_GROUP", "fields": [
-      { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "deadline", "order": "ASCENDING" } ] },
-
-    { "collectionGroup": "applications", "queryScope": "COLLECTION_GROUP", "fields": [
-      { "fieldPath": "applicantId", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
-    { "collectionGroup": "applications", "queryScope": "COLLECTION_GROUP", "fields": [
-      { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "ASCENDING" } ] },
-    { "collectionGroup": "applications", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "opportunityId", "order": "ASCENDING" },
-      { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "matchScore", "order": "DESCENDING" } ] },
-    { "collectionGroup": "applications", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "DESCENDING" } ] },
-
-    { "collectionGroup": "projects", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "status", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "ASCENDING" } ] },
-
-    { "collectionGroup": "users", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "openToWork", "order": "ASCENDING" },
-      { "fieldPath": "skillSlugs", "arrayConfig": "CONTAINS" },
-      { "fieldPath": "updatedAt", "order": "DESCENDING" } ] },
-
-    { "collectionGroup": "notifications", "queryScope": "COLLECTION", "fields": [
-      { "fieldPath": "read", "order": "ASCENDING" },
-      { "fieldPath": "createdAt", "order": "DESCENDING" } ] }
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "parentId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "parentId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "authorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "authorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "parentId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "authorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "rootId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "parentId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "projectId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "opportunities",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "opportunities",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "requiredSkillSlugs",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "opportunities",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "roleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "opportunities",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deadline",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "applications",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "applicantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "applications",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "opportunityId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "matchScore",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "projects",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "openToWork",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "skillSlugs",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "updatedAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "read",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    }
   ],
   "fieldOverrides": [
-    { "collectionGroup": "posts", "fieldPath": "text", "indexes": [] },
-    { "collectionGroup": "opportunities", "fieldPath": "description", "indexes": [] },
-    { "collectionGroup": "projects", "fieldPath": "description", "indexes": [] },
-    { "collectionGroup": "users", "fieldPath": "bio", "indexes": [] }
+    {
+      "collectionGroup": "posts",
+      "fieldPath": "text",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "opportunities",
+      "fieldPath": "description",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "projects",
+      "fieldPath": "description",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "users",
+      "fieldPath": "bio",
+      "indexes": []
+    }
   ]
 }
