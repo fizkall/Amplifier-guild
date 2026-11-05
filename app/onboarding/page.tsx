@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import type { Program } from '@/shared/models';
 import { toSlug } from '@/shared/match';
+import { VerifyEmail } from '@/components/VerifyEmail';
 import { useAuth } from '@/lib/auth';
 import { db } from '@/lib/firebase';
 
@@ -19,7 +20,7 @@ function ageFrom(date: string) {
 }
 
 export default function Onboarding() {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, emailVerified } = useAuth();
   const router = useRouter();
 
   const [handle, setHandle] = useState('');
@@ -51,7 +52,7 @@ export default function Onboarding() {
       setDisplayName((d) => d || user.displayName || '');
       setHandle((h) => h || toSlug(user.email?.split('@')[0] ?? '').replace(/-/g, '_').slice(0, 24));
     }
-  }, [user, profile, loading, router]);
+  }, [user, profile, loading, emailVerified, router]);
 
   useEffect(() => {
     if (!handle) return setHandleState('idle');
@@ -138,6 +139,8 @@ export default function Onboarding() {
     idle: '', checking: 'Kontrol ediliyor…', free: '✓ Müsait', taken: 'Bu kullanıcı adı alınmış',
     invalid: '3–24 karakter: küçük harf, rakam, _ ve .',
   }[handleState];
+
+  if (user && !emailVerified) return <VerifyEmail />;
 
   return (
     <main className="shell">

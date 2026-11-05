@@ -7,19 +7,20 @@ import { useEffect, type ReactNode } from 'react';
 import { useAuth } from '@/lib/auth';
 import { firebaseReady } from '@/lib/firebase';
 import { SetupNotice } from './SetupNotice';
+import { VerifyEmail } from './VerifyEmail';
 import { HomeIcon, InboxIcon, JobsIcon, MenuIcon, UserIcon } from './Icons';
 
 /** Giriş + onboarding korumalı, Threads tarzı uygulama iskeleti. */
 export function AppShell({ title, children }: { title?: string; children: ReactNode }) {
-  const { user, profile, loading, signOut } = useAuth();
+  const { user, profile, loading, emailVerified, signOut } = useAuth();
   const router = useRouter();
   const path = usePathname();
 
   useEffect(() => {
     if (!firebaseReady || loading) return;
     if (!user) router.replace('/login');
-    else if (!profile?.onboardingComplete) router.replace('/onboarding');
-  }, [user, profile, loading, router]);
+    else if (emailVerified && !profile?.onboardingComplete) router.replace('/onboarding');
+  }, [user, profile, loading, emailVerified, router]);
 
   const items = [
     { href: '/feed', label: 'Akış', Icon: HomeIcon },
@@ -36,6 +37,8 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
       </Link>
     );
   });
+
+  if (firebaseReady && !loading && user && !emailVerified) return <VerifyEmail />;
 
   const ready = firebaseReady && !loading && user && profile?.onboardingComplete;
 
