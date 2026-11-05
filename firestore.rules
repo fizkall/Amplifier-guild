@@ -12,7 +12,11 @@ service cloud.firestore {
     function signedIn()      { return request.auth != null; }
     function uid()           { return request.auth.uid; }
     function isSelf(userId)  { return signedIn() && uid() == userId; }
-    function isAdmin()       { return signedIn() && request.auth.token.admin == true; }
+    // Guild yöneticileri: custom claim veya sabit UID listesi (lib/admin.ts ile aynı tutulmalı)
+    function isAdmin() {
+      return signedIn() && (request.auth.token.admin == true
+        || request.auth.uid in ['A3gNGw4d54T9QE3fCXfN2T5mLn63']);
+    }
     function isMod()         { return isAdmin() || (signedIn() && request.auth.token.moderator == true); }
     function verifiedEmail() { return signedIn() && request.auth.token.email_verified == true; }
 
@@ -32,8 +36,12 @@ service cloud.firestore {
       return /databases/$(database)/documents/projects/$(pid)/members/$(request.auth.uid);
     }
     function isProjectMember(pid)  { return signedIn() && exists(membership(pid)); }
+    function appPath(p, a)  { return /databases/$(database)/documents/projects/$(p)/applications/$(a); }
+    // Proje yöneticisi: projenin managerIds listesinde veya üyelik rolü owner/admin
     function isProjectManager(pid) {
-      return isProjectMember(pid) && get(membership(pid)).data.role in ['owner', 'admin'];
+      return signedIn() && (
+        uid() in project(pid).get('managerIds', [])
+        || (isProjectMember(pid) && get(membership(pid)).data.role in ['owner', 'admin']));
     }
     function canManage(pid) { return isAdmin() || isProjectManager(pid); }
 
@@ -73,12 +81,18 @@ service cloud.firestore {
 
       match /experiences/{expId} {
         allow read: if get(userPath(userId)).data.visibility == 'public' || signedIn();
-        allow create: if isSelf(userId)
+        allow create: if (isSelf(userId)
           && incoming().verified == false
           && incoming().type != 'guild_project'
           && incoming().source == null
           && str(incoming().title, 1, 100)
-          && str(incoming().description, 0, 1000);
+          && str(incoming().description, 0, 1000))
+          // Kabul edilen başvuru için doğrulanmış Guild deneyimi (aynı batch'te başvuru 'accepted')
+          || (incoming().verified == true
+            && incoming().type == 'guild_project'
+            && canManage(incoming().source.projectId)
+            && getAfter(appPath(incoming().source.projectId,
+                 incoming().source.opportunityId + '_' + userId)).data.status == 'accepted');
         // Doğrulanmış (Guild) kalemler kullanıcı tarafından düzenlenemez/silinemez
         allow update: if isSelf(userId)
           && existing().verified == false
@@ -121,47 +135,53 @@ service cloud.firestore {
     }
 
     // ─────────────── Projeler ───────────────
+    // Belge ID'si = slug. Guild admin projeyi açar, yöneticileri (managerIds) atar;
+    // yöneticiler kendi proje sayfasını, ilanlarını ve başvurularını yönetir.
     match /projects/{pid} {
-      allow read: if existing().status == 'active' || isProjectMember(pid) || isAdmin();
+      allow read: if existing().status == 'active'
+        || (signedIn() && uid() in existing().get('managerIds', []))
+        || isProjectMember(pid) || isAdmin();
 
-      // Herkes proje önerebilir; admin onayına kadar 'pending' kalır.
-      allow create: if verifiedEmail()
-        && incoming().ownerId == uid()
-        && incoming().status == 'pending'
-        && incoming().stats == { 'members': 1, 'followers': 0, 'posts': 0, 'openOpportunities': 0 }
-        && str(incoming().name, 2, 60)
-        && str(incoming().tagline, 0, 100)
-        // Sahibin üyelik belgesi aynı batch içinde oluşturulmalı
-        && getAfter(membership(pid)).data.role == 'owner';
+      allow create: if isAdmin()
+        // Kullanıcı önerisi: admin onayına kadar 'pending'
+        || (verifiedEmail()
+          && incoming().ownerId == uid()
+          && incoming().status == 'pending'
+          && incoming().get('managerIds', []).size() == 0
+          && str(incoming().name, 2, 60)
+          && str(incoming().tagline, 0, 100)
+          && getAfter(membership(pid)).data.role == 'owner');
 
-      allow update: if (isProjectManager(pid)
-          && !changedKeys().hasAny(['status', 'ownerId', 'stats', 'createdAt', 'kind']))
-        || isAdmin();
+      allow update: if isAdmin()
+        || (isProjectManager(pid)
+          && !changedKeys().hasAny(['status', 'ownerId', 'stats', 'createdAt', 'kind', 'managerIds', 'slug'])
+          && str(incoming().name, 2, 60)
+          && str(incoming().description, 0, 5000));
 
       allow delete: if isAdmin();
 
       match /members/{memberId} {
         allow read: if signedIn();
-        // Proje oluşturulurken sahibin kendini 'owner' olarak eklemesi (bootstrap)
-        allow create: if isSelf(memberId)
-          && !exists(projectPath(pid))
-          && getAfter(projectPath(pid)).data.ownerId == uid()
-          && incoming().role == 'owner';
-        // Diğer üyeler sadece başvuru kabulüyle (Function) eklenir.
-        // Yöneticiler unvan güncelleyebilir; rol değişimi sadece sahip/admin.
-        allow update: if (isProjectManager(pid) && onlyChanges(['title']))
-          || (signedIn() && project(pid).ownerId == uid() && existing().role != 'owner'
-              && onlyChanges(['role', 'title']) && incoming().role in ['admin', 'member'])
-          || isAdmin();
-        // Yönetici sahip olmayan üyeyi çıkarabilir; üye kendi ayrılabilir.
-        allow delete: if (canManage(pid) && existing().role != 'owner')
+        allow create: if isAdmin()
+          // Proje önerisinde sahibin kendini eklemesi (bootstrap)
+          || (isSelf(memberId)
+            && !exists(projectPath(pid))
+            && getAfter(projectPath(pid)).data.ownerId == uid()
+            && incoming().role == 'owner')
+          // Kabul edilen başvuran ekibe 'member' olarak eklenir (aynı batch'te başvuru 'accepted')
+          || (isProjectManager(pid)
+            && incoming().role == 'member'
+            && getAfter(appPath(pid, incoming().viaOpportunityId + '_' + memberId)).data.status == 'accepted');
+        allow update: if isAdmin() || (isProjectManager(pid) && onlyChanges(['title']));
+        allow delete: if isAdmin()
+          || (isProjectManager(pid) && existing().role == 'member')
           || (isSelf(memberId) && existing().role != 'owner');
       }
 
       match /opportunities/{oid} {
         allow read: if existing().status != 'draft' || canManage(pid);
 
-        allow create: if isProjectManager(pid)
+        allow create: if canManage(pid)
           && project(pid).status == 'active'
           && incoming().projectId == pid
           && incoming().createdBy == uid()
@@ -169,14 +189,19 @@ service cloud.firestore {
           && incoming().applicationCount == 0
           && incoming().filledCount == 0
           && str(incoming().title, 3, 100)
+          && str(incoming().description, 0, 8000)
           && incoming().slots is int && incoming().slots >= 1 && incoming().slots <= 50
-          && incoming().questions.size() <= 3;
+          && incoming().questions.size() <= 10
+          && incoming().links.size() <= 10;
 
         allow update: if canManage(pid)
-          && !changedKeys().hasAny(['projectId', 'applicationCount', 'filledCount', 'createdBy', 'createdAt'])
-          && incoming().status in ['draft', 'open', 'closed', 'filled'];
+          && !changedKeys().hasAny(['projectId', 'applicationCount', 'createdBy', 'createdAt'])
+          && incoming().status in ['draft', 'open', 'closed', 'filled']
+          && str(incoming().title, 3, 100)
+          && incoming().questions.size() <= 10
+          && incoming().links.size() <= 10;
 
-        allow delete: if isAdmin() || (isProjectManager(pid) && existing().applicationCount == 0);
+        allow delete: if canManage(pid);
       }
 
       match /applications/{aid} {
@@ -192,6 +217,7 @@ service cloud.firestore {
           && incoming().statusHistory.size() == 0
           && incoming().decidedBy == null
           && str(incoming().message, 0, 1000)
+          && incoming().answers.size() <= 10
           && get(oppPath(pid, incoming().opportunityId)).data.status == 'open'
           && !isProjectMember(pid);
 
@@ -201,16 +227,26 @@ service cloud.firestore {
             && existing().status in ['submitted', 'in_review', 'shortlisted']
             && incoming().status == 'withdrawn'
             && onlyChanges(['status', 'updatedAt']))
-          // Yönetici: "görüldü" işareti. Diğer kararlar callable reviewApplication ile.
+          // Proje yöneticisi / admin: değerlendirme
           || (canManage(pid)
-            && existing().status == 'submitted'
-            && incoming().status == 'in_review'
-            && onlyChanges(['status', 'updatedAt']));
+            && existing().status != 'withdrawn'
+            && incoming().status in ['in_review', 'shortlisted', 'accepted', 'rejected']
+            && onlyChanges(['status', 'updatedAt', 'statusHistory', 'decidedBy', 'decidedAt'])
+            && incoming().statusHistory.size() == existing().statusHistory.size() + 1);
 
-        allow delete: if false;
+        allow delete: if isAdmin();
 
         match /internal/{docId} {
           allow read, write: if canManage(pid);
+        }
+
+        // Başvuranın iletişim bilgisi: başvuruyla birlikte yazılır, yöneticiye yalnızca KABUL sonrası açılır
+        match /contact/{docId} {
+          allow create: if signedIn() && getAfter(appPath(pid, aid)).data.applicantId == uid();
+          allow read: if signedIn() && (
+            get(appPath(pid, aid)).data.applicantId == uid()
+            || isAdmin()
+            || (isProjectManager(pid) && get(appPath(pid, aid)).data.status == 'accepted'));
         }
       }
     }

@@ -101,18 +101,25 @@ export interface Experience {
 
 export type ProjectStatus = 'pending' | 'active' | 'paused' | 'archived' | 'rejected';
 
+export type SocialKey = 'website' | 'instagram' | 'linkedin' | 'x' | 'youtube' | 'github' | 'tiktok';
+
+/** Belge ID'si = slug (projects/{slug}). */
 export interface Project {
   name: string;
   slug: string;
   tagline: string;
+  /** Hakkında metni. */
   description: string;
+  /** Küçültülmüş görsel (data URL) veya https adresi. */
   logoUrl: string | null;
   coverUrl: string | null;
   kind: 'guild_internal' | 'partner_startup' | 'community';
   ownerId: string;
+  /** Projeyi yönetebilen kullanıcılar (sorgu + kural için members ile senkron). */
+  managerIds: string[];
   status: ProjectStatus;
   tags: string[];
-  links: Partial<Record<'website' | 'instagram' | 'linkedin', string>>;
+  links: Partial<Record<SocialKey, string>>;
   stats: { members: number; followers: number; posts: number; openOpportunities: number };
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -134,11 +141,17 @@ export interface ProjectMember {
 export type OpportunityStatus = 'draft' | 'open' | 'closed' | 'filled';
 export type RoleType = 'volunteer' | 'internship' | 'part_time' | 'project_based';
 
+export type QuestionType = 'text' | 'textarea' | 'url' | 'select';
+
+/** İlana özel başvuru formu alanı. */
 export interface OpportunityQuestion {
   id: string;
   label: string;
+  type: QuestionType;
   required: boolean;
   maxLength: number;
+  /** Sadece 'select' için. */
+  options?: string[];
 }
 
 export interface Opportunity {
@@ -146,13 +159,17 @@ export interface Opportunity {
   projectSnapshot: ProjectSnapshot;
   title: string;
   description: string;
+  /** İlan görseli (data URL veya https). */
+  coverUrl: string | null;
+  /** İlgili bağlantılar (ör. proje dokümanı, tanıtım videosu). */
+  links: { label: string; url: string }[];
   roleType: RoleType;
   commitment: { hoursPerWeek: number; durationWeeks: number | null };
   location: { remote: boolean; city: string | null };
   requiredSkills: string[];
   requiredSkillSlugs: string[];
   niceToHaveSkillSlugs: string[];
-  questions: OpportunityQuestion[]; // ≤ 3
+  questions: OpportunityQuestion[]; // ≤ 10
   slots: number;
   /** Sadece Cloud Functions. */
   filledCount: number;

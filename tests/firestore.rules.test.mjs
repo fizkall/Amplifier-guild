@@ -5,7 +5,7 @@ import {
   assertFails, assertSucceeds, initializeTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import {
-  collectionGroup, doc, getDocs, query, serverTimestamp, setDoc, updateDoc, where, writeBatch,
+  collection, collectionGroup, doc, getDoc, getDocs, query, serverTimestamp, setDoc, updateDoc, where, writeBatch,
 } from 'firebase/firestore';
 
 let env;
@@ -120,9 +120,9 @@ describe('İlan tahtası & başvuru', () => {
     });
     test('yönetici "görüldü" işaretler', async () => {
       await assertSucceeds(updateDoc(doc(verified('owner'), 'projects/p1/applications/o1_ayse'),
-        { status: 'in_review', updatedAt: serverTimestamp() }));
+        { status: 'in_review', statusHistory: [{ status: 'in_review', by: 'owner' }], updatedAt: serverTimestamp() }));
     });
-    test('yönetici istemciden doğrudan kabul edemez (callable zorunlu)', async () => {
+    test('geçmiş kaydı eklemeden durum değiştirilemez', async () => {
       await assertFails(updateDoc(doc(verified('owner'), 'projects/p1/applications/o1_ayse'),
         { status: 'accepted', updatedAt: serverTimestamp() }));
     });
@@ -159,5 +159,104 @@ describe('Projeler', () => {
   });
   test('başka projeye kendini üye ekleyemez', async () => {
     await assertFails(setDoc(doc(verified('ayse'), 'projects/p1/members/ayse'), { uid: 'ayse', role: 'owner' }));
+  });
+});
+
+describe('Admin & proje yöneticisi', () => {
+  const ADMIN = 'A3gNGw4d54T9QE3fCXfN2T5mLn63';
+  const newProject = (extra = {}) => ({
+    name: 'Volt Robotics', slug: 'volt', tagline: 'x', description: 'Hakkında', logoUrl: null, coverUrl: null,
+    kind: 'partner_startup', ownerId: ADMIN, managerIds: [], status: 'active', tags: [], links: {},
+    stats: { members: 0, followers: 0, posts: 0, openOpportunities: 0 }, ...extra,
+  });
+  const opp = (extra = {}) => ({
+    projectId: 'volt', projectSnapshot: { name: 'Volt', slug: 'volt', logoUrl: null }, title: 'Yazılım',
+    description: 'd', coverUrl: null, links: [], roleType: 'volunteer', commitment: { hoursPerWeek: 5, durationWeeks: null },
+    location: { remote: true, city: null }, requiredSkills: [], requiredSkillSlugs: [], niceToHaveSkillSlugs: [],
+    questions: [], slots: 2, filledCount: 0, applicationCount: 0, status: 'open', deadline: null,
+    createdBy: 'mgr', createdAt: serverTimestamp(), updatedAt: serverTimestamp(), ...extra,
+  });
+
+  test('admin aktif proje açar', async () => {
+    await assertSucceeds(setDoc(doc(verified(ADMIN), 'projects/volt'), newProject()));
+  });
+  test('admin olmayan aktif proje açamaz', async () => {
+    await assertFails(setDoc(doc(verified('mert'), 'projects/volt'), newProject({ ownerId: 'mert' })));
+  });
+
+  describe('yönetici atanmış proje', () => {
+    beforeEach(() => env.withSecurityRulesDisabled(async (c) => {
+      const db = c.firestore();
+      await setDoc(doc(db, 'projects/volt'), newProject({ managerIds: ['mgr'] }));
+      await setDoc(doc(db, 'projects/volt/opportunities/o1'), opp());
+      await setDoc(doc(db, 'projects/volt/applications/o1_ayse'), application('o1', 'ayse', { projectId: 'volt' }));
+    }));
+
+    test('admin UID ile yönetici atar (managerIds + üyelik)', async () => {
+      const db = verified(ADMIN);
+      const b = writeBatch(db);
+      b.update(doc(db, 'projects/volt'), { managerIds: ['mgr', 'zeynep'] });
+      b.set(doc(db, 'projects/volt/members/zeynep'), { uid: 'zeynep', role: 'admin' });
+      await assertSucceeds(b.commit());
+    });
+    test('yönetici kendine başka yönetici ekleyemez', async () => {
+      await assertFails(updateDoc(doc(verified('mgr'), 'projects/volt'), { managerIds: ['mgr', 'arkadas'] }));
+    });
+    test('yönetici proje sayfasını düzenler', async () => {
+      await assertSucceeds(updateDoc(doc(verified('mgr'), 'projects/volt'), { description: 'Yeni hakkında', name: 'Volt Robotics' }));
+    });
+    test('yönetici projeyi kendisi aktif/pasif yapamaz', async () => {
+      await assertFails(updateDoc(doc(verified('mgr'), 'projects/volt'), { status: 'archived' }));
+    });
+    test('yönetici ilan açar', async () => {
+      await assertSucceeds(setDoc(doc(verified('mgr'), 'projects/volt/opportunities/o2'), opp({ createdBy: 'mgr' })));
+    });
+    test('yetkisiz kullanıcı ilan açamaz', async () => {
+      await assertFails(setDoc(doc(verified('mert'), 'projects/volt/opportunities/o2'), opp({ createdBy: 'mert' })));
+    });
+    test('yönetici ilanın başvurularını listeler', async () => {
+      await assertSucceeds(getDocs(query(collection(verified('mgr'), 'projects/volt/applications'), where('opportunityId', '==', 'o1'))));
+    });
+    test('yetkisiz kullanıcı başvuruları listeleyemez', async () => {
+      await assertFails(getDocs(query(collection(verified('mert'), 'projects/volt/applications'), where('opportunityId', '==', 'o1'))));
+    });
+
+    const acceptBatch = (db) => {
+      const b = writeBatch(db);
+      b.update(doc(db, 'projects/volt/applications/o1_ayse'), {
+        status: 'accepted', statusHistory: [{ status: 'accepted', by: 'mgr' }],
+        decidedBy: 'mgr', decidedAt: serverTimestamp(), updatedAt: serverTimestamp(),
+      });
+      b.set(doc(db, 'projects/volt/members/ayse'), { uid: 'ayse', role: 'member', title: 'Yazılım', viaOpportunityId: 'o1' });
+      b.set(doc(db, 'users/ayse/experiences/x1'), {
+        type: 'guild_project', title: 'Yazılım', organization: 'Volt', verified: true,
+        source: { projectId: 'volt', opportunityId: 'o1' }, description: '', order: -1,
+      });
+      b.update(doc(db, 'projects/volt/opportunities/o1'), { filledCount: 1, updatedAt: serverTimestamp(), title: 'Yazılım', questions: [], links: [], status: 'open' });
+      return b.commit();
+    };
+    test('yönetici başvuruyu kabul eder: üyelik + doğrulanmış deneyim + kontenjan', async () => {
+      await assertSucceeds(acceptBatch(verified('mgr')));
+    });
+    test('yetkisiz kullanıcı kabul edemez', async () => {
+      await assertFails(acceptBatch(verified('mert')));
+    });
+    test('başvuru kabul edilmeden doğrulanmış deneyim eklenemez', async () => {
+      await assertFails(setDoc(doc(verified('mgr'), 'users/ayse/experiences/x2'), {
+        type: 'guild_project', title: 'Hile', organization: 'Volt', verified: true,
+        source: { projectId: 'volt', opportunityId: 'o1' }, description: '', order: -1,
+      }));
+    });
+    test('iletişim bilgisi kabulden önce yöneticiye kapalı, sonra açık', async () => {
+      await env.withSecurityRulesDisabled((c) => setDoc(doc(c.firestore(), 'projects/volt/applications/o1_ayse/contact/info'), { email: 'a@x.com' }));
+      await assertFails(getDoc(doc(verified('mgr'), 'projects/volt/applications/o1_ayse/contact/info')));
+      await acceptBatch(verified('mgr'));
+      await assertSucceeds(getDoc(doc(verified('mgr'), 'projects/volt/applications/o1_ayse/contact/info')));
+    });
+        test('başvuran kendi başvurusunu kabul edemez', async () => {
+      await assertFails(updateDoc(doc(verified('ayse'), 'projects/volt/applications/o1_ayse'), {
+        status: 'accepted', statusHistory: [{ status: 'accepted' }], decidedBy: 'ayse', decidedAt: serverTimestamp(), updatedAt: serverTimestamp(),
+      }));
+    });
   });
 });

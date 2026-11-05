@@ -1,30 +1,18 @@
 'use client';
-/* eslint-disable @next/next/no-img-element */
 
-import { collection, getDocs, limit, query, where } from 'firebase/firestore';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import type { Opportunity, Project } from '@/shared/models';
 import { AppShell } from '@/components/AppShell';
 import { Avatar } from '@/components/Avatar';
-import { db, firebaseReady } from '@/lib/firebase';
+import { SocialLinks } from '@/components/SocialLinks';
+import { firebaseReady } from '@/lib/firebase';
 import { ROLE_TYPE_LABEL } from '@/lib/format';
+import { KIND_LABEL, useCanManage, useProject, useProjectOpportunities } from '@/lib/projects';
 
 function ProjectView({ slug }: { slug: string }) {
-  const [project, setProject] = useState<(Project & { id: string }) | null | undefined>(undefined);
-  const [opps, setOpps] = useState<(Opportunity & { id: string })[]>([]);
-
-  useEffect(() => {
-    (async () => {
-      const s = await getDocs(query(collection(db, 'projects'), where('slug', '==', slug), where('status', '==', 'active'), limit(1)));
-      if (s.empty) return setProject(null);
-      const p = { id: s.docs[0].id, ...(s.docs[0].data() as Project) };
-      setProject(p);
-      const o = await getDocs(query(collection(db, 'projects', p.id, 'opportunities'), where('status', '==', 'open')));
-      setOpps(o.docs.map((d) => ({ id: d.id, ...(d.data() as Opportunity) })));
-    })().catch((e) => { console.error(e); setProject(null); });
-  }, [slug]);
+  const project = useProject(slug);
+  const canManage = useCanManage(project);
+  const opps = useProjectOpportunities(project ? project.id : undefined, false);
 
   if (project === undefined) return <div className="center" style={{ minHeight: 200 }}><div className="spinner" /></div>;
   if (project === null) return <div className="empty">Proje bulunamadı.</div>;
@@ -32,25 +20,36 @@ function ProjectView({ slug }: { slug: string }) {
   return (
     <>
       <div className="pad stack">
-        <div className="row">
-          <Avatar name={project.name} src={project.logoUrl} size={64} />
-          <div>
+        <div className="row" style={{ alignItems: 'center' }}>
+          <Avatar name={project.name} src={project.logoUrl} size={72} />
+          <div style={{ minWidth: 0 }}>
             <h1 className="h1">{project.name}</h1>
-            <div className="meta">{project.tagline}</div>
+            {project.tagline && <div className="meta">{project.tagline}</div>}
+            <div className="meta" style={{ fontSize: 12, marginTop: 2 }}>{KIND_LABEL[project.kind] ?? ''}</div>
           </div>
         </div>
-        <p className="post-text">{project.description}</p>
-        <div className="meta">{project.stats?.members ?? 0} üye · {project.stats?.followers ?? 0} takipçi</div>
+        <SocialLinks links={project.links} />
+        {canManage && <Link href={`/proje/${project.id}/yonet`} className="btn" style={{ textAlign: 'center' }}>Projeyi yönet</Link>}
       </div>
-      <div className="tabs"><div className="tab active">Açık pozisyonlar ({opps.length})</div></div>
-      {opps.length ? opps.map((o) => (
-        <div key={o.id} className="card row spread">
+
+      {project.description && (
+        <>
+          <div className="section-head"><span>Hakkında</span></div>
+          <p className="post-text pad" style={{ margin: 0 }}>{project.description}</p>
+        </>
+      )}
+
+      <div className="section-head"><span>Açık pozisyonlar</span><span className="meta">{opps?.length ?? ''}</span></div>
+      {opps === null ? (
+        <div className="center" style={{ minHeight: 100 }}><div className="spinner" /></div>
+      ) : opps.length ? opps.map((o) => (
+        <Link key={o.id} href={`/ilan/${project.id}/${o.id}`} className="card row spread">
           <div>
             <div className="post-name">{o.title}</div>
-            <div className="meta">{ROLE_TYPE_LABEL[o.roleType]} · {o.commitment?.hoursPerWeek} sa/hafta</div>
+            <div className="meta">{ROLE_TYPE_LABEL[o.roleType]} · {o.commitment?.hoursPerWeek} sa/hafta · {o.location?.remote ? 'Uzaktan' : o.location?.city}</div>
           </div>
-          <Link href="/ilanlar" className="btn btn-primary">Başvur</Link>
-        </div>
+          <span className="btn btn-primary">İncele</span>
+        </Link>
       )) : <div className="empty">Şu an açık pozisyon yok.</div>}
     </>
   );
@@ -58,5 +57,5 @@ function ProjectView({ slug }: { slug: string }) {
 
 export default function ProjectPage() {
   const { slug } = useParams<{ slug: string }>();
-  return <AppShell title="Proje">{firebaseReady && <ProjectView slug={slug} />}</AppShell>;
+  return <AppShell title="Proje">{firebaseReady && <ProjectView slug={decodeURIComponent(slug)} />}</AppShell>;
 }

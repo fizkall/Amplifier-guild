@@ -37,6 +37,20 @@ Forum / akış bölümü yoktur: site yalnızca öğrenci ↔ proje eşleştirme
 | `/basvurularim` | Başvuru takibi |
 | `/profil/{kullanici}` veya `/@{kullanici}` | Profil / CV |
 | `/proje/{slug}` | Proje sayfası |
+| `/ilan/{proje}/{ilan}` | İlan detayı + site içi başvuru formu |
+| `/ayarlar` | Hesap, UID, yönetim bağlantıları |
+| `/yonetim` | Guild yönetim paneli (admin) |
+
+## Yönetim ve roller
+
+| Rol | Kim | Yapabildikleri |
+|---|---|---|
+| **Guild yöneticisi (admin)** | `lib/admin.ts` + `firestore.rules` içindeki UID listesi | Girişim/proje açar (logo, isim, sosyal medya, hakkında), proje yöneticisi atar, tüm ilan ve başvuruları yönetir. **Ayarlar → Yönetim Paneli** (`/yonetim`) |
+| **Proje yöneticisi** | Admin'in UID veya @kullanıcı adıyla atadığı kişi | Kendi proje sayfasını düzenler, ilan verir (başlık, açıklama, görsel, bağlantılar, ilana özel başvuru formu), başvuruları değerlendirir. **Ayarlar → Yönettiğim projeler** (`/proje/{slug}/yonet`) |
+| **Öğrenci** | Herkes | İlanlara site içindeki formla başvurur |
+
+Başvurular her ilanın kendi sayfasında birikir (`/proje/{slug}/ilan/{id}/basvurular`). Kabul edilen kişi ekibe eklenir,
+profiline ✔ doğrulanmış deneyim yazılır; e-postası yöneticiye yalnızca kabulden sonra açılır.
 
 ## Uygulama olarak yükleme (PWA)
 

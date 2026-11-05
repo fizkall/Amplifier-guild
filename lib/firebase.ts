@@ -1,6 +1,6 @@
 import { getApp, getApps, initializeApp, type FirebaseApp } from 'firebase/app';
-import { getAuth, type Auth } from 'firebase/auth';
-import { getFirestore, type Firestore } from 'firebase/firestore';
+import { connectAuthEmulator, getAuth, type Auth } from 'firebase/auth';
+import { connectFirestoreEmulator, getFirestore, type Firestore } from 'firebase/firestore';
 
 // Firebase web yapılandırması gizli değildir (tarayıcıya zaten gönderilir); güvenlik
 // firestore.rules + App Check ile sağlanır. Ortam değişkenleri varsa onlar önceliklidir.
@@ -24,3 +24,13 @@ if (firebaseReady && typeof window !== 'undefined') {
 
 export const auth = (app ? getAuth(app) : null) as Auth;
 export const db = (app ? getFirestore(app) : null) as Firestore;
+
+// Yerel test: NEXT_PUBLIC_USE_EMULATORS=1 ile Firebase emülatörlerine bağlanır (canlıda kullanılmaz)
+if (app && process.env.NEXT_PUBLIC_USE_EMULATORS === '1') {
+  const g = globalThis as { __fbEmu?: boolean };
+  if (!g.__fbEmu) {
+    connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+    connectFirestoreEmulator(db, '127.0.0.1', 8080);
+    g.__fbEmu = true;
+  }
+}

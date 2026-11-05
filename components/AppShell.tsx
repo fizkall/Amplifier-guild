@@ -9,7 +9,7 @@ import { firebaseReady } from '@/lib/firebase';
 import { Footer } from './Footer';
 import { SetupNotice } from './SetupNotice';
 import { VerifyEmail } from './VerifyEmail';
-import { HomeIcon, InboxIcon, JobsIcon, MenuIcon, UserIcon } from './Icons';
+import { HomeIcon, InboxIcon, JobsIcon, MenuIcon, SettingsIcon, UserIcon } from './Icons';
 
 /** Giriş + onboarding korumalı, Threads tarzı uygulama iskeleti. */
 export function AppShell({ title, children }: { title?: string; children: ReactNode }) {
@@ -28,6 +28,7 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
     { href: '/ilanlar', label: 'İlanlar', Icon: JobsIcon },
     { href: '/basvurularim', label: 'Başvurularım', Icon: InboxIcon },
     { href: profile ? `/profil/${profile.handle}` : '/ana-sayfa', label: 'Profil', Icon: UserIcon },
+    { href: '/ayarlar', label: 'Ayarlar', Icon: SettingsIcon },
   ];
 
   const nav = items.map(({ href, label, Icon }) => {

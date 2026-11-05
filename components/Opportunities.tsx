@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  collection, collectionGroup, doc, getDoc, getDocs, limit, orderBy, query, serverTimestamp, setDoc, where,
+  collectionGroup, doc, getDoc, getDocs, limit, orderBy, query, serverTimestamp, where, writeBatch,
 } from 'firebase/firestore';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
@@ -10,6 +10,7 @@ import { computeMatchScore } from '@/shared/match';
 import { useAuth } from '@/lib/auth';
 import { db } from '@/lib/firebase';
 import { ROLE_TYPE_LABEL } from '@/lib/format';
+import { normalizeUrl } from '@/lib/image';
 
 export type Opp = Opportunity & { id: string };
 export type App = Application & { id: string };
@@ -52,7 +53,7 @@ export function OpportunityList({ max, filters = true, emptyText }: { max?: numb
   const [open, setOpen] = useState<Opp | null>(null);
 
   const applied = useMemo(
-    () => new Set([...(apps ?? []).filter((a) => a.status !== 'withdrawn').map((a) => a.opportunityId), ...extraApplied]),
+    () => new Set([...(apps ?? []).map((a) => a.opportunityId), ...extraApplied]),
     [apps, extraApplied],
   );
 
@@ -88,10 +89,16 @@ export function OpportunityList({ max, filters = true, emptyText }: { max?: numb
       ) : (
         scored.map(({ o, score }) => (
           <div key={`${o.projectId}/${o.id}`} className="card stack">
+            {o.coverUrl && (
+              <Link href={`/ilan/${o.projectId}/${o.id}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={o.coverUrl} alt="" className="opp-cover" />
+              </Link>
+            )}
             <div className="row spread" style={{ alignItems: 'flex-start' }}>
               <div>
-                <div className="meta"><Link href={`/proje/${o.projectSnapshot?.slug}`}>{o.projectSnapshot?.name}</Link></div>
-                <div className="post-name" style={{ fontSize: 16 }}>{o.title}</div>
+                <div className="meta"><Link href={`/proje/${o.projectId}`}>{o.projectSnapshot?.name}</Link></div>
+                <Link href={`/ilan/${o.projectId}/${o.id}`} className="post-name" style={{ fontSize: 16 }}>{o.title}</Link>
               </div>
               {score >= 50 && <span className={`badge-match${score >= 80 ? ' high' : ''}`}>%{score} uyum</span>}
             </div>
@@ -121,24 +128,35 @@ export function OpportunityList({ max, filters = true, emptyText }: { max?: numb
   );
 }
 
-function ApplySheet({ opp, onClose, onDone }: { opp: Opp; onClose: () => void; onDone: () => void }) {
-  const { profile } = useAuth();
+/** İlana özel başvuru formu — site içinde açılır. */
+export function ApplySheet({ opp, onClose, onDone }: { opp: Opp; onClose: () => void; onDone: () => void }) {
+  const { profile, user } = useAuth();
   const [message, setMessage] = useState('');
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
-  if (!profile) return null;
+  if (!profile || !user) return null;
 
-  const missing = (opp.questions ?? []).some((q) => q.required && !answers[q.id]?.trim());
+  const questions = opp.questions ?? [];
+  const invalidUrl = questions.some((q) => q.type === 'url' && answers[q.id]?.trim() && !normalizeUrl(answers[q.id]));
+  const missing = questions.some((q) => q.required && !answers[q.id]?.trim());
 
   async function apply() {
-    if (!profile) return;
+    if (!profile || !user) return;
     setBusy(true);
     setErr('');
     try {
       const member = await getDoc(doc(db, 'projects', opp.projectId, 'members', profile.uid));
       if (member.exists()) throw new Error('member');
-      await setDoc(doc(collection(db, 'projects', opp.projectId, 'applications'), `${opp.id}_${profile.uid}`), {
+      const clean: Record<string, string> = {};
+      for (const q of questions) {
+        const v = answers[q.id]?.trim();
+        if (v) clean[q.id] = (q.type === 'url' ? normalizeUrl(v) ?? v : v).slice(0, q.maxLength || 2000);
+      }
+      const aid = `${opp.id}_${profile.uid}`;
+      const appRef = doc(db, 'projects', opp.projectId, 'applications', aid);
+      const batch = writeBatch(db);
+      batch.set(appRef, {
         opportunityId: opp.id,
         projectId: opp.projectId,
         applicantId: profile.uid,
@@ -148,7 +166,7 @@ function ApplySheet({ opp, onClose, onDone }: { opp: Opp; onClose: () => void; o
           displayName: profile.displayName, handle: profile.handle, photoURL: profile.photoURL,
           headline: profile.headline, skills: profile.skills, programs: profile.programs, school: profile.school,
         },
-        answers,
+        answers: clean,
         message: message.trim().slice(0, 1000),
         matchScore: null,
         status: 'submitted',
@@ -158,40 +176,55 @@ function ApplySheet({ opp, onClose, onDone }: { opp: Opp; onClose: () => void; o
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
+      // İletişim bilgisi ayrı belge: yöneticiye yalnızca kabul sonrası açılır
+      batch.set(doc(appRef, 'contact', 'info'), { email: user.email ?? '', createdAt: serverTimestamp() });
+      await batch.commit();
       onDone();
     } catch (e) {
       console.error(e);
-      setErr((e as Error).message === 'member' ? 'Zaten bu projenin ekibindesin.' : 'Başvuru gönderilemedi (zaten başvurmuş olabilirsin).');
+      setErr((e as Error).message === 'member' ? 'Zaten bu projenin ekibindesin.' : 'Başvuru gönderilemedi (zaten başvurmuş olabilirsin ya da ilan kapanmış olabilir).');
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Başvuru" onClick={onClose}
-      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.6)', zIndex: 50, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-      <div onClick={(e) => e.stopPropagation()} className="pad"
-        style={{ background: 'var(--surface-raised)', width: '100%', maxWidth: 560, borderRadius: '24px 24px 0 0', border: '1px solid var(--border)', maxHeight: '90dvh', overflow: 'auto' }}>
+    <div role="dialog" aria-modal="true" aria-label="Başvuru formu" className="sheet-backdrop" onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} className="sheet pad">
         <div className="meta">{opp.projectSnapshot?.name}</div>
         <h2 className="h1" style={{ fontSize: 19, marginBottom: 12 }}>{opp.title}</h2>
-        <p className="meta" style={{ marginTop: 0 }}>Profilin (@{profile.handle}) CV olarak gönderilecek.</p>
-        {(opp.questions ?? []).map((q) => (
+        <p className="meta" style={{ marginTop: 0 }}>Profilin (@{profile.handle}) CV olarak başvuruna eklenecek.</p>
+        {questions.map((q) => (
           <div className="field" key={q.id}>
-            <label>{q.label}{q.required && ' *'}</label>
-            <textarea className="input" rows={3} maxLength={q.maxLength} value={answers[q.id] ?? ''} onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })} />
+            <label htmlFor={`q-${q.id}`}>{q.label}{q.required && ' *'}</label>
+            {q.type === 'textarea' ? (
+              <textarea id={`q-${q.id}`} className="input" rows={4} maxLength={q.maxLength || 2000}
+                value={answers[q.id] ?? ''} onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })} />
+            ) : q.type === 'select' ? (
+              <select id={`q-${q.id}`} className="input" value={answers[q.id] ?? ''}
+                onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}>
+                <option value="">Seç…</option>
+                {(q.options ?? []).map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
+            ) : (
+              <input id={`q-${q.id}`} className="input" type={q.type === 'url' ? 'url' : 'text'} inputMode={q.type === 'url' ? 'url' : undefined}
+                placeholder={q.type === 'url' ? 'https://…' : ''} maxLength={q.maxLength || 300}
+                value={answers[q.id] ?? ''} onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })} />
+            )}
+            {q.type === 'url' && answers[q.id]?.trim() && !normalizeUrl(answers[q.id]) && <span className="error">Geçerli bir bağlantı gir.</span>}
           </div>
         ))}
         <div className="field">
-          <label>Kısa not (isteğe bağlı)</label>
-          <textarea className="input" rows={3} maxLength={1000} value={message} onChange={(e) => setMessage(e.target.value)} />
+          <label htmlFor="q-msg">Kısa not (isteğe bağlı)</label>
+          <textarea id="q-msg" className="input" rows={3} maxLength={1000} value={message} onChange={(e) => setMessage(e.target.value)} />
         </div>
+        <p className="meta" style={{ fontSize: 12 }}>E-posta adresin proje yöneticisiyle yalnızca başvurun kabul edilirse paylaşılır.</p>
         {err && <p className="error">{err}</p>}
         <div className="row spread">
           <button className="btn" onClick={onClose}>Vazgeç</button>
-          <button className="btn btn-primary" disabled={busy || missing} onClick={apply}>{busy ? 'Gönderiliyor…' : 'Başvuruyu gönder'}</button>
+          <button className="btn btn-primary" disabled={busy || missing || invalidUrl} onClick={apply}>{busy ? 'Gönderiliyor…' : 'Başvuruyu gönder'}</button>
         </div>
       </div>
     </div>
   );
 }
-

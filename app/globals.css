@@ -222,3 +222,10 @@ html { scroll-behavior: smooth; }
 .legal li b, .legal p b { color: var(--text); }
 .legal a:not(.chip) { text-decoration: underline; text-underline-offset: 2px; color: var(--text); }
 .legal section { scroll-margin-top: 16px; }
+.sheet-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 50; display: flex; align-items: flex-end; justify-content: center; }
+.sheet {
+  background: var(--surface-raised); width: 100%; max-width: 560px; border-radius: 24px 24px 0 0;
+  border: 1px solid var(--border); max-height: 92dvh; overflow: auto; padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+.opp-cover { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 16px; border: 1px solid var(--border); display: block; }
+select.input { appearance: none; }
