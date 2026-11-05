@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 const CONTACT = 'fizkall34en@gmail.com';
-const UPDATED = '5 Kasım 2026';
+const UPDATED = '6 Kasım 2026';
 
 export default function KvkkPage() {
   return (
@@ -41,6 +41,7 @@ export default function KvkkPage() {
             <li><b>Yaş ve veli bilgileri:</b> doğum tarihi; 18 yaşından küçük kullanıcılar için veli adı, veli e-postası ve veli onayının tarihi.</li>
             <li><b>Başvuru verileri:</b> başvurduğun ilanlar, başvuru notun ve ek soru cevapların, uyum skoru, başvuru durumu ve geçmişi, kabul edildiğin projeler ve doğrulanmış deneyimler.</li>
             <li><b>Onay kayıtları:</b> bu aydınlatma metnini kabul ettiğin tarih.</li>
+            <li><b>İletişim formu:</b> iletişim sayfasından gönderdiğin ad, e-posta, konu ve mesaj (yalnızca sana dönüş yapmak için).</li>
             <li><b>Teknik veriler:</b> oturum bilgisi, tarayıcı tercihleri ve hata kayıtları.</li>
           </ul>
 
@@ -110,8 +111,9 @@ export default function KvkkPage() {
             bildirebilirsin.
           </p>
           <p>
-            <b>Hesap silme:</b> Hesabını ve verilerini silmek için <a href={`mailto:${CONTACT}`}>{CONTACT}</a>
-            adresine kayıtlı e-posta adresinden yazman yeterlidir.
+            <b>Hesabı devre dışı bırakma ve silme:</b> <b>Ayarlar → Hesabı devre dışı bırak veya sil</b> bölümünden
+            profilini gizleyebilir ya da hesabını ve verilerini kalıcı olarak kendin silebilirsin. Dilersen
+            <a href={`mailto:${CONTACT}`}> {CONTACT}</a> adresine yazarak da talep edebilirsin.
           </p>
         </section>
 

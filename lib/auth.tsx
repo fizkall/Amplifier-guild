@@ -1,9 +1,10 @@
 'use client';
 
 import {
-  createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, sendEmailVerification,
+  createUserWithEmailAndPassword, deleteUser, EmailAuthProvider, GoogleAuthProvider, linkWithCredential,
+  onAuthStateChanged, reauthenticateWithCredential, reauthenticateWithPopup, sendEmailVerification,
   sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut as fbSignOut,
-  updateProfile, type User,
+  updatePassword, updateProfile, type User,
 } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
@@ -24,6 +25,15 @@ interface AuthState {
   /** Doğrulama linkine tıklandıktan sonra: kullanıcıyı ve ID token'ı yeniler. */
   refreshVerification: () => Promise<boolean>;
   signOut: () => Promise<void>;
+  /** Hesapta e-posta/şifre girişi var mı? */
+  hasPassword: boolean;
+  hasGoogle: boolean;
+  /** Hassas işlemlerden önce kimliği yeniden doğrular (şifre veya Google penceresi). */
+  reauthenticate: (password?: string) => Promise<void>;
+  changePassword: (current: string, next: string) => Promise<void>;
+  /** Google ile giren kullanıcıya şifreyle giriş de ekler. */
+  addPassword: (next: string) => Promise<void>;
+  deleteAuthUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -53,6 +63,10 @@ export function authErrorMessage(e: unknown): string {
     'auth/unauthorized-domain': 'Bu alan adı Firebase\'de yetkili değil (Authorized domains).',
     'auth/operation-not-allowed': 'Bu giriş yöntemi Firebase\'de etkin değil.',
     'auth/account-exists-with-different-credential': 'Bu e-posta başka bir giriş yöntemiyle kayıtlı.',
+    'auth/requires-recent-login': 'Güvenlik için tekrar giriş yapman gerekiyor.',
+    'auth/provider-already-linked': 'Bu hesapta zaten şifre var.',
+    'auth/credential-already-in-use': 'Bu giriş bilgisi başka bir hesapta kullanılıyor.',
+    'auth/user-mismatch': 'Farklı bir hesapla doğruladın; kendi hesabını seç.',
   };
   return map[code] ?? 'Bir şeyler ters gitti. Tekrar dene.';
 }
@@ -62,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [emailVerified, setEmailVerified] = useState(false);
   const [profile, setProfile] = useState<AuthState['profile']>(null);
   const [loading, setLoading] = useState(firebaseReady);
+  const [, bump] = useState(0); // user.reload() sonrası yeniden çizim için
 
   useEffect(() => {
     if (!firebaseReady) return;
@@ -122,6 +137,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     refreshVerification,
     signOut: () => fbSignOut(auth),
+    hasPassword: Boolean(user?.providerData.some((p) => p.providerId === 'password')),
+    hasGoogle: Boolean(user?.providerData.some((p) => p.providerId === 'google.com')),
+    reauthenticate: async (password) => {
+      const u = auth.currentUser;
+      if (!u) throw new Error('no-user');
+      if (password && u.email) await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, password));
+      else await reauthenticateWithPopup(u, new GoogleAuthProvider());
+    },
+    changePassword: async (current, next) => {
+      const u = auth.currentUser;
+      if (!u?.email) throw new Error('no-user');
+      await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, current));
+      await updatePassword(u, next);
+    },
+    addPassword: async (next) => {
+      const u = auth.currentUser;
+      if (!u?.email) throw new Error('no-user');
+      await reauthenticateWithPopup(u, new GoogleAuthProvider());
+      await linkWithCredential(u, EmailAuthProvider.credential(u.email, next));
+      await u.reload();
+      bump((n) => n + 1);
+    },
+    deleteAuthUser: async () => {
+      if (auth.currentUser) await deleteUser(auth.currentUser);
+    },
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

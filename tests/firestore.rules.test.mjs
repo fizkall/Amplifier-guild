@@ -5,7 +5,7 @@ import {
   assertFails, assertSucceeds, initializeTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import {
-  collection, collectionGroup, doc, getDoc, getDocs, query, serverTimestamp, setDoc, updateDoc, where, writeBatch,
+  collection, collectionGroup, deleteDoc, doc, getDoc, getDocs, query, serverTimestamp, setDoc, updateDoc, where, writeBatch,
 } from 'firebase/firestore';
 
 let env;
@@ -257,6 +257,62 @@ describe('Admin & proje yöneticisi', () => {
       await assertFails(updateDoc(doc(verified('ayse'), 'projects/volt/applications/o1_ayse'), {
         status: 'accepted', statusHistory: [{ status: 'accepted' }], decidedBy: 'ayse', decidedAt: serverTimestamp(), updatedAt: serverTimestamp(),
       }));
+    });
+  });
+});
+
+describe('Hesap ayarları & iletişim', () => {
+  const msg = (extra = {}) => ({
+    name: 'Ali', email: 'ali@ornek.com', subject: 'Merhaba', message: 'Proje önerim var', topic: 'proje',
+    status: 'new', uid: null, createdAt: serverTimestamp(), ...extra,
+  });
+  test('giriş yapmamış ziyaretçi iletişim formu gönderir', async () => {
+    await assertSucceeds(setDoc(doc(env.unauthenticatedContext().firestore(), 'messages/m1'), msg()));
+  });
+  test('giriş yapmış kullanıcı kendi uid ile gönderir', async () => {
+    await assertSucceeds(setDoc(doc(verified('ayse'), 'messages/m2'), msg({ uid: 'ayse' })));
+  });
+  test('başkası adına / geçersiz e-posta ile mesaj gönderilemez', async () => {
+    await assertFails(setDoc(doc(verified('ayse'), 'messages/m3'), msg({ uid: 'mert' })));
+    await assertFails(setDoc(doc(verified('ayse'), 'messages/m4'), msg({ uid: 'ayse', email: 'gecersiz' })));
+  });
+  test('mesajları sadece admin okur', async () => {
+    await assertFails(getDocs(collection(verified('ayse'), 'messages')));
+    await assertSucceeds(getDocs(collection(verified('A3gNGw4d54T9QE3fCXfN2T5mLn63'), 'messages')));
+  });
+
+  describe('mevcut kullanıcı', () => {
+    beforeEach(() => env.withSecurityRulesDisabled(async (c) => {
+      const db = c.firestore();
+      await setDoc(doc(db, 'handles/ayse'), { uid: 'ayse' });
+      await setDoc(doc(db, 'users/ayse'), userDoc('ayse', 'ayse'));
+      await setDoc(doc(db, 'users/ayse/private/profile'), { email: 'a@x.com' });
+      await setDoc(doc(db, 'users/ayse/experiences/v1'), { type: 'guild_project', verified: true, title: 'X', description: '' });
+    }));
+    test('devre dışı hesap başkalarına görünmez, sahibine görünür', async () => {
+      await assertSucceeds(updateDoc(doc(verified('ayse'), 'users/ayse'), { deactivated: true, updatedAt: serverTimestamp() }));
+      await assertFails(getDoc(doc(verified('mert'), 'users/ayse')));
+      await assertSucceeds(getDoc(doc(verified('ayse'), 'users/ayse')));
+    });
+    test('kullanıcı hesabını ve verilerini silebilir', async () => {
+      const db = verified('ayse');
+      const b = writeBatch(db);
+      b.delete(doc(db, 'users/ayse/experiences/v1'));
+      b.delete(doc(db, 'users/ayse/private/profile'));
+      b.delete(doc(db, 'handles/ayse'));
+      b.delete(doc(db, 'users/ayse'));
+      await assertSucceeds(b.commit());
+    });
+    test('başkasının hesabı silinemez', async () => {
+      await assertFails(deleteDoc(doc(verified('mert'), 'users/ayse')));
+    });
+    test('kullanıcı adı değiştirme (yeni handle + eskisini sil + profil)', async () => {
+      const db = verified('ayse');
+      const b = writeBatch(db);
+      b.set(doc(db, 'handles/ayse_yeni'), { uid: 'ayse' });
+      b.delete(doc(db, 'handles/ayse'));
+      b.update(doc(db, 'users/ayse'), { handle: 'ayse_yeni', updatedAt: serverTimestamp() });
+      await assertSucceeds(b.commit());
     });
   });
 });

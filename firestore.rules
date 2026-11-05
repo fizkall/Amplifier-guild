@@ -47,7 +47,10 @@ service cloud.firestore {
 
     // ─────────────── Kullanıcılar ───────────────
     match /users/{userId} {
-      allow read: if existing().visibility == 'public' || signedIn();
+      // Devre dışı bırakılmış hesaplar yalnızca sahibine ve admine görünür
+      allow read: if isSelf(userId) || isAdmin()
+        || (existing().get('deactivated', false) != true
+            && (existing().visibility == 'public' || signedIn()));
 
       // İlk profil oluşturma (onboarding). Korunan alanlar başlangıç değerinde olmalı.
       allow create: if isSelf(userId)
@@ -71,12 +74,12 @@ service cloud.firestore {
         && (!('handle' in changedKeys())
             || getAfter(handlePath(incoming().handle)).data.uid == userId);
 
-      allow delete: if false; // Hesap silme → callable Function (KVKK silme talebi)
+      allow delete: if isSelf(userId) || isAdmin(); // Ayarlar → Hesabı sil
 
       match /private/{docId} {
         allow read: if isSelf(userId) || isAdmin();
         allow create, update: if isSelf(userId);
-        allow delete: if false;
+        allow delete: if isSelf(userId) || isAdmin();
       }
 
       match /experiences/{expId} {
@@ -98,7 +101,8 @@ service cloud.firestore {
           && existing().verified == false
           && !changedKeys().hasAny(['verified', 'source', 'type'])
           || (isSelf(userId) && existing().verified == true && onlyChanges(['order']));
-        allow delete: if isSelf(userId) && existing().verified == false;
+        // Doğrulanmış kalemler düzenlenemez; ama kişi kendi CV'sinden (ve hesap silmede) kaldırabilir
+        allow delete: if isSelf(userId) || isAdmin();
       }
 
       match /following/{targetId} {
@@ -243,6 +247,7 @@ service cloud.firestore {
         // Başvuranın iletişim bilgisi: başvuruyla birlikte yazılır, yöneticiye yalnızca KABUL sonrası açılır
         match /contact/{docId} {
           allow create: if signedIn() && getAfter(appPath(pid, aid)).data.applicantId == uid();
+          allow delete: if signedIn() && (get(appPath(pid, aid)).data.applicantId == uid() || isAdmin());
           allow read: if signedIn() && (
             get(appPath(pid, aid)).data.applicantId == uid()
             || isAdmin()
@@ -260,6 +265,21 @@ service cloud.firestore {
     }
 
     // ─────────────── Moderasyon / Sistem ───────────────
+    // ─────────────── İletişim formu ───────────────
+    match /messages/{msgId} {
+      allow create: if str(incoming().name, 1, 80)
+        && str(incoming().email, 3, 120) && incoming().email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+        && str(incoming().subject, 0, 120)
+        && str(incoming().message, 1, 3000)
+        && incoming().topic in ['genel', 'proje', 'destek', 'kvkk', 'diger']
+        && incoming().status == 'new'
+        && incoming().uid == (signedIn() ? uid() : null)
+        && incoming().createdAt == request.time
+        && incoming().keys().hasOnly(['name', 'email', 'subject', 'message', 'topic', 'status', 'uid', 'createdAt']);
+      allow read, delete: if isAdmin();
+      allow update: if isAdmin() && onlyChanges(['status']);
+    }
+
     match /reports/{reportId} {
       allow create: if signedIn() && incoming().reporterId == uid() && incoming().status == 'open';
       allow read, update: if isMod();

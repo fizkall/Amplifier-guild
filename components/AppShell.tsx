@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth';
 import { firebaseReady } from '@/lib/firebase';
 import { Footer } from './Footer';
 import { SetupNotice } from './SetupNotice';
+import { Reactivate } from './Reactivate';
 import { VerifyEmail } from './VerifyEmail';
 import { HomeIcon, InboxIcon, JobsIcon, MenuIcon, SettingsIcon, UserIcon } from './Icons';
 
@@ -19,6 +20,7 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
 
   useEffect(() => {
     if (!firebaseReady || loading) return;
+    try { if (sessionStorage.getItem('ag-deleting')) return; } catch { /* yok say */ }
     if (!user) router.replace('/');
     else if (emailVerified && !profile?.onboardingComplete) router.replace('/profil-olustur');
   }, [user, profile, loading, emailVerified, router]);
@@ -41,6 +43,7 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
   });
 
   if (firebaseReady && !loading && user && !emailVerified) return <VerifyEmail />;
+  if (firebaseReady && !loading && user && (profile as { deactivated?: boolean } | null)?.deactivated) return <Reactivate />;
 
   const ready = firebaseReady && !loading && user && profile?.onboardingComplete;
 

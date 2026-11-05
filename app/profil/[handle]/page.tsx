@@ -44,6 +44,14 @@ function Profile({ handle }: { handle: string }) {
           <Avatar name={user.displayName} src={user.photoURL} size={72} />
         </div>
         {user.headline && <p style={{ margin: 0 }}>{user.headline}</p>}
+        {user.bio && <p className="post-text meta" style={{ margin: 0 }}>{user.bio}</p>}
+        {Object.entries(user.links ?? {}).filter(([, v]) => v).length > 0 && (
+          <div className="chips">
+            {Object.entries(user.links ?? {}).filter(([, v]) => v).map(([k, v]) => (
+              <a key={k} href={v as string} target="_blank" rel="noopener noreferrer" className="chip">{({ github: 'GitHub', linkedin: 'LinkedIn', portfolio: 'Portfolyo', instagram: 'Instagram' } as Record<string, string>)[k] ?? k} ↗</a>
+            ))}
+          </div>
+        )}
         <div className="chips">
           {user.programs?.map((p, i) => (
             <span key={i} className="chip solid">{p.program}{p.teamNumber ? ` #${p.teamNumber}` : ''}{p.role ? ` · ${p.role}` : ''}</span>
@@ -76,7 +84,7 @@ function Profile({ handle }: { handle: string }) {
 
       {isMe && (
         <div className="pad" style={{ display: 'flex', justifyContent: 'center' }}>
-          <div className="row"><a href="/hakkinda" className="btn">Hakkında</a><button className="btn" onClick={() => signOut()}>Çıkış yap</button></div>
+          <div className="row"><a href="/ayarlar/profil" className="btn btn-primary">Profili düzenle</a><a href="/ayarlar" className="btn">Ayarlar</a></div>
         </div>
       )}
     </>

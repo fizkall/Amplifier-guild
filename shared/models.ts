@@ -63,6 +63,8 @@ export interface UserProfile {
   /** Sadece admin / Cloud Functions yazar. */
   badges: string[];
   onboardingComplete: boolean;
+  /** Ayarlar → Hesabı devre dışı bırak. */
+  deactivated?: boolean;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }

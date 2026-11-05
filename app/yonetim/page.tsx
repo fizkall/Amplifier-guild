@@ -21,6 +21,7 @@ function Panel() {
         <h1 className="h1">Yönetim Paneli</h1>
         <p className="meta" style={{ margin: 0 }}>Girişim ve projeleri aç, sayfalarını düzenle, yönetici ata, ilan ver ve başvuruları yönet.</p>
         <Link href="/yonetim/yeni-proje" className="btn btn-primary btn-lg" style={{ textAlign: 'center' }}>+ Yeni girişim / proje</Link>
+        <Link href="/yonetim/mesajlar" className="btn" style={{ textAlign: 'center' }}>İletişim mesajları</Link>
       </div>
       <div className="section-head"><span>Girişimler ve projeler</span><span className="meta">{projects?.length ?? ''}</span></div>
       {projects === null ? (

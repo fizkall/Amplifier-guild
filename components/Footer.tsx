@@ -16,7 +16,11 @@ export function Footer() {
       <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="ig-link">
         <InstagramIcon /> @amplifierguild
       </a>
-      <a href="/kvkk" className="meta" style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}>KVKK · Gizlilik · Çerezler</a>
+      <div className="row meta" style={{ gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+        <a href="/hakkinda" style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}>Hakkında</a>
+        <a href="/iletisim" style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}>İletişim</a>
+        <a href="/kvkk" style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}>KVKK · Gizlilik · Çerezler</a>
+      </div>
       <div className="meta">Amplifier Guild ©2027</div>
     </footer>
   );

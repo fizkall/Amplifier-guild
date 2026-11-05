@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { About } from '@/components/About';
 import { Footer } from '@/components/Footer';
 import { InstallPrompt } from '@/components/InstallPrompt';
@@ -13,12 +13,19 @@ import { useAuth } from '@/lib/auth';
 export default function Landing() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [notice, setNotice] = useState('');
   useEffect(() => {
     if (!loading && user) router.replace('/ana-sayfa');
   }, [user, loading, router]);
+  useEffect(() => {
+    const h = new URLSearchParams(window.location.search).get('hesap');
+    if (h === 'silindi') setNotice('Hesabın ve verilerin silindi. Seni tekrar görmek isteriz 👋');
+    if (h === 'devre-disi') setNotice('Hesabın devre dışı bırakıldı. Tekrar giriş yaparak istediğin zaman etkinleştirebilirsin.');
+  }, []);
 
   return (
     <main>
+      {notice && <div className="notice" role="status" style={{ maxWidth: 560, margin: '16px auto 0' }}>{notice}</div>}
       <section className="hero" style={{ minHeight: '88dvh' }}>
         <img className="logo-img" src="/logo.png" alt="Amplifier Guild logosu" width={112} height={112} />
         <div className="bars" aria-hidden><span /><span /><span /><span /><span /></div>
