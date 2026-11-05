@@ -121,6 +121,7 @@ export default function Login() {
         </div>
       )}
 
+      <a href="/hakkinda" className="link-btn strong">Amfiplier Guild nedir? →</a>
       <p className="meta" style={{ fontSize: 12, maxWidth: 360 }}>
         Devam ederek KVKK aydınlatma metnini ve kullanım koşullarını kabul etmiş olursun.
       </p>

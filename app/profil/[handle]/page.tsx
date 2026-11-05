@@ -76,7 +76,7 @@ function Profile({ handle }: { handle: string }) {
 
       {isMe && (
         <div className="pad" style={{ display: 'flex', justifyContent: 'center' }}>
-          <button className="btn" onClick={() => signOut()}>Çıkış yap</button>
+          <div className="row"><a href="/hakkinda" className="btn">Hakkında</a><button className="btn" onClick={() => signOut()}>Çıkış yap</button></div>
         </div>
       )}
     </>

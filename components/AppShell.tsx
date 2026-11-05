@@ -18,7 +18,7 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
 
   useEffect(() => {
     if (!firebaseReady || loading) return;
-    if (!user) router.replace('/giris');
+    if (!user) router.replace('/');
     else if (emailVerified && !profile?.onboardingComplete) router.replace('/profil-olustur');
   }, [user, profile, loading, emailVerified, router]);
 
