@@ -1,5 +1,5 @@
 /**
- * Amfiplier Guild — Firestore veri modelleri (frontend + Cloud Functions ortak).
+ * Amplifier Guild — Firestore veri modelleri (frontend + Cloud Functions ortak).
  * Şema dokümanı: docs/FIRESTORE_SCHEMA.md
  *
  * Not: `Timestamp` tipi istemcide `firebase/firestore`, Functions'ta `firebase-admin/firestore`

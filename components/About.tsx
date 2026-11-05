@@ -16,12 +16,12 @@ const PILLARS = [
   {
     t: 'Güçlü network ve ekosistem iş birlikleri',
     en: 'Network & Partnerships',
-    d: 'Bir projenin büyümesi için doğru insanlarla tanışması şarttır. Amfiplier Guild, projeleri hem kendi topluluk ağıyla hem de dış dünyadaki paydaşlarla buluşturarak güçlü bir köprü kurar. Girişimler mentorluk alabileceği, ortak projeler yürütebileceği ve stratejik iş birlikleri kurabileceği geniş bir network desteğine sahip olur.',
+    d: 'Bir projenin büyümesi için doğru insanlarla tanışması şarttır. Amplifier Guild, projeleri hem kendi topluluk ağıyla hem de dış dünyadaki paydaşlarla buluşturarak güçlü bir köprü kurar. Girişimler mentorluk alabileceği, ortak projeler yürütebileceği ve stratejik iş birlikleri kurabileceği geniş bir network desteğine sahip olur.',
   },
   {
     t: 'Dijital tanıtım, görünürlük ve marka desteği',
     en: 'Visibility & Branding',
-    d: 'Projelerin kitlelere ulaşması büyüme yolculuklarında hayati bir rol oynar. Proje sayfaları, açık pozisyonlar ve topluluk dinamikleri sayesinde projeler; güncellemelerini, duyurularını ve başarı hikâyelerini doğrudan hedef kitleye duyurur. Amfiplier Guild, projelerin sesini amfi etkisiyle daha geniş kitlelere ulaştırır.',
+    d: 'Projelerin kitlelere ulaşması büyüme yolculuklarında hayati bir rol oynar. Proje sayfaları, açık pozisyonlar ve topluluk dinamikleri sayesinde projeler; güncellemelerini, duyurularını ve başarı hikâyelerini doğrudan hedef kitleye duyurur. Amplifier Guild, projelerin sesini amfi etkisiyle daha geniş kitlelere ulaştırır.',
   },
   {
     t: 'Operasyonel kolaylık ve dijital altyapı',
@@ -31,26 +31,26 @@ const PILLARS = [
   {
     t: 'Sürdürülebilir genç yetenek havuzu',
     en: 'Sustainable Talent Pipeline',
-    d: 'Girişimler ve projeler sürekli değişen ve gelişen bir dinamiğe ihtiyaç duyar. Amfiplier Guild, sürekli yeni gençlerin katıldığı, öğrendiği ve ürettiği yaşayan bir yapı olduğu için projelere taze kan sağlar. Projeler anlık bir ekip bulmakla kalmaz; uzun vadeli, sürdürülebilir bir insan kaynağı sirkülasyonuna kavuşur.',
+    d: 'Girişimler ve projeler sürekli değişen ve gelişen bir dinamiğe ihtiyaç duyar. Amplifier Guild, sürekli yeni gençlerin katıldığı, öğrendiği ve ürettiği yaşayan bir yapı olduğu için projelere taze kan sağlar. Projeler anlık bir ekip bulmakla kalmaz; uzun vadeli, sürdürülebilir bir insan kaynağı sirkülasyonuna kavuşur.',
   },
 ];
 
 const FAQ = [
-  { q: 'Ücretli mi?', a: 'Hayır. Öğrenciler için Amfiplier Guild tamamen ücretsizdir.' },
+  { q: 'Ücretli mi?', a: 'Hayır. Öğrenciler için Amplifier Guild tamamen ücretsizdir.' },
   { q: 'Kimler katılabilir?', a: 'FRC, FTC, FLL, TEKNOFEST, TÜBİTAK, WRO, MUN gibi topluluklarda yer almış ya da yer almak isteyen lise ve üniversite öğrencileri.' },
   { q: '18 yaşından küçüğüm, katılabilir miyim?', a: 'Evet. Kayıt sırasında veli bilgisi ve onayı istenir. İletişim bilgilerin yalnızca kabul edildiğin projenin yöneticisiyle paylaşılır.' },
   { q: 'Projeler nereden geliyor?', a: 'Guild\'in kendi kurduğu girişimler, anlaşmalı startup\'lar ve topluluk projeleri. Her proje yayına girmeden önce Guild tarafından onaylanır.' },
-  { q: 'Neden "Amfiplier"?', a: 'Okulların "amfi" kültüründen ve potansiyeli yükselten bir ses "amplifier"ından geliyor: amfiden sahneye, sesini yükselt.' },
+  { q: 'Neden "Amplifier"?', a: 'İngilizcede "amplifier", Türkçede kısaca "amfi": sesi yükselten cihaz. Okullardaki "amfi" kültürüne de selam veriyor. İkisi bir arada: amfiden sahneye, potansiyelini yükselt.' },
 ];
 
-/** Amfiplier Guild tanıtım içeriği — karşılama sayfasında ve /hakkinda'da kullanılır. */
+/** Amplifier Guild tanıtım içeriği — karşılama sayfasında ve /hakkinda'da kullanılır. */
 export function About({ cta = true }: { cta?: boolean }) {
   return (
     <div className="about">
       <section className="about-sec">
-        <h2>Amfiplier Guild nedir?</h2>
+        <h2>Amplifier Guild nedir?</h2>
         <p>
-          Amfiplier Guild; teknoloji, robotik, yazılım, tasarım ve çeşitli etkinlik alanlarında üreten genç
+          Amplifier Guild; teknoloji, robotik, yazılım, tasarım ve çeşitli etkinlik alanlarında üreten genç
           yetenekleri, projeler ve girişimlerle buluşturan <b>dinamik bir ekosistemdir</b>.
         </p>
         <p>

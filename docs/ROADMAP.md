@@ -6,7 +6,7 @@
 ```mermaid
 gantt
     dateFormat  YYYY-MM-DD
-    title Amfiplier Guild MVP
+    title Amplifier Guild MVP
     section Temel
     Faz 0 · Kurulum & altyapı        :f0, 2026-11-09, 5d
     section Çekirdek
@@ -22,7 +22,7 @@ gantt
 
 ## Faz 0 — Kurulum ve altyapı (≈ 1 hafta)
 
-- [ ] **Firebase projesi** oluştur: `amfiplier-guild-prod` + `amfiplier-guild-dev` (ayrı ortamlar).
+- [ ] **Firebase projesi** oluştur: `amplifier-guild-prod` + `amplifier-guild-dev` (ayrı ortamlar).
       Firestore bölgesi: `europe-west3` (KVKK + Türkiye'ye yakın gecikme). *Bölge sonradan değiştirilemez.*
 - [ ] Auth sağlayıcıları: Google + E-posta/Şifre. E-posta doğrulama şablonunu Türkçeleştir.
 - [ ] **App Check** (reCAPTCHA Enterprise) — önce *monitor* modda, Faz 5'te *enforce*.

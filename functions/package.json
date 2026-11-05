@@ -1,5 +1,5 @@
 {
-  "name": "amfiplier-guild-functions",
+  "name": "amplifier-guild-functions",
   "private": true,
   "main": "lib/functions/src/index.js",
   "engines": { "node": "22" },

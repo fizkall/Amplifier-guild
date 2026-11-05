@@ -1,5 +1,5 @@
 /**
- * Amfiplier Guild — Cloud Functions (v2) iskeleti.
+ * Amplifier Guild — Cloud Functions (v2) iskeleti.
  * Mimari: docs/ARCHITECTURE.md §3
  *
  * Bu dosya çekirdek iş akışlarını içerir: sayaçlar, eşleştirme skoru, başvuru kararı,

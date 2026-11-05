@@ -122,7 +122,7 @@ export default function Login() {
         </div>
       )}
 
-      <a href="/hakkinda" className="link-btn strong">Amfiplier Guild nedir? →</a>
+      <a href="/hakkinda" className="link-btn strong">Amplifier Guild nedir? →</a>
       <p className="meta" style={{ fontSize: 12, maxWidth: 360 }}>
         Devam ederek <a href="/kvkk" style={{ textDecoration: 'underline' }}>KVKK aydınlatma metnini ve gizlilik politikasını</a> kabul etmiş olursun.
       </p>

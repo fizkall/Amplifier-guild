@@ -4,13 +4,13 @@ import { AuthProvider } from '@/lib/auth';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Amfiplier Guild',
+  title: 'Amplifier Guild',
   description:
     'FRC ve etkinlik topluluklarındaki öğrencileri girişimler ve projelerle buluşturan lonca. Network, gerçek proje deneyimi ve doğrulanmış CV.',
   metadataBase: new URL('https://amplifierguild.online'),
-  openGraph: { title: 'Amfiplier Guild', description: "Amfi'den sahneye — potansiyelini yükselt.", images: ['/logo.png'] },
-  applicationName: 'Amfiplier Guild',
-  appleWebApp: { capable: true, title: 'Amfiplier', statusBarStyle: 'black-translucent' },
+  openGraph: { title: 'Amplifier Guild', description: "Amfi'den sahneye — potansiyelini yükselt.", images: ['/logo.png'] },
+  applicationName: 'Amplifier Guild',
+  appleWebApp: { capable: true, title: 'Amplifier', statusBarStyle: 'black-translucent' },
   formatDetection: { telephone: false },
 };
 

@@ -1,6 +1,6 @@
-# Amfiplier Guild — Mimari Doküman
+# Amplifier Guild — Mimari Doküman
 
-> **Amfiplier Guild**, FRC ve benzeri etkinlik topluluklarındaki öğrencileri; Guild'in kurduğu veya
+> **Amplifier Guild**, FRC ve benzeri etkinlik topluluklarındaki öğrencileri; Guild'in kurduğu veya
 > anlaştığı girişim ve projelerle buluşturan, onlara insan kaynağı + network + **doğrulanmış CV** kazandıran
 > bir lonca platformudur. "Amfi" (okul amfisi) + "Amplifier" (potansiyeli yükselten ses amfisi).
 
@@ -18,7 +18,7 @@ flowchart LR
         SDK["Firebase Web SDK<br/>Auth · Firestore · Storage"]
     end
 
-    subgraph Firebase["Firebase projesi: amfiplier-guild (ayrı proje)"]
+    subgraph Firebase["Firebase projesi: amplifier-guild (ayrı proje)"]
         AUTH["Authentication<br/>Google · E-posta/Şifre<br/>Custom claims: admin / moderator"]
         FS[("Cloud Firestore<br/>users · projects · posts<br/>opportunities · applications")]
         ST[("Cloud Storage<br/>avatar · CV PDF · medya")]

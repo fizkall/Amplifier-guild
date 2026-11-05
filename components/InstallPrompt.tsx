@@ -7,7 +7,7 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-const KEY = 'amfiplier-install-dismissed';
+const KEY = 'amplifier-install-dismissed';
 
 /** "Ana ekrana ekle" kartı: Android/Chrome'da tek tık kurulum, iOS'ta yönerge. */
 export function InstallPrompt({ variant = 'card' }: { variant?: 'card' | 'button' }) {

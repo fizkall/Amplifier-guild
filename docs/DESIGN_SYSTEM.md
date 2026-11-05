@@ -57,5 +57,5 @@ Mobil (<768)                      Desktop (≥768)
   (`%80+` beyaz dolu, `%50–79` çerçeveli, altı gösterilmez), sağda pill "Başvur" butonu.
   Başvurulduysa buton → "Başvuruldu ✓" (disabled).
 - **Durum çipleri:** Gönderildi (muted) · İnceleniyor (warning) · Kısa liste (verified) · Kabul (success) · Ret (danger, sadece başvurana yumuşak dil: "Bu sefer olmadı").
-- **Doğrulanmış deneyim:** CV kaleminde başlığın yanında `--verified` renkli ✔ ve "Amfiplier Guild tarafından doğrulandı" tooltip'i.
+- **Doğrulanmış deneyim:** CV kaleminde başlığın yanında `--verified` renkli ✔ ve "Amplifier Guild tarafından doğrulandı" tooltip'i.
 - **Kanban (panel):** desktop'ta yatay sütunlar, mobilde durum sekmeleri + liste.

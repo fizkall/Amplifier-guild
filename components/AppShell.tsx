@@ -46,7 +46,7 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
   return (
     <div className="shell">
       <aside className="rail">
-        <Link href="/ana-sayfa" aria-label="Amfiplier Guild">
+        <Link href="/ana-sayfa" aria-label="Amplifier Guild">
           <img className="logo-img" src="/logo.png" alt="" width={38} height={38} />
         </Link>
         <nav>{nav}</nav>
@@ -57,7 +57,7 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
 
       <main className="main">
         <header className="topbar">
-          {title ? <span>{title}</span> : <img className="logo-img" src="/logo.png" alt="Amfiplier Guild" />}
+          {title ? <span>{title}</span> : <img className="logo-img" src="/logo.png" alt="Amplifier Guild" />}
         </header>
         {!firebaseReady ? (
           <SetupNotice />

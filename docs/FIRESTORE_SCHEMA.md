@@ -1,6 +1,6 @@
 # Firestore Veritabanı Şeması
 
-> Amfiplier Guild — v1 şema. **Not:** Forum/akış kapsam dışı bırakıldı; `posts` koleksiyonu (§2.9) kullanılmıyor ve kurallarda kapalı. TypeScript karşılıkları: [`shared/models.ts`](../shared/models.ts) ·
+> Amplifier Guild — v1 şema. **Not:** Forum/akış kapsam dışı bırakıldı; `posts` koleksiyonu (§2.9) kullanılmıyor ve kurallarda kapalı. TypeScript karşılıkları: [`shared/models.ts`](../shared/models.ts) ·
 > Güvenlik kuralları: [`firestore.rules`](../firestore.rules) · İndeksler: [`firestore.indexes.json`](../firestore.indexes.json)
 
 ## 0. Tasarım ilkeleri

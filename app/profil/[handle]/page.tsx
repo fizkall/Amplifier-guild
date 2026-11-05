@@ -64,7 +64,7 @@ function Profile({ handle }: { handle: string }) {
           <div key={x.id} className="card">
             <div className="row" style={{ gap: 6 }}>
               <span className="post-name">{x.title}</span>
-              {x.verified && <span className="verified" title="Amfiplier Guild tarafından doğrulandı"><CheckIcon /></span>}
+              {x.verified && <span className="verified" title="Amplifier Guild tarafından doğrulandı"><CheckIcon /></span>}
             </div>
             <div className="meta">{x.organization} · {x.startDate}{x.endDate ? ` – ${x.endDate}` : ' – devam ediyor'}</div>
             {x.description && <p className="post-text" style={{ marginBottom: 0 }}>{x.description}</p>}

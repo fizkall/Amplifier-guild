@@ -5,7 +5,7 @@ import { About } from '@/components/About';
 import { Footer } from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Hakkında · Amfiplier Guild',
+  title: 'Hakkında · Amplifier Guild',
   description: 'Genç yetenekleri projeler ve girişimlerle buluşturan ekosistem: insan kaynağı, network, görünürlük, operasyonel destek ve sürdürülebilir yetenek havuzu.',
 };
 

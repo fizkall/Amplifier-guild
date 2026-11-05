@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/brand/logo-dark.png" width="140" alt="Amfiplier Guild logosu" />
+  <img src="assets/brand/logo-dark.png" width="140" alt="Amplifier Guild logosu" />
 </p>
 
-<h1 align="center">Amfiplier Guild</h1>
+<h1 align="center">Amplifier Guild</h1>
 
 <p align="center">
   FRC ve etkinlik topluluklarındaki öğrencileri girişimler ve projelerle buluşturan lonca.<br/>
@@ -11,7 +11,7 @@
 
 ---
 
-**Amfiplier Guild**, öğrencilere gerçek projelerde yer alma fırsatı, network ve **doğrulanmış CV** kazandırır;
+**Amplifier Guild**, öğrencilere gerçek projelerde yer alma fırsatı, network ve **doğrulanmış CV** kazandırır;
 projelere ise motive ve yetkin insan kaynağı sağlar. Arayüz Threads tarzı: minimalist, koyu tema, akış tabanlı.
 bumpermedia.online'dan bağımsız, ayrı bir site ve Firebase projesi olarak çalışır.
 

@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Amfiplier Guild — Firestore Güvenlik Kuralları
+// Amplifier Guild — Firestore Güvenlik Kuralları
 // İlke: Sayaçlar, doğrulanmış CV kalemleri ve başvuru kararları SADECE Cloud Functions
 // (Admin SDK, kuralları bypass eder) tarafından yazılır. İstemci bunlara dokunamaz.
 // Şema: docs/FIRESTORE_SCHEMA.md

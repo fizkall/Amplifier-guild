@@ -20,9 +20,9 @@ export default function Landing() {
   return (
     <main>
       <section className="hero" style={{ minHeight: '88dvh' }}>
-        <img className="logo-img" src="/logo.png" alt="Amfiplier Guild logosu" width={112} height={112} />
+        <img className="logo-img" src="/logo.png" alt="Amplifier Guild logosu" width={112} height={112} />
         <div className="bars" aria-hidden><span /><span /><span /><span /><span /></div>
-        <h1>Amfiplier Guild</h1>
+        <h1>Amplifier Guild</h1>
         <p>
           FRC ve etkinlik topluluklarındaki öğrencileri gerçek girişim ve projelerle buluşturan lonca.
           Projelerde yer al, network kur, <b style={{ color: 'var(--text)' }}>doğrulanmış CV</b> kazan.

@@ -1,10 +1,10 @@
 {
-  "name": "amfiplier-guild-rules-tests",
+  "name": "amplifier-guild-rules-tests",
   "private": true,
   "type": "module",
   "scripts": {
-    "test:rules": "firebase emulators:exec --config ../firebase.json --only firestore --project demo-amfiplier \"node --test *.test.mjs\"",
-    "emulators": "firebase emulators:start --config ../firebase.json --project demo-amfiplier"
+    "test:rules": "firebase emulators:exec --config ../firebase.json --only firestore --project demo-amplifier \"node --test *.test.mjs\"",
+    "emulators": "firebase emulators:start --config ../firebase.json --project demo-amplifier"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^4.0.1",

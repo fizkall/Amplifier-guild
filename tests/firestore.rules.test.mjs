@@ -37,7 +37,7 @@ function application(oid, uid, extra = {}) {
 
 before(async () => {
   env = await initializeTestEnvironment({
-    projectId: 'demo-amfiplier',
+    projectId: 'demo-amplifier',
     firestore: { rules: readFileSync(new URL('../firestore.rules', import.meta.url), 'utf8') },
   });
 });

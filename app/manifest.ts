@@ -3,8 +3,8 @@ import type { MetadataRoute } from 'next';
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: '/',
-    name: 'Amfiplier Guild',
-    short_name: 'Amfiplier',
+    name: 'Amplifier Guild',
+    short_name: 'Amplifier',
     description: 'FRC ve etkinlik topluluklarındaki öğrencileri girişimler ve projelerle buluşturan lonca.',
     lang: 'tr',
     dir: 'ltr',
