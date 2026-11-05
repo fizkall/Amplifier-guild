@@ -5,7 +5,7 @@ import { About } from '@/components/About';
 
 export const metadata: Metadata = {
   title: 'Hakkında · Amfiplier Guild',
-  description: 'Amfiplier Guild nedir, nasıl çalışır, kimler için? Öğrencileri girişim ve projelerle buluşturan lonca.',
+  description: 'Genç yetenekleri projeler ve girişimlerle buluşturan ekosistem: insan kaynağı, network, görünürlük, operasyonel destek ve sürdürülebilir yetenek havuzu.',
 };
 
 export default function HakkindaPage() {
