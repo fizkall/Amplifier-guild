@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  collectionGroup, doc, getDoc, getDocs, limit, orderBy, query, serverTimestamp, where, writeBatch,
+  collection, collectionGroup, doc, getDoc, getDocs, query, serverTimestamp, where, writeBatch,
 } from 'firebase/firestore';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
@@ -15,28 +15,57 @@ import { normalizeUrl } from '@/lib/image';
 export type Opp = Opportunity & { id: string };
 export type App = Application & { id: string };
 
-/** Açık ilanlar (tüm projeler, collection group). */
+/**
+ * Açık ilanlar: yayındaki projeler → her projenin açık ilanları.
+ * Elle oluşturulması gereken Firestore indeksine ihtiyaç duymaz (yalnızca otomatik tek alan indeksleri).
+ */
 export function useOpenOpportunities(max = 50) {
   const { profile } = useAuth();
   const [opps, setOpps] = useState<Opp[] | null>(null);
   useEffect(() => {
     if (!profile) return;
-    getDocs(query(collectionGroup(db, 'opportunities'), where('status', '==', 'open'), orderBy('createdAt', 'desc'), limit(max)))
-      .then((s) => setOpps(s.docs.map((d) => ({ id: d.id, ...(d.data() as Opportunity) }))))
-      .catch((e) => { console.error(e); setOpps([]); });
+    let cancelled = false;
+    (async () => {
+      const projects = await getDocs(query(collection(db, 'projects'), where('status', '==', 'active')));
+      const lists = await Promise.all(projects.docs.map((p) =>
+        getDocs(query(collection(db, 'projects', p.id, 'opportunities'), where('status', '==', 'open')))
+          .then((s) => s.docs.map((d) => ({ id: d.id, ...(d.data() as Opportunity) })))
+          .catch(() => [] as Opp[])));
+      const all = lists.flat()
+        .filter((o) => !o.deadline || o.deadline.toDate() >= new Date())
+        .sort((a, b) => (b.createdAt?.seconds ?? Date.now() / 1000) - (a.createdAt?.seconds ?? Date.now() / 1000))
+        .slice(0, max);
+      if (!cancelled) setOpps(all);
+    })().catch((e) => { console.error(e); if (!cancelled) setOpps([]); });
+    return () => { cancelled = true; };
   }, [profile, max]);
   return opps;
 }
 
-/** Kullanıcının başvuruları (collection group). */
+/**
+ * Kullanıcının başvuruları. Başvuru yapılırken users/{uid}/applications altına bir referans yazılır;
+ * buradan her başvuru belgesi okunur (indeks gerektirmez). Eski başvurular için collection group
+ * sorgusu da denenir (indeks varsa).
+ */
+export async function fetchMyApplications(uid: string): Promise<App[]> {
+  const refs = await getDocs(collection(db, 'users', uid, 'applications')).catch(() => null);
+  const byId = new Map<string, App>();
+  await Promise.all((refs?.docs ?? []).map(async (r) => {
+    const pid = r.get('projectId') as string;
+    const s = await getDoc(doc(db, 'projects', pid, 'applications', r.id)).catch(() => null);
+    if (s?.exists()) byId.set(`${pid}/${s.id}`, { id: s.id, ...(s.data() as Application) });
+  }));
+  const cg = await getDocs(query(collectionGroup(db, 'applications'), where('applicantId', '==', uid))).catch(() => null);
+  cg?.docs.forEach((d) => byId.set(`${d.get('projectId')}/${d.id}`, { id: d.id, ...(d.data() as Application) }));
+  return [...byId.values()].sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+}
+
 export function useMyApplications() {
   const { profile } = useAuth();
   const [apps, setApps] = useState<App[] | null>(null);
   const reload = useMemo(() => () => {
     if (!profile) return;
-    getDocs(query(collectionGroup(db, 'applications'), where('applicantId', '==', profile.uid), orderBy('createdAt', 'desc')))
-      .then((s) => setApps(s.docs.map((d) => ({ id: d.id, ...(d.data() as Application) }))))
-      .catch((e) => { console.error(e); setApps([]); });
+    fetchMyApplications(profile.uid).then(setApps).catch((e) => { console.error(e); setApps([]); });
   }, [profile]);
   useEffect(() => { reload(); }, [reload]);
   return { apps, reload };
@@ -178,6 +207,8 @@ export function ApplySheet({ opp, onClose, onDone }: { opp: Opp; onClose: () => 
       });
       // İletişim bilgisi ayrı belge: yöneticiye yalnızca kabul sonrası açılır
       batch.set(doc(appRef, 'contact', 'info'), { email: user.email ?? '', createdAt: serverTimestamp() });
+      // "Başvurularım" için kullanıcının altında referans (indeks gerektirmeden listelenir)
+      batch.set(doc(db, 'users', profile.uid, 'applications', aid), { projectId: opp.projectId, opportunityId: opp.id, createdAt: serverTimestamp() });
       await batch.commit();
       onDone();
     } catch (e) {

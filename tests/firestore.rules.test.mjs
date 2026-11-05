@@ -95,7 +95,22 @@ describe('İlan tahtası & başvuru', () => {
   test('tek tık başvuru başarılı', async () => {
     await assertSucceeds(setDoc(doc(verified('ayse'), 'projects/p1/applications/o1_ayse'), application('o1', 'ayse')));
   });
-  test('başkası adına / yanlış ID ile başvuru yapılamaz', async () => {
+  test('başvuru + "Başvurularım" referansı tek batch', async () => {
+    const db = verified('ayse');
+    const b = writeBatch(db);
+    b.set(doc(db, 'projects/p1/applications/o1_ayse'), application('o1', 'ayse'));
+    b.set(doc(db, 'users/ayse/applications/o1_ayse'), { projectId: 'p1', opportunityId: 'o1', createdAt: serverTimestamp() });
+    await assertSucceeds(b.commit());
+  });
+  test('başvuru olmadan sahte referans yazılamaz', async () => {
+    await assertFails(setDoc(doc(verified('ayse'), 'users/ayse/applications/o1_ayse'), { projectId: 'p1', opportunityId: 'o1', createdAt: serverTimestamp() }));
+  });
+  test('ilanlar: yayındaki projeler + açık ilanlar indekssiz listelenir', async () => {
+    const db = verified('ayse');
+    await assertSucceeds(getDocs(query(collection(db, 'projects'), where('status', '==', 'active'))));
+    await assertSucceeds(getDocs(query(collection(db, 'projects/p1/opportunities'), where('status', '==', 'open'))));
+  });
+    test('başkası adına / yanlış ID ile başvuru yapılamaz', async () => {
     await assertFails(setDoc(doc(verified('ayse'), 'projects/p1/applications/o1_mert'), application('o1', 'mert')));
   });
   test('taslak ilana başvuru yapılamaz', async () => {

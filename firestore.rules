@@ -119,6 +119,16 @@ service cloud.firestore {
         allow write: if false; // onFollowWrite Function aynalar
       }
 
+      // "Başvurularım" referansları (başvuruyla aynı batch'te yazılır)
+      match /applications/{aid} {
+        allow read, delete: if isSelf(userId);
+        allow create: if isSelf(userId)
+          && incoming().keys().hasOnly(['projectId', 'opportunityId', 'createdAt'])
+          && aid == incoming().opportunityId + '_' + userId
+          && getAfter(appPath(incoming().projectId, aid)).data.applicantId == userId;
+        allow update: if false;
+      }
+
       match /notifications/{notifId} {
         allow read: if isSelf(userId);
         allow update: if isSelf(userId) && onlyChanges(['read']);

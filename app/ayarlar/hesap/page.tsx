@@ -1,11 +1,12 @@
 'use client';
 
 import {
-  collection, collectionGroup, deleteDoc, doc, getDocs, query, serverTimestamp, updateDoc, where, writeBatch,
+  collection, deleteDoc, doc, getDocs, serverTimestamp, updateDoc, writeBatch,
 } from 'firebase/firestore';
 import Link from 'next/link';
 import { useState } from 'react';
 import { AppShell } from '@/components/AppShell';
+import { fetchMyApplications } from '@/components/Opportunities';
 import { authErrorMessage, useAuth } from '@/lib/auth';
 import { db, firebaseReady } from '@/lib/firebase';
 
@@ -41,16 +42,17 @@ function AccountActions() {
       try { sessionStorage.setItem('ag-deleting', '1'); } catch { /* yok say */ }
 
       setStep('Açık başvurular geri çekiliyor…');
-      const apps = await getDocs(query(collectionGroup(db, 'applications'), where('applicantId', '==', uid)));
-      for (const a of apps.docs) {
-        if (['submitted', 'in_review', 'shortlisted'].includes(a.get('status'))) {
-          await updateDoc(a.ref, { status: 'withdrawn', updatedAt: serverTimestamp() }).catch(() => {});
+      const apps = await fetchMyApplications(uid);
+      for (const a of apps) {
+        const ref = doc(db, 'projects', a.projectId, 'applications', a.id);
+        if (['submitted', 'in_review', 'shortlisted'].includes(a.status)) {
+          await updateDoc(ref, { status: 'withdrawn', updatedAt: serverTimestamp() }).catch(() => {});
         }
-        await deleteDoc(doc(a.ref, 'contact', 'info')).catch(() => {});
+        await deleteDoc(doc(ref, 'contact', 'info')).catch(() => {});
       }
 
       setStep('Profil verileri siliniyor…');
-      const subs = ['experiences', 'following', 'notifications', 'private'];
+      const subs = ['experiences', 'following', 'notifications', 'private', 'applications'];
       for (const sub of subs) {
         const s = await getDocs(collection(db, 'users', uid, sub)).catch(() => null);
         if (!s) continue;

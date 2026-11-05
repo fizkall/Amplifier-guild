@@ -1,10 +1,11 @@
 'use client';
 
-import { collectionGroup, doc, onSnapshot, orderBy, query, serverTimestamp, updateDoc, where } from 'firebase/firestore';
+import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { Application } from '@/shared/models';
 import { AppShell } from '@/components/AppShell';
+import { fetchMyApplications } from '@/components/Opportunities';
 import { useAuth } from '@/lib/auth';
 import { db, firebaseReady } from '@/lib/firebase';
 import { APP_STATUS_LABEL, ROLE_TYPE_LABEL, timeAgo } from '@/lib/format';
@@ -15,18 +16,13 @@ function MyApplications() {
   const { profile } = useAuth();
   const [apps, setApps] = useState<App[] | null>(null);
 
-  useEffect(() => {
-    if (!profile) return;
-    return onSnapshot(
-      query(collectionGroup(db, 'applications'), where('applicantId', '==', profile.uid), orderBy('createdAt', 'desc')),
-      (s) => setApps(s.docs.map((d) => ({ id: d.id, ...(d.data() as Application) }))),
-      (e) => { console.error(e); setApps([]); },
-    );
-  }, [profile]);
+  const load = () => { if (profile) fetchMyApplications(profile.uid).then(setApps).catch(() => setApps([])); };
+  useEffect(load, [profile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function withdraw(a: App) {
     if (!confirm('Başvurunu geri çekmek istiyor musun?')) return;
     await updateDoc(doc(db, 'projects', a.projectId, 'applications', a.id), { status: 'withdrawn', updatedAt: serverTimestamp() });
+    load();
   }
 
   if (apps === null) return <div className="center" style={{ minHeight: 200 }}><div className="spinner" /></div>;
