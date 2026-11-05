@@ -2,6 +2,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { About } from '@/components/About';
+import { Footer } from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Hakkında · Amfiplier Guild',
@@ -16,6 +17,7 @@ export default function HakkindaPage() {
         <h1 className="h1">Hakkında</h1>
       </header>
       <About />
+      <Footer />
     </main>
   );
 }

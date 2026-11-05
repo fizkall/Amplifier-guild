@@ -3,6 +3,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type FormEvent } from 'react';
+import { Footer } from '@/components/Footer';
 import { SetupNotice } from '@/components/SetupNotice';
 import { authErrorMessage, useAuth } from '@/lib/auth';
 import { firebaseReady } from '@/lib/firebase';
@@ -125,6 +126,7 @@ export default function Login() {
       <p className="meta" style={{ fontSize: 12, maxWidth: 360 }}>
         Devam ederek KVKK aydınlatma metnini ve kullanım koşullarını kabul etmiş olursun.
       </p>
+      <Footer />
     </main>
   );
 }

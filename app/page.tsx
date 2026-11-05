@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { About } from '@/components/About';
+import { Footer } from '@/components/Footer';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { useAuth } from '@/lib/auth';
 
@@ -40,6 +41,7 @@ export default function Landing() {
       <div style={{ display: 'flex', justifyContent: 'center', padding: '0 16px 48px' }}>
         <InstallPrompt variant="button" />
       </div>
+      <Footer />
     </main>
   );
 }

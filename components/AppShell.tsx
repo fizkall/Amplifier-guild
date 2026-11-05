@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, type ReactNode } from 'react';
 import { useAuth } from '@/lib/auth';
 import { firebaseReady } from '@/lib/firebase';
+import { Footer } from './Footer';
 import { SetupNotice } from './SetupNotice';
 import { VerifyEmail } from './VerifyEmail';
 import { HomeIcon, InboxIcon, JobsIcon, MenuIcon, UserIcon } from './Icons';
@@ -65,6 +66,7 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
         ) : (
           <div className="center"><div className="spinner" /></div>
         )}
+        <Footer />
       </main>
 
       <nav className="bottom-bar">{nav}</nav>
