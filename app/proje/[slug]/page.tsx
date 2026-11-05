@@ -49,7 +49,7 @@ function ProjectView({ slug }: { slug: string }) {
             <div className="post-name">{o.title}</div>
             <div className="meta">{ROLE_TYPE_LABEL[o.roleType]} · {o.commitment?.hoursPerWeek} sa/hafta</div>
           </div>
-          <Link href="/jobs" className="btn btn-primary">Başvur</Link>
+          <Link href="/ilanlar" className="btn btn-primary">Başvur</Link>
         </div>
       )) : <div className="empty">Şu an açık pozisyon yok.</div>}
     </>

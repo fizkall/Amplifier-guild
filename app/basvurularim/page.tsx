@@ -30,7 +30,7 @@ function MyApplications() {
   }
 
   if (apps === null) return <div className="center" style={{ minHeight: 200 }}><div className="spinner" /></div>;
-  if (!apps.length) return <div className="empty">Henüz başvurun yok. <Link href="/jobs" style={{ textDecoration: 'underline' }}>İlanlara göz at</Link></div>;
+  if (!apps.length) return <div className="empty">Henüz başvurun yok. <Link href="/ilanlar" style={{ textDecoration: 'underline' }}>İlanlara göz at</Link></div>;
 
   return (
     <>

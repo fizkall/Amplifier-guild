@@ -27,7 +27,6 @@ service cloud.firestore {
     function userPath(u)    { return /databases/$(database)/documents/users/$(u); }
     function projectPath(p) { return /databases/$(database)/documents/projects/$(p); }
     function oppPath(p, o)  { return /databases/$(database)/documents/projects/$(p)/opportunities/$(o); }
-    function postPath(id)   { return /databases/$(database)/documents/posts/$(id); }
     function project(pid) { return get(/databases/$(database)/documents/projects/$(pid)).data; }
     function membership(pid) {
       return /databases/$(database)/documents/projects/$(pid)/members/$(request.auth.uid);
@@ -109,10 +108,6 @@ service cloud.firestore {
         allow create: if false;
       }
 
-      match /timeline/{postId} {
-        allow read: if isSelf(userId);
-        allow write: if false;
-      }
     }
 
     // ─────────────── Kullanıcı adı tekilliği ───────────────
@@ -226,41 +221,6 @@ service cloud.firestore {
     }
     match /{path=**}/applications/{aid} {
       allow read: if signedIn() && (resource.data.applicantId == request.auth.uid || isAdmin());
-    }
-
-    // ─────────────── Akış ───────────────
-    match /posts/{postId} {
-      allow read: if existing().status == 'published' || existing().authorId == uid() || isMod();
-
-      allow create: if verifiedEmail()
-        && incoming().authorId == uid()
-        && incoming().status == 'published'
-        && str(incoming().text, 1, 500)
-        && incoming().media.size() <= 4
-        && incoming().replyCount == 0 && incoming().likeCount == 0 && incoming().repostCount == 0
-        && incoming().pinned == false
-        && incoming().type in ['text', 'update', 'announcement']
-        && (incoming().projectId == null || isProjectMember(incoming().projectId))
-        && (incoming().type != 'announcement'
-            || isAdmin()
-            || (incoming().projectId != null && isProjectManager(incoming().projectId)))
-        // Yanıtsa: parent mevcut ve yayında olmalı
-        && (incoming().parentId == null
-            || get(postPath(incoming().parentId)).data.status == 'published');
-
-      allow update: if (existing().authorId == uid()
-          && onlyChanges(['text', 'media', 'tags', 'mentions', 'editedAt', 'pinned'])
-          && str(incoming().text, 1, 500))
-        || (isMod() && onlyChanges(['status']));
-
-      allow delete: if existing().authorId == uid() || isMod();
-
-      match /likes/{likerId} {
-        allow read: if signedIn();
-        allow create: if isSelf(likerId) && incoming().keys().hasOnly(['createdAt']);
-        allow delete: if isSelf(likerId);
-        allow update: if false;
-      }
     }
 
     // ─────────────── Moderasyon / Sistem ───────────────

@@ -19,10 +19,29 @@ bumpermedia.online'dan bağımsız, ayrı bir site ve Firebase projesi olarak ç
 
 | Modül | Özet |
 |---|---|
-| **Auth & Profil** | Google / e-posta girişi, 4 adımlı onboarding, yetenek profili = paylaşılabilir CV (FRC/etkinlik geçmişi, yetenekler, ✔ doğrulanmış Guild deneyimleri) |
-| **Akış Vitrini** | Threads tarzı feed: gönderi, yanıt zinciri, beğeni, takip, proje adına duyurular |
-| **İlan & Eşleştirme Tahtası** | Projelerin açık pozisyonları, yetenek eşleşme skoru, tek tıkla başvuru |
-| **Yönetim Paneli** | Proje paneli (başvuru kanban'ı) + Guild admin (proje onayı, moderasyon, roller) |
+| **Auth & Profil** | Google / e-posta girişi, profil oluşturma, yetenek profili = paylaşılabilir CV (FRC/etkinlik geçmişi, yetenekler, ✔ doğrulanmış Guild deneyimleri) |
+| **İlan & Eşleştirme** | Projelerin açık pozisyonları, yetenek uyum skoru, tek tıkla başvuru, başvuru takibi |
+| **Yönetim Paneli** | Proje paneli (başvuru kanban'ı) + Guild admin (proje onayı, roller) |
+
+Forum / akış bölümü yoktur: site yalnızca öğrenci ↔ proje eşleştirme sistemidir.
+
+## Adresler
+
+| Adres | Sayfa |
+|---|---|
+| `/` | Tanıtım |
+| `/giris` | Giriş / kayıt / şifre sıfırlama |
+| `/profil-olustur` | İlk profil (CV) oluşturma |
+| `/ana-sayfa` | Kişisel ana sayfa: başvuru durumu, sana uygun ilanlar |
+| `/ilanlar` | Tüm açık ilanlar (filtre + uyum skoru) |
+| `/basvurularim` | Başvuru takibi |
+| `/profil/{kullanici}` veya `/@{kullanici}` | Profil / CV |
+| `/proje/{slug}` | Proje sayfası |
+
+## Uygulama olarak yükleme (PWA)
+
+Site telefona uygulama olarak eklenebilir: Android/Chrome'da "Uygulamayı yükle" butonu,
+iPhone'da Safari → Paylaş → **Ana Ekrana Ekle**. Açılış sayfası `/ana-sayfa`, tam ekran çalışır.
 
 ## Dokümanlar
 

@@ -96,65 +96,13 @@ sequenceDiagram
     C->>U: Ana akış
 ```
 
-### 2.2 Proje & Akış Vitrini (Threads tarzı Feed)
+### 2.2 Ana Sayfa (akış yerine)
 
-**Sorumluluk:** Gönderi, yanıt (thread), beğeni, takip, proje sayfaları, bildirim.
+> **Karar (2026-11):** Forum / Threads tarzı akış **kapsam dışı**. Site yalnızca eşleştirme sistemidir.
+> `posts` koleksiyonu, kuralları, indeksleri ve tetikleyicileri kaldırıldı.
 
-**Akış stratejisi — iki fazlı:**
-
-| Faz | Model | Nasıl | Ne zamana kadar yeterli |
-|---|---|---|---|
-| **Faz 1 – Pull** | Sorgu tabanlı | "Senin için": tüm yayındaki kök gönderiler, `createdAt desc`, sayfalı (`startAfter`). "Takip": `authorId in [...]` (30'luk parçalar halinde, istemcide birleştir) | ~5.000 aktif kullanıcı, takip başına < 300 |
-| **Faz 2 – Fan-out on write** | Zaman çizelgesi | `onPostCreated` → takipçilerin `users/{uid}/timeline/{postId}` belgesine `{createdAt, score}` yaz (Cloud Tasks ile 500'lük batch). Feed = timeline'dan oku + `posts` belgelerini `in` ile getir | Ölçek gerektiğinde |
-
-> "Senin için" sıralamasına Faz 2'de basit skor: `score = recency + 2·likeCount + 3·replyCount + bonus(takip edilen proje) + bonus(yetenek eşleşmesi)`. Skor `onPostWrite` ile güncellenir.
-
-**Gönderi türleri ve kartı:**
-
-```
-┌─────────────────────────────────────────────┐
-│ (●) Ayşe Y.  @ayse · 2s    ✔FRC             │
-│     ▸ Proje: Volt Robotics adına            │
-│                                             │
-│ Prototip sürücü kartı ilk testten geçti ⚡   │
-│ [ görsel ]                                  │
-│                                             │
-│ ♡ 24   💬 5   ↻ 2   ↗                        │
-│ │                                           │
-│ └ (●) Mert: Harika! Hangi MCU?   ← yanıtlar │
-└─────────────────────────────────────────────┘
-`opportunity` türü kartın altına: [ Gömülü Yazılım Stajyeri · 3 kontenjan · Başvur → ]
-```
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor U as Kullanıcı
-    participant C as İstemci
-    participant DB as Firestore
-    participant F as Functions
-
-    U->>C: Gönderi yaz (≤500 karakter, ≤4 görsel)
-    C->>C: Görselleri Storage'a yükle (posts/{uid}/{postId}/)
-    C->>DB: set posts/{postId} (authorSnapshot, counters=0)
-    Note over DB: Kurallar: yazar = auth.uid, metin uzunluğu,<br/>announcement yetkisi, proje üyeliği
-    DB-->>C: OK (iyimser UI zaten gösterdi)
-    DB->>F: onPostCreated
-    par
-        F->>DB: users/{author}.stats.posts += 1
-        F->>DB: parentId varsa → parent.replyCount += 1, parent yazarına bildirim
-        F->>DB: mentions → bildirim
-        F->>DB: (Faz 2) takipçi timeline fan-out
-    end
-
-    U->>C: ♡ Beğen
-    C->>DB: set posts/{id}/likes/{uid}
-    DB->>F: onLikeWritten
-    F->>DB: posts/{id}.likeCount ± 1 (FieldValue.increment)
-```
-
-**Denormalizasyon bakımı:** Kullanıcı ad/foto değiştirince `onUserUpdated` → son 500 gönderisindeki
-`authorSnapshot`'ı ve üyeliklerindeki `userSnapshot`'ı batch ile günceller (eski gönderiler isteğe bağlı).
+`/ana-sayfa` kişisel bir panodur: profil doluluk oranı, son başvuruların durumu ve uyum skoruna göre
+en uygun 3 ilan. Proje duyuruları gerekirse ileride proje sayfasında basit bir "güncellemeler" listesi olarak eklenir.
 
 ### 2.3 İlan ve Eşleştirme Tahtası (Job Board)
 

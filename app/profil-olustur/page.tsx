@@ -46,8 +46,8 @@ export default function Onboarding() {
 
   useEffect(() => {
     if (loading) return;
-    if (!user) router.replace('/login');
-    else if (profile?.onboardingComplete) router.replace('/feed');
+    if (!user) router.replace('/giris');
+    else if (profile?.onboardingComplete) router.replace('/ana-sayfa');
     else {
       setDisplayName((d) => d || user.displayName || '');
       setHandle((h) => h || toSlug(user.email?.split('@')[0] ?? '').replace(/-/g, '_').slice(0, 24));
@@ -126,7 +126,7 @@ export default function Onboarding() {
       });
 
       await batch.commit();
-      router.replace('/feed');
+      router.replace('/ana-sayfa');
     } catch (e) {
       console.error(e);
       setErr('Profil kaydedilemedi. Lütfen tekrar dene.');

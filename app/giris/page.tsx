@@ -22,7 +22,7 @@ export default function Login() {
 
   useEffect(() => {
     if (loading || !user) return;
-    router.replace(profile?.onboardingComplete ? '/feed' : '/onboarding');
+    router.replace(profile?.onboardingComplete ? '/ana-sayfa' : '/profil-olustur');
   }, [user, profile, loading, router]);
 
   function switchMode(m: Mode) {

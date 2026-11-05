@@ -17,7 +17,6 @@ import type {
   Application,
   ApplicationStatus,
   Opportunity,
-  Post,
   Project,
   ReviewApplicationRequest,
   ReviewProjectRequest,
@@ -54,43 +53,7 @@ function audit(actorId: string, action: string, target: string, extra: Record<st
   return db.collection('auditLogs').add({ actorId, action, target, at: FieldValue.serverTimestamp(), ...extra });
 }
 
-/* ─────────────── Akış: sayaçlar ─────────────── */
-
-export const onPostCreated = onDocumentCreated('posts/{postId}', async (event) => {
-  const post = event.data?.data() as Post | undefined;
-  if (!post) return;
-  const batch = db.batch();
-  batch.update(db.doc(`users/${post.authorId}`), { 'stats.posts': FieldValue.increment(1) });
-  if (post.projectId) {
-    batch.update(db.doc(`projects/${post.projectId}`), { 'stats.posts': FieldValue.increment(1) });
-  }
-  if (post.parentId) {
-    batch.update(db.doc(`posts/${post.parentId}`), { replyCount: FieldValue.increment(1) });
-  }
-  await batch.commit();
-
-  if (post.parentId) {
-    const parent = await db.doc(`posts/${post.parentId}`).get();
-    const parentAuthor = parent.get('authorId') as string | undefined;
-    if (parentAuthor && parentAuthor !== post.authorId) {
-      await notify(parentAuthor, {
-        type: 'reply',
-        actorSnapshot: { uid: post.authorId, ...post.authorSnapshot },
-        target: { kind: 'post', id: event.params.postId },
-        text: post.text.slice(0, 120),
-      });
-    }
-  }
-});
-
-export const onLikeWritten = onDocumentWritten('posts/{postId}/likes/{uid}', async (event) => {
-  const before = event.data?.before.exists;
-  const after = event.data?.after.exists;
-  if (before === after) return;
-  await db.doc(`posts/${event.params.postId}`).update({
-    likeCount: FieldValue.increment(after ? 1 : -1),
-  });
-});
+/* ─────────────── Takip ─────────────── */
 
 export const onFollowWritten = onDocumentWritten('users/{uid}/following/{targetId}', async (event) => {
   const { uid, targetId } = event.params;

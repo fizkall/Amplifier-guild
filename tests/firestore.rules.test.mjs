@@ -83,30 +83,6 @@ describe('Auth & Profil', () => {
   });
 });
 
-describe('Akış', () => {
-  const post = (uid, extra = {}) => ({
-    authorId: uid, authorSnapshot: {}, projectId: null, projectSnapshot: null, type: 'text',
-    text: 'Merhaba Guild!', media: [], link: null, opportunityRef: null, mentions: [], tags: [],
-    parentId: null, rootId: null, replyCount: 0, likeCount: 0, repostCount: 0,
-    status: 'published', pinned: false, createdAt: serverTimestamp(), editedAt: null, ...extra,
-  });
-
-  test('doğrulanmış kullanıcı gönderi atar', async () => {
-    await assertSucceeds(setDoc(doc(verified('ayse'), 'posts/a'), post('ayse')));
-  });
-  test('sahte beğeni sayısıyla gönderi atılamaz', async () => {
-    await assertFails(setDoc(doc(verified('ayse'), 'posts/a'), post('ayse', { likeCount: 500 })));
-  });
-  test('üye olmayan proje adına duyuru yapamaz', async () => {
-    await assertFails(setDoc(doc(verified('ayse'), 'posts/a'),
-      post('ayse', { type: 'announcement', projectId: 'p1' })));
-  });
-  test('proje sahibi duyuru yapar', async () => {
-    await assertSucceeds(setDoc(doc(verified('owner'), 'posts/a'),
-      post('owner', { type: 'announcement', projectId: 'p1' })));
-  });
-});
-
 describe('İlan tahtası & başvuru', () => {
   test('giriş yapmamış kullanıcı açık ilanları listeler', async () => {
     const db = env.unauthenticatedContext().firestore();

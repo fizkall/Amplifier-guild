@@ -5,37 +5,62 @@ import {
 } from 'firebase/firestore';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import type { Opportunity } from '@/shared/models';
+import type { Application, Opportunity } from '@/shared/models';
 import { computeMatchScore } from '@/shared/match';
-import { AppShell } from '@/components/AppShell';
 import { useAuth } from '@/lib/auth';
-import { db, firebaseReady } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
 import { ROLE_TYPE_LABEL } from '@/lib/format';
 
-type Opp = Opportunity & { id: string };
+export type Opp = Opportunity & { id: string };
+export type App = Application & { id: string };
 
-function Jobs() {
+/** Açık ilanlar (tüm projeler, collection group). */
+export function useOpenOpportunities(max = 50) {
   const { profile } = useAuth();
   const [opps, setOpps] = useState<Opp[] | null>(null);
-  const [applied, setApplied] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    if (!profile) return;
+    getDocs(query(collectionGroup(db, 'opportunities'), where('status', '==', 'open'), orderBy('createdAt', 'desc'), limit(max)))
+      .then((s) => setOpps(s.docs.map((d) => ({ id: d.id, ...(d.data() as Opportunity) }))))
+      .catch((e) => { console.error(e); setOpps([]); });
+  }, [profile, max]);
+  return opps;
+}
+
+/** Kullanıcının başvuruları (collection group). */
+export function useMyApplications() {
+  const { profile } = useAuth();
+  const [apps, setApps] = useState<App[] | null>(null);
+  const reload = useMemo(() => () => {
+    if (!profile) return;
+    getDocs(query(collectionGroup(db, 'applications'), where('applicantId', '==', profile.uid), orderBy('createdAt', 'desc')))
+      .then((s) => setApps(s.docs.map((d) => ({ id: d.id, ...(d.data() as Application) }))))
+      .catch((e) => { console.error(e); setApps([]); });
+  }, [profile]);
+  useEffect(() => { reload(); }, [reload]);
+  return { apps, reload };
+}
+
+/** İlan listesi: uyum skoruna göre sıralı kartlar + tek tık başvuru. */
+export function OpportunityList({ max, filters = true, emptyText }: { max?: number; filters?: boolean; emptyText?: string }) {
+  const { profile } = useAuth();
+  const opps = useOpenOpportunities();
+  const { apps } = useMyApplications();
+  const [extraApplied, setExtraApplied] = useState<string[]>([]);
   const [skill, setSkill] = useState<string | null>(null);
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [open, setOpen] = useState<Opp | null>(null);
 
-  useEffect(() => {
-    if (!profile) return;
-    getDocs(query(collectionGroup(db, 'opportunities'), where('status', '==', 'open'), orderBy('createdAt', 'desc'), limit(50)))
-      .then((s) => setOpps(s.docs.map((d) => ({ id: d.id, ...(d.data() as Opportunity) }))))
-      .catch((e) => { console.error(e); setOpps([]); });
-    getDocs(query(collectionGroup(db, 'applications'), where('applicantId', '==', profile.uid), orderBy('createdAt', 'desc')))
-      .then((s) => setApplied(new Set(s.docs.map((d) => d.get('opportunityId') as string))))
-      .catch(() => {});
-  }, [profile]);
+  const applied = useMemo(
+    () => new Set([...(apps ?? []).filter((a) => a.status !== 'withdrawn').map((a) => a.opportunityId), ...extraApplied]),
+    [apps, extraApplied],
+  );
 
   const scored = useMemo(() => (opps ?? [])
     .map((o) => ({ o, score: profile ? computeMatchScore({ applicant: profile, opportunity: o }) : 0 }))
     .filter(({ o }) => (!skill || o.requiredSkillSlugs?.includes(skill)) && (!remoteOnly || o.location?.remote))
-    .sort((a, b) => b.score - a.score), [opps, profile, skill, remoteOnly]);
+    .sort((a, b) => b.score - a.score)
+    .slice(0, max ?? Infinity), [opps, profile, skill, remoteOnly, max]);
 
   const allSkills = useMemo(() => {
     const m = new Map<string, string>();
@@ -45,25 +70,27 @@ function Jobs() {
 
   return (
     <>
-      <div className="pad" style={{ borderBottom: '1px solid var(--border)' }}>
-        <div className="chips">
-          <button className={`chip${remoteOnly ? ' on' : ''}`} onClick={() => setRemoteOnly(!remoteOnly)}>Uzaktan</button>
-          {allSkills.map(([slug, label]) => (
-            <button key={slug} className={`chip${skill === slug ? ' on' : ''}`} onClick={() => setSkill(skill === slug ? null : slug)}>{label}</button>
-          ))}
+      {filters && (
+        <div className="pad" style={{ borderBottom: '1px solid var(--border)' }}>
+          <div className="chips">
+            <button className={`chip${remoteOnly ? ' on' : ''}`} onClick={() => setRemoteOnly(!remoteOnly)}>Uzaktan</button>
+            {allSkills.map(([slug, label]) => (
+              <button key={slug} className={`chip${skill === slug ? ' on' : ''}`} onClick={() => setSkill(skill === slug ? null : slug)}>{label}</button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {opps === null ? (
-        <div className="center" style={{ minHeight: 200 }}><div className="spinner" /></div>
+        <div className="center" style={{ minHeight: 160 }}><div className="spinner" /></div>
       ) : scored.length === 0 ? (
-        <div className="empty">Şu an açık ilan yok. Projeler pozisyon açtığında burada göreceksin.</div>
+        <div className="empty">{emptyText ?? 'Şu an açık ilan yok. Projeler pozisyon açtığında burada göreceksin.'}</div>
       ) : (
         scored.map(({ o, score }) => (
           <div key={`${o.projectId}/${o.id}`} className="card stack">
-            <div className="row spread">
+            <div className="row spread" style={{ alignItems: 'flex-start' }}>
               <div>
-                <div className="meta"><Link href={`/p/${o.projectSnapshot?.slug}`}>{o.projectSnapshot?.name}</Link></div>
+                <div className="meta"><Link href={`/proje/${o.projectSnapshot?.slug}`}>{o.projectSnapshot?.name}</Link></div>
                 <div className="post-name" style={{ fontSize: 16 }}>{o.title}</div>
               </div>
               {score >= 50 && <span className={`badge-match${score >= 80 ? ' high' : ''}`}>%{score} uyum</span>}
@@ -74,7 +101,7 @@ function Jobs() {
               <span className="chip solid">{o.location?.remote ? 'Uzaktan' : o.location?.city}</span>
               <span className="chip solid">{o.slots - (o.filledCount ?? 0)} kontenjan</span>
             </div>
-            <p className="post-text meta" style={{ margin: 0 }}>{o.description?.slice(0, 220)}</p>
+            {o.description && <p className="post-text meta" style={{ margin: 0 }}>{o.description.slice(0, 220)}</p>}
             <div className="row spread">
               <div className="chips">{o.requiredSkills?.map((s) => <span key={s} className="meta">#{s}</span>)}</div>
               {applied.has(o.id) ? (
@@ -88,7 +115,7 @@ function Jobs() {
       )}
 
       {open && profile && (
-        <ApplySheet opp={open} onClose={() => setOpen(null)} onDone={() => { setApplied(new Set([...applied, open.id])); setOpen(null); }} />
+        <ApplySheet opp={open} onClose={() => setOpen(null)} onDone={() => { setExtraApplied([...extraApplied, open.id]); setOpen(null); }} />
       )}
     </>
   );
@@ -168,6 +195,3 @@ function ApplySheet({ opp, onClose, onDone }: { opp: Opp; onClose: () => void; o
   );
 }
 
-export default function JobsPage() {
-  return <AppShell title="İlanlar">{firebaseReady && <Jobs />}</AppShell>;
-}

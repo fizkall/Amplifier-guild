@@ -12,7 +12,7 @@
   --success: #2ecc71;
   --warning: #f5a524;
   --danger: #ff453a;
-  --feed-w: 620px;
+  --content-w: 620px;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: light) {
@@ -58,7 +58,7 @@ textarea, input, select { font: inherit; color: var(--text); }
   background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(12px);
   border-top: 1px solid var(--border);
 }
-.main { width: 100%; max-width: var(--feed-w); padding-bottom: 80px; }
+.main { width: 100%; max-width: var(--content-w); padding-bottom: 80px; }
 .topbar {
   position: sticky; top: 0; z-index: 10; height: 56px; display: flex; align-items: center;
   justify-content: center; background: color-mix(in srgb, var(--bg) 92%, transparent);
@@ -164,3 +164,15 @@ textarea, input, select { font: inherit; color: var(--text); }
 .link-btn { background: none; border: 0; padding: 0; color: var(--muted); font-size: 14px; }
 .link-btn:hover { color: var(--text); }
 .link-btn.strong { color: var(--text); font-weight: 600; }
+.section-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 16px 8px; font-weight: 700; font-size: 16px; border-bottom: 1px solid var(--border);
+}
+.meter { height: 6px; border-radius: 999px; background: var(--border); overflow: hidden; margin: 10px 0 8px; }
+.meter span { display: block; height: 100%; background: var(--text); border-radius: 999px; }
+a.card:hover { background: var(--surface-raised); }
+/* Ana ekrana eklenmiş uygulama (standalone) için çentik / alt çubuk boşlukları */
+.topbar { padding-top: env(safe-area-inset-top); height: calc(56px + env(safe-area-inset-top)); }
+.bottom-bar { padding-bottom: env(safe-area-inset-bottom); height: calc(64px + env(safe-area-inset-bottom)); }
+.main { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+@media (min-width: 768px) { .main { padding-bottom: 24px; } }

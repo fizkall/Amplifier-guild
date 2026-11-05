@@ -18,19 +18,19 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
 
   useEffect(() => {
     if (!firebaseReady || loading) return;
-    if (!user) router.replace('/login');
-    else if (emailVerified && !profile?.onboardingComplete) router.replace('/onboarding');
+    if (!user) router.replace('/giris');
+    else if (emailVerified && !profile?.onboardingComplete) router.replace('/profil-olustur');
   }, [user, profile, loading, emailVerified, router]);
 
   const items = [
-    { href: '/feed', label: 'Akış', Icon: HomeIcon },
-    { href: '/jobs', label: 'İlanlar', Icon: JobsIcon },
-    { href: '/me/applications', label: 'Başvurularım', Icon: InboxIcon },
-    { href: profile ? `/u/${profile.handle}` : '/feed', label: 'Profil', Icon: UserIcon },
+    { href: '/ana-sayfa', label: 'Ana Sayfa', Icon: HomeIcon },
+    { href: '/ilanlar', label: 'İlanlar', Icon: JobsIcon },
+    { href: '/basvurularim', label: 'Başvurularım', Icon: InboxIcon },
+    { href: profile ? `/profil/${profile.handle}` : '/ana-sayfa', label: 'Profil', Icon: UserIcon },
   ];
 
   const nav = items.map(({ href, label, Icon }) => {
-    const active = path === href || (href !== '/feed' && path.startsWith(href));
+    const active = path === href || path.startsWith(`${href}/`);
     return (
       <Link key={label} href={href} className={`nav-btn${active ? ' active' : ''}`} aria-label={label} title={label}>
         <Icon filled={active} />
@@ -45,7 +45,7 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
   return (
     <div className="shell">
       <aside className="rail">
-        <Link href="/feed" aria-label="Amfiplier Guild">
+        <Link href="/ana-sayfa" aria-label="Amfiplier Guild">
           <img className="logo-img" src="/logo.png" alt="" width={38} height={38} />
         </Link>
         <nav>{nav}</nav>

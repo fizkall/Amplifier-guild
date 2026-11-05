@@ -32,7 +32,7 @@ const AuthContext = createContext<AuthState | null>(null);
 const CONTINUE_HOSTS = ['amplifierguild.online', 'www.amplifierguild.online', 'localhost'];
 const actionSettings = () =>
   typeof window !== 'undefined' && CONTINUE_HOSTS.includes(window.location.hostname)
-    ? { url: `${window.location.origin}/onboarding` }
+    ? { url: `${window.location.origin}/profil-olustur` }
     : undefined;
 
 /** Firebase hata kodlarını Türkçe mesaja çevirir. */
