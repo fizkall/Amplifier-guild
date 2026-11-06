@@ -10,7 +10,7 @@ import { Footer } from './Footer';
 import { SetupNotice } from './SetupNotice';
 import { Reactivate } from './Reactivate';
 import { VerifyEmail } from './VerifyEmail';
-import { HomeIcon, InboxIcon, JobsIcon, MenuIcon, SettingsIcon, UserIcon } from './Icons';
+import { CompassIcon, HomeIcon, InboxIcon, JobsIcon, MenuIcon, SettingsIcon, UserIcon } from './Icons';
 
 /** Giriş + onboarding korumalı, Threads tarzı uygulama iskeleti. */
 export function AppShell({ title, children, publicPage = false }: { title?: string; children: ReactNode; publicPage?: boolean }) {
@@ -28,6 +28,7 @@ export function AppShell({ title, children, publicPage = false }: { title?: stri
   const items = [
     { href: '/ana-sayfa', label: 'Ana Sayfa', Icon: HomeIcon },
     { href: '/ilanlar', label: 'İlanlar', Icon: JobsIcon },
+    { href: '/kesfet', label: 'Keşfet', Icon: CompassIcon },
     { href: '/basvurularim', label: 'Başvurularım', Icon: InboxIcon },
     { href: profile ? `/profil/${profile.handle}` : '/ana-sayfa', label: 'Profil', Icon: UserIcon },
     { href: '/ayarlar', label: 'Ayarlar', Icon: SettingsIcon },

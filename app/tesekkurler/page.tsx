@@ -18,6 +18,12 @@ const CONTENT: Record<string, { title: string; text: string; primary: [string, s
     primary: ['/', 'Ana sayfa'],
     secondary: ['/ilanlar', 'Açık ilanlar'],
   },
+  girisim: {
+    title: 'Başvurun alındı 🚀',
+    text: 'Girişim / proje başvurun Guild yönetimine iletildi. Onaylandığında sayfan yayına girer ve sen kurucu olarak kendi yöneticilerini atayıp ilan verebilirsin.',
+    primary: ['/ayarlar/girisim-basvurusu', 'Başvurularımı gör'],
+    secondary: ['/kesfet', 'Keşfet'],
+  },
   kayit: {
     title: 'Loncaya hoş geldin 🙌',
     text: 'Profilin hazır. Şimdi sana uygun ilanlara göz atabilirsin.',

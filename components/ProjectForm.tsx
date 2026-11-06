@@ -1,6 +1,6 @@
 'use client';
 
-import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { Project, SocialKey } from '@/shared/models';
@@ -59,7 +59,24 @@ export function ProjectForm({ initial }: { initial?: ProjectDoc }) {
 
     setBusy(true);
     try {
-      if (!editing) {
+      if (!editing && !admin) {
+        // Üye başvurusu: admin onayına kadar 'pending'; başvuran kurucu olarak kaydedilir
+        const b = writeBatch(db);
+        b.set(doc(db, 'projects', effectiveSlug), {
+          name: name.trim(), slug: effectiveSlug, tagline: tagline.trim(), description: description.trim(),
+          logoUrl, coverUrl: null, kind, ownerId: user.uid, managerIds: [], status: 'pending', tags: [], links: cleanLinks,
+          stats: { members: 1, followers: 0, posts: 0, openOpportunities: 0 },
+          createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+        });
+        b.set(doc(db, 'projects', effectiveSlug, 'members', user.uid), {
+          uid: user.uid, role: 'owner', title: 'Kurucu', joinedAt: serverTimestamp(), viaOpportunityId: null,
+        });
+        try { await b.commit(); } catch (e) {
+          if ((e as { code?: string }).code === 'permission-denied') throw new Error('Bu adreste zaten bir proje var ya da e-postan doğrulanmamış; farklı bir sayfa adresi dene.');
+          throw e;
+        }
+        router.push('/tesekkurler?tip=girisim');
+      } else if (!editing) {
         const ref = doc(db, 'projects', effectiveSlug);
         if ((await getDoc(ref)).exists()) throw new Error('Bu adreste zaten bir proje var; farklı bir adres seç.');
         await setDoc(ref, {
@@ -129,6 +146,15 @@ export function ProjectForm({ initial }: { initial?: ProjectDoc }) {
         <span className="meta" style={{ fontSize: 12 }}>{description.length}/5000</span>
       </div>
 
+      {!admin && !editing && (
+        <div className="field">
+          <label htmlFor="pf-kind2">Tür</label>
+          <select id="pf-kind2" className="input" value={kind} onChange={(e) => setKind(e.target.value as Project['kind'])}>
+            <option value="partner_startup">Girişim</option>
+            <option value="community">Topluluk / öğrenci projesi</option>
+          </select>
+        </div>
+      )}
       {admin && (
         <div className="row" style={{ alignItems: 'flex-start' }}>
           <div className="field" style={{ flex: 1 }}>
@@ -165,7 +191,7 @@ export function ProjectForm({ initial }: { initial?: ProjectDoc }) {
       {err && <p className="error" role="alert">{err}</p>}
       {ok && <p className="meta" role="status">{ok}</p>}
       <button className="btn btn-primary btn-lg" style={{ width: '100%' }} disabled={busy} onClick={save}>
-        {busy ? 'Kaydediliyor…' : editing ? 'Değişiklikleri kaydet' : 'Sayfayı oluştur'}
+        {busy ? 'Kaydediliyor…' : editing ? 'Değişiklikleri kaydet' : admin ? 'Sayfayı oluştur' : 'Başvuruyu gönder'}
       </button>
     </div>
   );

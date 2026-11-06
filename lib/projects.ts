@@ -31,7 +31,13 @@ export function useProject(slug: string) {
 export function useCanManage(project: ProjectDoc | null | undefined) {
   const { user } = useAuth();
   if (!user || !project) return false;
-  return isAdminUid(user.uid) || (project.managerIds ?? []).includes(user.uid);
+  return isAdminUid(user.uid) || (project.managerIds ?? []).includes(user.uid) || project.ownerId === user.uid;
+}
+
+/** Projenin kurucusu mu? (Girişim başvurusunu yapan ve admin onayıyla kurucu olan kişi) */
+export function useIsOwner(project: ProjectDoc | null | undefined) {
+  const { user } = useAuth();
+  return Boolean(user && project && project.ownerId === user.uid);
 }
 
 /** Kullanıcının yönettiği projeler (admin için tüm projeler). */
@@ -40,11 +46,16 @@ export function useManagedProjects() {
   const [projects, setProjects] = useState<ProjectDoc[] | null>(null);
   useEffect(() => {
     if (!user) return;
-    const q = isAdminUid(user.uid)
-      ? query(collection(db, 'projects'), orderBy('createdAt', 'desc'))
-      : query(collection(db, 'projects'), where('managerIds', 'array-contains', user.uid));
-    getDocs(q)
-      .then((s) => setProjects(s.docs.map((d) => ({ id: d.id, ...(d.data() as Project) }))))
+    const qs = isAdminUid(user.uid)
+      ? [query(collection(db, 'projects'), orderBy('createdAt', 'desc'))]
+      : [query(collection(db, 'projects'), where('managerIds', 'array-contains', user.uid)),
+         query(collection(db, 'projects'), where('ownerId', '==', user.uid))];
+    Promise.all(qs.map((q) => getDocs(q).catch(() => null)))
+      .then((snaps) => {
+        const map = new Map<string, ProjectDoc>();
+        snaps.forEach((s) => s?.docs.forEach((d) => map.set(d.id, { id: d.id, ...(d.data() as Project) })));
+        setProjects([...map.values()]);
+      })
       .catch((e) => { console.error(e); setProjects([]); });
   }, [user]);
   return projects;
@@ -78,6 +89,10 @@ export const KIND_LABEL: Record<string, string> = {
   guild_internal: 'Guild girişimi',
   partner_startup: 'Anlaşmalı girişim',
   community: 'Topluluk projesi',
+};
+
+export const PROJECT_STATUS_LABEL: Record<string, string> = {
+  pending: 'Onay bekliyor', active: 'Yayında', paused: 'Duraklatıldı', archived: 'Arşiv', rejected: 'Reddedildi',
 };
 
 export const OPP_STATUS_LABEL: Record<string, string> = {

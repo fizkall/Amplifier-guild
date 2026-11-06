@@ -60,7 +60,9 @@ export interface UserProfile {
   links: Partial<Record<'github' | 'linkedin' | 'portfolio' | 'instagram', string>>;
   openToWork: boolean;
   availability: { hoursPerWeek: number; remote: boolean; city: string | null };
-  visibility: 'public' | 'members';
+  /** 'hidden': hesap devre dışı. */
+  visibility: 'public' | 'members' | 'hidden';
+  visibilityBeforeDeactivate?: 'public' | 'members';
   /** Sadece Cloud Functions yazar. */
   stats: { followers: number; following: number; posts: number; projectsJoined: number };
   /** Sadece admin / Cloud Functions yazar. */

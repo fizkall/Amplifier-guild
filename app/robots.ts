@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: [{
       userAgent: '*',
-      allow: ['/', '/hakkinda', '/iletisim', '/kvkk', '/kullanim-kosullari', '/proje/', '/ilan/', '/profil/'],
+      allow: ['/', '/kesfet', '/girisimler', '/hakkinda', '/iletisim', '/kvkk', '/kullanim-kosullari', '/proje/', '/ilan/', '/profil/'],
       disallow: ['/ayarlar', '/yonetim', '/basvurularim', '/profil-olustur', '/ana-sayfa', '/giris', '/tesekkurler', '/surum', '/*/yonet', '/*/basvurular', '/*/duzenle', '/*/ilan-yeni'],
     }],
     sitemap: `${SITE}/sitemap.xml`,

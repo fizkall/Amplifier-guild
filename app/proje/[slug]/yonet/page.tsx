@@ -12,7 +12,7 @@ import { ShareButton } from '@/components/ShareButton';
 import { isAdminUid } from '@/lib/admin';
 import { useAuth } from '@/lib/auth';
 import { db, firebaseReady } from '@/lib/firebase';
-import { OPP_STATUS_LABEL, useCanManage, useProject, useProjectOpportunities, type OppDoc, type ProjectDoc } from '@/lib/projects';
+import { OPP_STATUS_LABEL, PROJECT_STATUS_LABEL, useCanManage, useIsOwner, useProject, useProjectOpportunities, type OppDoc, type ProjectDoc } from '@/lib/projects';
 
 type Tab = 'ilanlar' | 'sayfa' | 'yoneticiler';
 
@@ -76,17 +76,20 @@ function OpportunitiesTab({ project }: { project: ProjectDoc }) {
 type Manager = { uid: string; profile: UserProfile | null };
 
 function ManagersTab({ project }: { project: ProjectDoc }) {
+  const { user } = useAuth();
   const [managers, setManagers] = useState<Manager[] | null>(null);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
 
+  const ownerActive = project.status === 'active';
   useEffect(() => {
-    Promise.all((project.managerIds ?? []).map(async (uid) => {
+    const ids = [...new Set([project.ownerId, ...(project.managerIds ?? [])].filter(Boolean))];
+    Promise.all(ids.map(async (uid) => {
       const s = await getDoc(doc(db, 'users', uid)).catch(() => null);
       return { uid, profile: s?.exists() ? (s.data() as UserProfile) : null };
     })).then(setManagers);
-  }, [project.managerIds]);
+  }, [project.managerIds, project.ownerId]);
 
   async function resolveUid(v: string): Promise<string | null> {
     const t = v.trim().replace(/^@/, '');
@@ -109,7 +112,7 @@ function ManagersTab({ project }: { project: ProjectDoc }) {
     try {
       const uid = await resolveUid(input);
       if (!uid) throw new Error('Bu UID ya da kullanıcı adıyla kayıtlı bir profil bulunamadı. Kişinin önce siteye kaydolup profilini oluşturması gerekir.');
-      if ((project.managerIds ?? []).includes(uid)) throw new Error('Bu kişi zaten yönetici.');
+      if ((project.managerIds ?? []).includes(uid) || uid === project.ownerId) throw new Error('Bu kişi zaten yönetici.');
       const u = await getDoc(doc(db, 'users', uid));
       const p = u.data() as UserProfile;
       const b = writeBatch(db);
@@ -141,11 +144,12 @@ function ManagersTab({ project }: { project: ProjectDoc }) {
     <>
       <div className="pad stack">
         <p className="meta" style={{ margin: 0 }}>
-          Yöneticiler bu projenin sayfasını düzenleyebilir, ilan verebilir ve başvuruları yönetebilir.
+          Kurucu ve yöneticiler bu projenin sayfasını düzenleyebilir, ilan verebilir ve başvuruları yönetebilir.
           Kişinin UID&apos;sini (Ayarlar sayfasında görünür) ya da @kullanıcı adını gir.
         </p>
+        {!ownerActive && <div className="notice" style={{ margin: 0 }}>Yönetici atamak için projenin onaylanıp yayına girmesi gerekiyor.</div>}
         <div className="row" style={{ gap: 8 }}>
-          <input className="input" placeholder="UID veya @kullaniciadi" value={input} onChange={(e) => setInput(e.target.value)} aria-label="UID veya kullanıcı adı" />
+          <input className="input" disabled={!ownerActive && !isAdminUid(user?.uid)} placeholder="UID veya @kullaniciadi" value={input} onChange={(e) => setInput(e.target.value)} aria-label="UID veya kullanıcı adı" />
           <button className="btn btn-primary" disabled={busy || !input.trim()} onClick={add}>Ekle</button>
         </div>
         {msg && <p className="meta" role="status" style={{ margin: 0 }}>{msg}</p>}
@@ -163,7 +167,9 @@ function ManagersTab({ project }: { project: ProjectDoc }) {
               <div className="meta" style={{ wordBreak: 'break-all' }}>{m.profile ? `@${m.profile.handle}` : m.uid}</div>
             </div>
           </div>
-          <button className="btn" onClick={() => remove(m.uid)}>Kaldır</button>
+          {m.uid === project.ownerId
+            ? <span className="status-chip st-active">Kurucu</span>
+            : <button className="btn" onClick={() => remove(m.uid)}>Kaldır</button>}
         </div>
       ))}
     </>
@@ -175,6 +181,7 @@ function Manage({ slug }: { slug: string }) {
   const project = useProject(slug);
   const canManage = useCanManage(project);
   const admin = isAdminUid(user?.uid);
+  const owner = useIsOwner(project);
   const [tab, setTab] = useState<Tab>('ilanlar');
 
   if (project === undefined) return <div className="center" style={{ minHeight: 200 }}><div className="spinner" /></div>;
@@ -191,14 +198,22 @@ function Manage({ slug }: { slug: string }) {
           </div>
         </div>
       </div>
+      {project.status !== 'active' && (
+        <div className="notice" style={{ marginTop: 0 }}>
+          <span className={`status-chip st-${project.status}`}>{PROJECT_STATUS_LABEL[project.status] ?? project.status}</span>{' '}
+          {project.status === 'pending' ? 'Başvurun Guild yönetiminin onayını bekliyor. Bu sürede sayfa bilgilerini düzenleyebilirsin.'
+            : project.status === 'rejected' ? 'Bu başvuru onaylanmadı. Ayrıntı için iletişim sayfasından bize yazabilirsin.'
+            : 'Bu proje şu an yayında değil.'}
+        </div>
+      )}
       <div className="tabs">
         <button className={`tab${tab === 'ilanlar' ? ' active' : ''}`} onClick={() => setTab('ilanlar')}>İlanlar</button>
         <button className={`tab${tab === 'sayfa' ? ' active' : ''}`} onClick={() => setTab('sayfa')}>Sayfa</button>
-        {admin && <button className={`tab${tab === 'yoneticiler' ? ' active' : ''}`} onClick={() => setTab('yoneticiler')}>Yöneticiler</button>}
+        {(admin || owner) && <button className={`tab${tab === 'yoneticiler' ? ' active' : ''}`} onClick={() => setTab('yoneticiler')}>Yöneticiler</button>}
       </div>
       {tab === 'ilanlar' && <OpportunitiesTab project={project} />}
       {tab === 'sayfa' && <ProjectForm key={project.id} initial={project} />}
-      {tab === 'yoneticiler' && admin && <ManagersTab project={project} />}
+      {tab === 'yoneticiler' && (admin || owner) && <ManagersTab project={project} />}
     </>
   );
 }

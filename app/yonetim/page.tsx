@@ -1,18 +1,36 @@
 'use client';
 
+import { arrayUnion, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import Link from 'next/link';
+import { useState } from 'react';
 import { AppShell } from '@/components/AppShell';
 import { Avatar } from '@/components/Avatar';
 import { isAdminUid } from '@/lib/admin';
 import { useAuth } from '@/lib/auth';
-import { firebaseReady } from '@/lib/firebase';
+import { db, firebaseReady } from '@/lib/firebase';
 import { KIND_LABEL, useManagedProjects } from '@/lib/projects';
 
 const STATUS: Record<string, string> = { active: 'Yayında', paused: 'Duraklatıldı', pending: 'Onay bekliyor', archived: 'Arşiv', rejected: 'Reddedildi' };
 
 function Panel() {
   const { user } = useAuth();
-  const projects = useManagedProjects();
+  const all = useManagedProjects();
+  const [decided, setDecided] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState('');
+  const projects = (all ?? null) && all!.map((p) => (decided[p.id] ? { ...p, status: decided[p.id] as typeof p.status } : p));
+  const pending = (projects ?? []).filter((p) => p.status === 'pending');
+
+  async function decide(id: string, ownerId: string, status: 'active' | 'rejected') {
+    if (status === 'rejected' && !confirm('Başvuru reddedilsin mi?')) return;
+    setBusy(id);
+    try {
+      await updateDoc(doc(db, 'projects', id), {
+        status, updatedAt: serverTimestamp(),
+        ...(status === 'active' ? { managerIds: arrayUnion(ownerId) } : {}),
+      });
+      setDecided((d) => ({ ...d, [id]: status }));
+    } finally { setBusy(''); }
+  }
   if (!isAdminUid(user?.uid)) return <div className="empty">Bu sayfa yalnızca Guild yöneticilerine açık.</div>;
 
   return (
@@ -23,6 +41,28 @@ function Panel() {
         <Link href="/yonetim/yeni-proje" className="btn btn-primary btn-lg" style={{ textAlign: 'center' }}>+ Yeni girişim / proje</Link>
         <Link href="/yonetim/mesajlar" className="btn" style={{ textAlign: 'center' }}>İletişim mesajları</Link>
       </div>
+      {pending.length > 0 && (
+        <>
+          <div className="section-head"><span>Onay bekleyen başvurular</span><span className="status-chip st-pending">{pending.length}</span></div>
+          {pending.map((p) => (
+            <div key={p.id} className="card stack">
+              <div className="row" style={{ minWidth: 0 }}>
+                <Avatar name={p.name} src={p.logoUrl} size={44} />
+                <div style={{ minWidth: 0 }}>
+                  <div className="post-name">{p.name}</div>
+                  <div className="meta">{p.tagline || '—'}</div>
+                </div>
+              </div>
+              {p.description && <p className="post-text meta" style={{ margin: 0 }}>{p.description.slice(0, 400)}</p>}
+              <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+                <button className="btn btn-primary" disabled={busy === p.id} onClick={() => decide(p.id, p.ownerId, 'active')}>Onayla</button>
+                <button className="btn" disabled={busy === p.id} onClick={() => decide(p.id, p.ownerId, 'rejected')}>Reddet</button>
+                <Link href={`/proje/${p.id}/yonet`} className="btn">İncele</Link>
+              </div>
+            </div>
+          ))}
+        </>
+      )}
       <div className="section-head"><span>Girişimler ve projeler</span><span className="meta">{projects?.length ?? ''}</span></div>
       {projects === null ? (
         <div className="center" style={{ minHeight: 120 }}><div className="spinner" /></div>

@@ -24,8 +24,9 @@ export function useOpenOpportunities(max = 50) {
   const { profile } = useAuth();
   const [opps, setOpps] = useState<Opp[] | null>(null);
   const [error, setError] = useState('');
+  const { loading } = useAuth();
   useEffect(() => {
-    if (!profile) return;
+    if (loading) return;
     let cancelled = false;
     (async () => {
       const projects = await getDocs(query(collection(db, 'projects'), where('status', '==', 'active')));
@@ -49,7 +50,7 @@ export function useOpenOpportunities(max = 50) {
       if (!cancelled) { setError((e as { code?: string }).code ?? String(e)); setOpps([]); }
     });
     return () => { cancelled = true; };
-  }, [profile, max]);
+  }, [loading, max]);
   return { opps, error };
 }
 
@@ -161,7 +162,9 @@ export function OpportunityList({ max, filters = true, emptyText }: { max?: numb
             {o.description && <p className="post-text meta" style={{ margin: 0 }}>{o.description.slice(0, 220)}</p>}
             <div className="row spread">
               <div className="chips">{o.requiredSkills?.map((s) => <span key={s} className="meta">#{s}</span>)}</div>
-              {applied.has(o.id) ? (
+              {!profile ? (
+                <Link href={`/ilan/${o.projectId}/${o.id}`} className="btn btn-primary">İncele</Link>
+              ) : applied.has(o.id) ? (
                 <button className="btn" disabled>Başvuruldu ✓</button>
               ) : (
                 <button className="btn btn-primary" onClick={() => setOpen(o)}>Başvur</button>

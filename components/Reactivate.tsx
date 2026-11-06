@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase';
 
 /** Devre dışı bırakılmış hesapla giriş yapıldığında gösterilir. */
 export function Reactivate() {
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const [busy, setBusy] = useState(false);
   return (
     <main className="hero">
@@ -17,7 +17,7 @@ export function Reactivate() {
       <div className="row" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
         <button className="btn btn-primary btn-lg" disabled={busy} onClick={async () => {
           setBusy(true);
-          await updateDoc(doc(db, 'users', user!.uid), { deactivated: false, updatedAt: serverTimestamp() }).finally(() => setBusy(false));
+          await updateDoc(doc(db, 'users', user!.uid), { deactivated: false, visibility: (profile as { visibilityBeforeDeactivate?: string } | null)?.visibilityBeforeDeactivate ?? 'public', updatedAt: serverTimestamp() }).finally(() => setBusy(false));
         }}>Hesabımı yeniden etkinleştir</button>
         <button className="btn btn-lg" onClick={() => signOut()}>Çıkış yap</button>
       </div>

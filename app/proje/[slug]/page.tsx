@@ -21,6 +21,7 @@ function ProjectView({ slug }: { slug: string }) {
   return (
     <>
       <div className="pad stack">
+        <Link href="/girisimler" className="meta">← Tüm girişimler</Link>
         <div className="row" style={{ alignItems: 'center' }}>
           <Avatar name={project.name} src={project.logoUrl} size={72} />
           <div style={{ minWidth: 0 }}>

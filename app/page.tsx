@@ -39,6 +39,7 @@ export default function Landing() {
           <Link href="/giris?mod=kayit" className="btn btn-primary btn-lg">Loncaya katıl — ücretsiz</Link>
           <a href="#hakkinda" className="btn btn-lg">Nasıl çalışır?</a>
         </div>
+        <Link href="/kesfet" className="link-btn">Girişimleri, üyeleri ve alımları keşfet →</Link>
         <Link href="/giris" className="link-btn">Zaten üye misin? <b>Giriş yap</b></Link>
         <a href="#hakkinda" className="scroll-hint" aria-label="Aşağı kaydır">↓</a>
       </section>

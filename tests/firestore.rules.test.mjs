@@ -305,7 +305,7 @@ describe('Hesap ayarları & iletişim', () => {
       await setDoc(doc(db, 'users/ayse/experiences/v1'), { type: 'guild_project', verified: true, title: 'X', description: '' });
     }));
     test('devre dışı hesap başkalarına görünmez, sahibine görünür', async () => {
-      await assertSucceeds(updateDoc(doc(verified('ayse'), 'users/ayse'), { deactivated: true, updatedAt: serverTimestamp() }));
+      await assertSucceeds(updateDoc(doc(verified('ayse'), 'users/ayse'), { deactivated: true, visibility: 'hidden', updatedAt: serverTimestamp() }));
       await assertFails(getDoc(doc(verified('mert'), 'users/ayse')));
       await assertSucceeds(getDoc(doc(verified('ayse'), 'users/ayse')));
     });
@@ -329,5 +329,49 @@ describe('Hesap ayarları & iletişim', () => {
       b.update(doc(db, 'users/ayse'), { handle: 'ayse_yeni', updatedAt: serverTimestamp() });
       await assertSucceeds(b.commit());
     });
+  });
+});
+
+describe('Girişim başvurusu, kurucu ve keşfet', () => {
+  const ADMIN = 'A3gNGw4d54T9QE3fCXfN2T5mLn63';
+  const proposal = (extra = {}) => ({
+    name: 'Kuantum Lab', slug: 'kuantum', tagline: 'x', description: 'd', logoUrl: null, coverUrl: null, kind: 'community',
+    ownerId: 'zeynep', managerIds: [], status: 'pending', tags: [], links: {}, stats: { members: 1, followers: 0, posts: 0, openOpportunities: 0 }, ...extra,
+  });
+  test('üye girişim başvurusu yapar (pending + kurucu üyeliği)', async () => {
+    const db = verified('zeynep'); const b = writeBatch(db);
+    b.set(doc(db, 'projects/kuantum'), proposal());
+    b.set(doc(db, 'projects/kuantum/members/zeynep'), { uid: 'zeynep', role: 'owner' });
+    await assertSucceeds(b.commit());
+  });
+  test('kurucu kendi bekleyen başvurularını listeler', async () => {
+    await env.withSecurityRulesDisabled((c) => setDoc(doc(c.firestore(), 'projects/kuantum'), proposal()));
+    await assertSucceeds(getDocs(query(collection(verified('zeynep'), 'projects'), where('ownerId', '==', 'zeynep'))));
+    await assertFails(getDocs(query(collection(verified('mert'), 'projects'), where('ownerId', '==', 'zeynep'))));
+  });
+  test('admin onaylar; kurucu yönetici atar, onaysızken atayamaz', async () => {
+    await env.withSecurityRulesDisabled(async (c) => {
+      await setDoc(doc(c.firestore(), 'projects/kuantum'), proposal());
+      await setDoc(doc(c.firestore(), 'projects/kuantum/members/zeynep'), { uid: 'zeynep', role: 'owner' });
+    });
+    await assertFails(updateDoc(doc(verified('zeynep'), 'projects/kuantum'), { managerIds: ['zeynep', 'mert'] }));
+    await assertFails(updateDoc(doc(verified('zeynep'), 'projects/kuantum'), { status: 'active' }));
+    await assertSucceeds(updateDoc(doc(verified(ADMIN), 'projects/kuantum'), { status: 'active', managerIds: ['zeynep'] }));
+    const db = verified('zeynep'); const b = writeBatch(db);
+    b.update(doc(db, 'projects/kuantum'), { managerIds: ['zeynep', 'mert'], updatedAt: serverTimestamp() });
+    b.set(doc(db, 'projects/kuantum/members/mert'), { uid: 'mert', role: 'admin' });
+    await assertSucceeds(b.commit());
+    await assertFails(updateDoc(doc(verified('mert'), 'projects/kuantum'), { managerIds: ['mert'] }));
+    await assertSucceeds(deleteDoc(doc(verified('zeynep'), 'projects/kuantum/members/mert')));
+  });
+  test('keşfet: üyeler visibility filtresiyle listelenir', async () => {
+    await env.withSecurityRulesDisabled(async (c) => {
+      await setDoc(doc(c.firestore(), 'users/u1'), userDoc('u1', 'u1'));
+      await setDoc(doc(c.firestore(), 'users/u2'), userDoc('u2', 'u2', { visibility: 'hidden' }));
+    });
+    await assertSucceeds(getDocs(query(collection(verified('mert'), 'users'), where('visibility', 'in', ['public', 'members']))));
+    await assertSucceeds(getDocs(query(collection(env.unauthenticatedContext().firestore(), 'users'), where('visibility', '==', 'public'))));
+    await assertFails(getDocs(query(collection(env.unauthenticatedContext().firestore(), 'users'), where('visibility', 'in', ['public', 'members']))));
+    await assertFails(getDoc(doc(verified('mert'), 'users/u2')));
   });
 });

@@ -76,9 +76,12 @@ function Settings() {
       {!admin && projects && projects.length > 0 && (
         <>
           <div className="section-head"><span>Yönettiğim projeler</span></div>
-          {projects.map((p) => <Row key={p.id} href={`/proje/${p.id}/yonet`} title={p.name} />)}
+          {projects.map((p) => <Row key={p.id} href={`/proje/${p.id}/yonet`} title={p.name} desc={p.ownerId === user.uid ? (p.status === 'active' ? 'Kurucu' : `Kurucu · ${p.status === 'pending' ? 'onay bekliyor' : p.status}`) : 'Yönetici'} />)}
         </>
       )}
+
+      <div className="section-head"><span>Girişimler</span></div>
+      <Row href="/ayarlar/girisim-basvurusu" title="Girişim / proje başvurusu yap" desc="Girişimini Guild'e ekle; onaylanınca kurucu olarak yönet" />
 
       <div className="section-head"><span>Profil</span></div>
       <Row href="/ayarlar/profil" title="Profili düzenle" desc="Fotoğraf, ad, kullanıcı adı, okul, yetenekler, deneyimler" />

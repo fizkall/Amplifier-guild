@@ -23,7 +23,7 @@ function AccountActions() {
   async function deactivate() {
     setBusy(true); setErr('');
     try {
-      await updateDoc(doc(db, 'users', user!.uid), { deactivated: true, openToWork: false, updatedAt: serverTimestamp() });
+      await updateDoc(doc(db, 'users', user!.uid), { deactivated: true, openToWork: false, visibility: 'hidden', visibilityBeforeDeactivate: profile!.visibility === 'hidden' ? 'public' : profile!.visibility, updatedAt: serverTimestamp() });
       await signOut();
       window.location.replace('/?hesap=devre-disi');
     } catch (e) {
