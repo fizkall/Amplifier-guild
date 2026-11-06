@@ -5,12 +5,13 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import type { Program } from '@/shared/models';
 import { toSlug } from '@/shared/match';
+import { cleanTeamCode, programLabel } from '@/lib/team';
 import { VerifyEmail } from '@/components/VerifyEmail';
 import { useAuth } from '@/lib/auth';
 import { db } from '@/lib/firebase';
 import { takeReturnTo } from '@/lib/return-to';
 
-const PROGRAMS: Program[] = ['FRC', 'FTC', 'FLL', 'TEKNOFEST', 'TUBITAK', 'WRO', 'MUN', 'OTHER'];
+const PROGRAMS: Program[] = ['FRC', 'VEX', 'FTC', 'FLL', 'TEKNOFEST', 'TUBITAK', 'WRO', 'MUN', 'OTHER'];
 const SUGGESTED = ['Python', 'Java', 'C++', 'CAD', 'Elektronik', 'Mekanik', 'Web', 'Tasarım', 'Video', 'Sosyal Medya', 'Sponsorluk', 'Takım Liderliği'];
 const HANDLE_RE = /^[a-z0-9_.]{3,24}$/;
 
@@ -105,7 +106,7 @@ export default function Onboarding() {
         skillSlugs: skills.map(toSlug),
         interests: [],
         programs: program
-          ? [{ program, ...(teamNumber ? { teamNumber: Number(teamNumber) } : {}), seasons: [new Date().getFullYear()], ...(teamRole ? { role: teamRole } : {}) }]
+          ? [{ program, ...(teamNumber ? { teamCode: teamNumber } : {}), seasons: [new Date().getFullYear()], ...(teamRole ? { role: teamRole } : {}) }]
           : [],
         links: {},
         openToWork,
@@ -204,19 +205,21 @@ export default function Onboarding() {
           <div className="chips">
             {PROGRAMS.map((p) => (
               <button key={p} type="button" className={`chip${program === p ? ' on' : ''}`} onClick={() => setProgram(program === p ? '' : p)}>
-                {p === 'OTHER' ? 'Diğer' : p === 'TUBITAK' ? 'TÜBİTAK' : p}
+                {programLabel(p)}
               </button>
             ))}
           </div>
         </div>
         {program && (
-          <div className="row" style={{ alignItems: 'flex-start' }}>
-            <div className="field" style={{ flex: 1 }}>
-              <label htmlFor="tn">Takım no</label>
-              <input id="tn" className="input" inputMode="numeric" value={teamNumber} onChange={(e) => setTeamNumber(e.target.value.replace(/\D/g, ''))} />
+          <div className="row" style={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            <div className="field" style={{ flex: '1 1 150px' }}>
+              <label htmlFor="tn">Takım kodu <span className="optional">(opsiyonel)</span></label>
+              <input id="tn" className="input" autoCapitalize="characters" autoComplete="off" maxLength={10}
+                placeholder="Ör. 6232 veya 1234A" value={teamNumber} onChange={(e) => setTeamNumber(cleanTeamCode(e.target.value))} aria-describedby="tn-hint" />
+              <span id="tn-hint" className="meta" style={{ fontSize: 12 }}>Varsa VEX (RECF) veya FRC takım kodun. Yoksa boş bırak.</span>
             </div>
-            <div className="field" style={{ flex: 2 }}>
-              <label htmlFor="tr">Takımdaki rolün</label>
+            <div className="field" style={{ flex: '2 1 180px' }}>
+              <label htmlFor="tr">Takımdaki rolün <span className="optional">(opsiyonel)</span></label>
               <input id="tr" className="input" placeholder="Yazılım Kaptanı" value={teamRole} onChange={(e) => setTeamRole(e.target.value)} />
             </div>
           </div>

@@ -13,10 +13,11 @@ import { CheckIcon } from '@/components/Icons';
 import { useAuth } from '@/lib/auth';
 import { db, firebaseReady } from '@/lib/firebase';
 import { imageToDataUrl, normalizeUrl } from '@/lib/image';
+import { cleanTeamCode, programLabel, teamCodeOf } from '@/lib/team';
 
 const HANDLE_RE = /^[a-z0-9_.]{3,24}$/;
-const PROGRAMS: Program[] = ['FRC', 'FTC', 'FLL', 'TEKNOFEST', 'TUBITAK', 'WRO', 'MUN', 'OTHER'];
-const P_LABEL = (p: Program) => (p === 'OTHER' ? 'Diğer' : p === 'TUBITAK' ? 'TÜBİTAK' : p);
+const PROGRAMS: Program[] = ['FRC', 'VEX', 'FTC', 'FLL', 'TEKNOFEST', 'TUBITAK', 'WRO', 'MUN', 'OTHER'];
+const P_LABEL = (p: Program) => programLabel(p);
 const LINKS = [['github', 'GitHub'], ['linkedin', 'LinkedIn'], ['portfolio', 'Portfolyo / web'], ['instagram', 'Instagram']] as const;
 const EXP_TYPES: [ExperienceType, string][] = [
   ['frc_season', 'Takım sezonu'], ['competition', 'Yarışma'], ['award', 'Ödül'], ['project', 'Proje'],
@@ -170,7 +171,7 @@ function EditProfile() {
       b.update(doc(db, 'users', profile!.uid), {
         displayName: name.trim().slice(0, 60), handle, photoURL: photo, headline: headline.trim().slice(0, 120), bio: bio.trim().slice(0, 500),
         school: school.trim() ? { name: school.trim(), city: city.trim(), gradYear } : null,
-        programs: programs.filter((p) => p.program), skills, skillSlugs: skills.map(toSlug),
+        programs: programs.filter((p) => p.program).map((p) => Object.fromEntries(Object.entries(p).filter(([, v]) => v !== undefined && v !== '')) as ProgramEntry), skills, skillSlugs: skills.map(toSlug),
         availability: { ...(profile!.availability ?? { remote: true }), hoursPerWeek: hours, city: city.trim() || null },
         links: cleanLinks, updatedAt: serverTimestamp(),
       });
@@ -221,9 +222,9 @@ function EditProfile() {
                 onChange={(e) => setPrograms(programs.map((x, j) => (j === i ? { ...x, program: e.target.value as Program } : x)))}>
                 {PROGRAMS.map((x) => <option key={x} value={x}>{P_LABEL(x)}</option>)}
               </select>
-              <input className="input" style={{ flex: '1 1 80px' }} inputMode="numeric" placeholder="Takım no" value={p.teamNumber ?? ''} aria-label="Takım numarası"
-                onChange={(e) => setPrograms(programs.map((x, j) => (j === i ? { ...x, teamNumber: e.target.value ? Number(e.target.value.replace(/\D/g, '')) : undefined } : x)))} />
-              <input className="input" style={{ flex: '2 1 140px' }} placeholder="Rolün" value={p.role ?? ''} aria-label="Rol"
+              <input className="input" style={{ flex: '1 1 110px' }} autoCapitalize="characters" maxLength={10} placeholder="Takım kodu (ops.)" value={teamCodeOf(p)} aria-label="Takım kodu (opsiyonel): VEX/RECF veya FRC"
+                onChange={(e) => setPrograms(programs.map((x, j) => (j === i ? { ...x, teamNumber: undefined, teamCode: cleanTeamCode(e.target.value) || undefined } : x)))} />
+              <input className="input" style={{ flex: '2 1 140px' }} placeholder="Rolün (ops.)" value={p.role ?? ''} aria-label="Rol (opsiyonel)"
                 onChange={(e) => setPrograms(programs.map((x, j) => (j === i ? { ...x, role: e.target.value } : x)))} />
               <button className="link-btn" aria-label="Sil" onClick={() => setPrograms(programs.filter((_, j) => j !== i))}>✕</button>
             </div>

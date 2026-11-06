@@ -15,7 +15,7 @@ export interface Timestamp {
 /* ───────────────────────── Ortak ───────────────────────── */
 
 export type Program =
-  | 'FRC' | 'FTC' | 'FLL' | 'TEKNOFEST' | 'TUBITAK' | 'WRO' | 'MUN' | 'OTHER';
+  | 'FRC' | 'FTC' | 'FLL' | 'VEX' | 'TEKNOFEST' | 'TUBITAK' | 'WRO' | 'MUN' | 'OTHER';
 
 export interface UserSnapshot {
   uid: string;
@@ -35,7 +35,10 @@ export interface ProjectSnapshot {
 
 export interface ProgramEntry {
   program: Program;
+  /** Eski kayıtlar: sayısal takım numarası. Yeni kayıtlar teamCode kullanır. */
   teamNumber?: number;
+  /** Opsiyonel takım kodu: FRC (ör. 6232) veya VEX/RECF (ör. 1234A). */
+  teamCode?: string;
   teamName?: string;
   seasons: number[];
   role?: string; // "Yazılım Kaptanı", "Mekanik", "Sponsorluk"...

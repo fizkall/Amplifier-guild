@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { Experience, UserProfile } from '@/shared/models';
 import { AppShell } from '@/components/AppShell';
+import { programChip } from '@/lib/team';
 import { Avatar } from '@/components/Avatar';
 import { CheckIcon } from '@/components/Icons';
 import { useAuth } from '@/lib/auth';
@@ -54,7 +55,7 @@ function Profile({ handle }: { handle: string }) {
         )}
         <div className="chips">
           {user.programs?.map((p, i) => (
-            <span key={i} className="chip solid">{p.program}{p.teamNumber ? ` #${p.teamNumber}` : ''}{p.role ? ` · ${p.role}` : ''}</span>
+            <span key={i} className="chip solid">{programChip(p)}</span>
           ))}
           {user.openToWork && <span className="chip solid" style={{ color: 'var(--success)' }}>● Projelere açık</span>}
         </div>

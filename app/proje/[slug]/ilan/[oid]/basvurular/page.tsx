@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Application, ApplicationStatus } from '@/shared/models';
 import { computeMatchScore, toSlug } from '@/shared/match';
 import { AppShell } from '@/components/AppShell';
+import { programChip } from '@/lib/team';
 import { Avatar } from '@/components/Avatar';
 import { useAuth } from '@/lib/auth';
 import { db, firebaseReady } from '@/lib/firebase';
@@ -110,7 +111,7 @@ function AppCard({ app, opp, project }: { app: App; opp: OppDoc; project: Projec
       </div>
       {a.headline && <div>{a.headline}</div>}
       <div className="chips">
-        {(a.programs ?? []).map((p, i) => <span key={i} className="chip solid">{p.program}{p.teamNumber ? ` #${p.teamNumber}` : ''}{p.role ? ` · ${p.role}` : ''}</span>)}
+        {(a.programs ?? []).map((p, i) => <span key={i} className="chip solid">{programChip(p)}</span>)}
         {(a.skills ?? []).slice(0, 8).map((s) => <span key={s} className="chip">{s}</span>)}
       </div>
       {a.school && <div className="meta">{a.school.name}{a.school.gradYear ? ` · ${a.school.gradYear}` : ''}</div>}

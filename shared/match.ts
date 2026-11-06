@@ -15,7 +15,7 @@ export interface MatchInput {
   };
 }
 
-const COMPETITIVE_PROGRAMS = new Set(['FRC', 'FTC', 'FLL', 'TEKNOFEST', 'WRO']);
+const COMPETITIVE_PROGRAMS = new Set(['FRC', 'FTC', 'FLL', 'VEX', 'TEKNOFEST', 'WRO']);
 
 export function computeMatchScore({ applicant, opportunity }: MatchInput): number {
   const have = new Set(applicant.skillSlugs);
