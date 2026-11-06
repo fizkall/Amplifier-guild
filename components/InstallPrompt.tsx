@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { getInstallEvent, initInstallCapture, onInstallChange } from '@/lib/install';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -27,14 +28,14 @@ export function InstallPrompt({ variant = 'card' }: { variant?: 'card' | 'button
     setIos(isIos);
     if (isIos) setHidden(false);
 
-    const onPrompt = (e: Event) => { e.preventDefault(); setEvt(e as BeforeInstallPromptEvent); setHidden(false); };
-    const onInstalled = () => setHidden(true);
-    window.addEventListener('beforeinstallprompt', onPrompt);
-    window.addEventListener('appinstalled', onInstalled);
-    return () => {
-      window.removeEventListener('beforeinstallprompt', onPrompt);
-      window.removeEventListener('appinstalled', onInstalled);
+    initInstallCapture();
+    const sync = () => {
+      const e = getInstallEvent();
+      setEvt(e);
+      if (e) setHidden(false);
     };
+    sync();
+    return onInstallChange(sync);
   }, [variant]);
 
   if (hidden) return null;

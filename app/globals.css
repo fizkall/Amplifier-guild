@@ -299,3 +299,6 @@ button.set-row { width: 100%; background: none; border-left: 0; border-right: 0;
 @media (min-width: 768px) {
   .guest-bar { display: flex !important; position: fixed; left: auto; right: 24px; bottom: 24px; width: auto; border: 1px solid var(--border); border-radius: 999px; padding: 8px; height: auto; }
 }
+
+.install-steps { margin: 0; padding-left: 20px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.install-steps b { color: var(--text); }

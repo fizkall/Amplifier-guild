@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useState, type ReactNode } from 'react';
 import { AppShell } from '@/components/AppShell';
 import { Avatar } from '@/components/Avatar';
-import { InstallPrompt } from '@/components/InstallPrompt';
+import { InstallAppRow } from '@/components/InstallAppRow';
 import { isAdminUid } from '@/lib/admin';
 import { useAuth } from '@/lib/auth';
 import { db, firebaseReady } from '@/lib/firebase';
@@ -121,11 +121,13 @@ function Settings() {
       <Row href="/iletisim" title="İletişim" desc="Soru, öneri, proje başvurusu veya KVKK talebi" />
       <Row href="/hakkinda" title="Hakkında" />
       <Row href="/kvkk" title="KVKK · Gizlilik · Çerezler" />
-      <InstallPrompt />
 
       <div className="section-head"><span>Hesabı yönet</span></div>
       <Row href="/ayarlar/hesap" title="Hesabı devre dışı bırak veya sil" danger />
       <button className="set-row" onClick={() => signOut()}><span style={{ fontWeight: 600 }}>Çıkış yap</span><span className="meta" aria-hidden>↩</span></button>
+
+      <div className="section-head"><span>Uygulama</span></div>
+      <InstallAppRow />
     </>
   );
 }
