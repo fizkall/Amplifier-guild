@@ -8,6 +8,7 @@ import type { UserProfile } from '@/shared/models';
 import { AppShell } from '@/components/AppShell';
 import { Avatar } from '@/components/Avatar';
 import { ProjectForm } from '@/components/ProjectForm';
+import { ShareButton } from '@/components/ShareButton';
 import { isAdminUid } from '@/lib/admin';
 import { useAuth } from '@/lib/auth';
 import { db, firebaseReady } from '@/lib/firebase';
@@ -59,6 +60,7 @@ function OpportunitiesTab({ project }: { project: ProjectDoc }) {
           <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
             <Link href={`/proje/${project.id}/ilan/${o.id}/duzenle`} className="btn">Düzenle</Link>
             <Link href={`/ilan/${project.id}/${o.id}`} className="btn">Görüntüle</Link>
+            {o.status === 'open' && <ShareButton path={`/ilan/${project.id}/${o.id}`} title={`${o.title} · ${project.name}`} />}
             {o.status === 'open' && <button className="btn" onClick={() => setStatus(o, 'closed')}>Başvuruları kapat</button>}
             {(o.status === 'closed' || o.status === 'draft' || o.status === 'filled') && <button className="btn" onClick={() => setStatus(o, 'open')}>Yayınla</button>}
             {(counts[o.id] ?? 0) === 0 && (

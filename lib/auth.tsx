@@ -84,6 +84,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let unsubProfile: (() => void) | undefined;
     const unsub = onAuthStateChanged(auth, (u) => {
       unsubProfile?.();
+      // Profil belgesi gelene kadar "yükleniyor" kal: yönlendirmeler profil yokmuş gibi davranmasın
+      if (u) setLoading(true);
       setUser(u);
       setEmailVerified(Boolean(u?.emailVerified));
       if (!u) {

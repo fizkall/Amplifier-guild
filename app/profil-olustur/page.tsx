@@ -8,6 +8,7 @@ import { toSlug } from '@/shared/match';
 import { VerifyEmail } from '@/components/VerifyEmail';
 import { useAuth } from '@/lib/auth';
 import { db } from '@/lib/firebase';
+import { takeReturnTo } from '@/lib/return-to';
 
 const PROGRAMS: Program[] = ['FRC', 'FTC', 'FLL', 'TEKNOFEST', 'TUBITAK', 'WRO', 'MUN', 'OTHER'];
 const SUGGESTED = ['Python', 'Java', 'C++', 'CAD', 'Elektronik', 'Mekanik', 'Web', 'Tasarım', 'Video', 'Sosyal Medya', 'Sponsorluk', 'Takım Liderliği'];
@@ -129,7 +130,8 @@ export default function Onboarding() {
       });
 
       await batch.commit();
-      router.replace('/tesekkurler?tip=kayit');
+      const back = takeReturnTo('');
+      router.replace(back || '/tesekkurler?tip=kayit');
     } catch (e) {
       console.error(e);
       setErr('Profil kaydedilemedi. Lütfen tekrar dene.');

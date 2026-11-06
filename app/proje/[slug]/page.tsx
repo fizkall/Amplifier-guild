@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
 import { Avatar } from '@/components/Avatar';
+import { ShareButton } from '@/components/ShareButton';
 import { SocialLinks } from '@/components/SocialLinks';
 import { firebaseReady } from '@/lib/firebase';
 import { ROLE_TYPE_LABEL } from '@/lib/format';
@@ -29,6 +30,7 @@ function ProjectView({ slug }: { slug: string }) {
           </div>
         </div>
         <SocialLinks links={project.links} />
+        <ShareButton path={`/proje/${project.id}`} title={`${project.name} · Amplifier Guild`} text={project.tagline || project.name} />
         {canManage && <Link href={`/proje/${project.id}/yonet`} className="btn" style={{ textAlign: 'center' }}>Projeyi yönet</Link>}
       </div>
 
@@ -60,5 +62,5 @@ function ProjectView({ slug }: { slug: string }) {
 
 export default function ProjectPage() {
   const { slug } = useParams<{ slug: string }>();
-  return <AppShell title="Proje">{firebaseReady && <ProjectView slug={decodeURIComponent(slug)} />}</AppShell>;
+  return <AppShell title="Proje" publicPage>{firebaseReady && <ProjectView slug={decodeURIComponent(slug)} />}</AppShell>;
 }

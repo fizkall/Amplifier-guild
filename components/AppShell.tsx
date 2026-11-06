@@ -13,7 +13,7 @@ import { VerifyEmail } from './VerifyEmail';
 import { HomeIcon, InboxIcon, JobsIcon, MenuIcon, SettingsIcon, UserIcon } from './Icons';
 
 /** Giriş + onboarding korumalı, Threads tarzı uygulama iskeleti. */
-export function AppShell({ title, children }: { title?: string; children: ReactNode }) {
+export function AppShell({ title, children, publicPage = false }: { title?: string; children: ReactNode; publicPage?: boolean }) {
   const { user, profile, loading, emailVerified, signOut } = useAuth();
   const router = useRouter();
   const path = usePathname();
@@ -21,9 +21,9 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
   useEffect(() => {
     if (!firebaseReady || loading) return;
     try { if (sessionStorage.getItem('ag-deleting')) return; } catch { /* yok say */ }
-    if (!user) router.replace('/');
+    if (!user) { if (!publicPage) router.replace('/'); }
     else if (emailVerified && !profile?.onboardingComplete) router.replace('/profil-olustur');
-  }, [user, profile, loading, emailVerified, router]);
+  }, [user, profile, loading, emailVerified, router, publicPage]);
 
   const items = [
     { href: '/ana-sayfa', label: 'Ana Sayfa', Icon: HomeIcon },
@@ -45,7 +45,9 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
   if (firebaseReady && !loading && user && !emailVerified) return <VerifyEmail />;
   if (firebaseReady && !loading && user && (profile as { deactivated?: boolean } | null)?.deactivated) return <Reactivate />;
 
-  const ready = firebaseReady && !loading && user && profile?.onboardingComplete;
+  const guest = publicPage && firebaseReady && !loading && !user;
+  const ready = guest || (firebaseReady && !loading && user && profile?.onboardingComplete);
+  const here = typeof window !== 'undefined' ? window.location.pathname : path;
 
   return (
     <div className="shell">
@@ -53,8 +55,8 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
         <Link href="/ana-sayfa" aria-label="Amplifier Guild">
           <img className="logo-img" src="/logo.png" alt="Amplifier Guild — ana sayfa" width={38} height={38} />
         </Link>
-        <nav>{nav}</nav>
-        <button className="nav-btn" aria-label="Çıkış yap" title="Çıkış yap" onClick={() => signOut().then(() => router.push('/'))}>
+        <nav>{guest ? null : nav}</nav>
+        <button className="nav-btn" style={guest ? { visibility: 'hidden' } : undefined} aria-label="Çıkış yap" title="Çıkış yap" onClick={() => signOut().then(() => router.push('/'))}>
           <MenuIcon />
         </button>
       </aside>
@@ -73,7 +75,14 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
         <Footer />
       </main>
 
-      <nav className="bottom-bar">{nav}</nav>
+      {guest ? (
+        <nav className="bottom-bar guest-bar">
+          <Link href={`/giris?mod=kayit&sonra=${encodeURIComponent(here)}`} className="btn btn-primary">Loncaya katıl</Link>
+          <Link href={`/giris?sonra=${encodeURIComponent(here)}`} className="btn">Giriş yap</Link>
+        </nav>
+      ) : (
+        <nav className="bottom-bar">{nav}</nav>
+      )}
     </div>
   );
 }

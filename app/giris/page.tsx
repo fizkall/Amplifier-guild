@@ -7,6 +7,7 @@ import { Footer } from '@/components/Footer';
 import { SetupNotice } from '@/components/SetupNotice';
 import { authErrorMessage, useAuth } from '@/lib/auth';
 import { firebaseReady } from '@/lib/firebase';
+import { rememberReturnTo, takeReturnTo } from '@/lib/return-to';
 
 type Mode = 'signin' | 'signup' | 'reset';
 
@@ -16,6 +17,7 @@ export default function Login() {
   const [mode, setMode] = useState<Mode>('signin');
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get('mod') === 'kayit') setMode('signup');
+    rememberReturnTo();
   }, []);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -26,7 +28,7 @@ export default function Login() {
 
   useEffect(() => {
     if (loading || !user) return;
-    router.replace(profile?.onboardingComplete ? '/ana-sayfa' : '/profil-olustur');
+    router.replace(profile?.onboardingComplete ? takeReturnTo('/ana-sayfa') : '/profil-olustur');
   }, [user, profile, loading, router]);
 
   function switchMode(m: Mode) {

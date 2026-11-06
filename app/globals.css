@@ -293,3 +293,9 @@ button.set-row { width: 100%; background: none; border-left: 0; border-right: 0;
 }
 
 @media (min-width: 768px) { .mobile-only-spacer { display: none; } }
+
+.guest-bar { gap: 8px; padding-left: 16px; padding-right: 16px; }
+.guest-bar .btn { flex: 1; text-align: center; }
+@media (min-width: 768px) {
+  .guest-bar { display: flex !important; position: fixed; left: auto; right: 24px; bottom: 24px; width: auto; border: 1px solid var(--border); border-radius: 999px; padding: 8px; height: auto; }
+}

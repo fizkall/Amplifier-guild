@@ -9,13 +9,14 @@ import { computeMatchScore } from '@/shared/match';
 import { AppShell } from '@/components/AppShell';
 import { Avatar } from '@/components/Avatar';
 import { ApplySheet } from '@/components/Opportunities';
+import { ShareButton } from '@/components/ShareButton';
 import { useAuth } from '@/lib/auth';
 import { db, firebaseReady } from '@/lib/firebase';
 import { APP_STATUS_LABEL, ROLE_TYPE_LABEL } from '@/lib/format';
 import { getOpportunity, useCanManage, useProject, type OppDoc } from '@/lib/projects';
 
 function Detail({ pid, oid }: { pid: string; oid: string }) {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const project = useProject(pid);
   const canManage = useCanManage(project);
   const [opp, setOpp] = useState<OppDoc | null | undefined>(undefined);
@@ -35,7 +36,9 @@ function Detail({ pid, oid }: { pid: string; oid: string }) {
 
   const score = profile ? computeMatchScore({ applicant: profile, opportunity: opp }) : 0;
   const expired = opp.deadline ? opp.deadline.toDate() < new Date() : false;
-  const canApply = opp.status === 'open' && !expired && !myStatus && !canManage;
+  const canApply = Boolean(user) && opp.status === 'open' && !expired && !myStatus && !canManage;
+  const here = `/ilan/${pid}/${oid}`;
+  const shareTitle = `${opp.title} · ${opp.projectSnapshot?.name ?? 'Amplifier Guild'}`;
 
   return (
     <>
@@ -58,7 +61,12 @@ function Detail({ pid, oid }: { pid: string; oid: string }) {
           {opp.deadline && <span className="chip solid">Son başvuru: {opp.deadline.toDate().toLocaleDateString('tr-TR')}</span>}
         </div>
 
-        {canApply ? (
+        {!user && opp.status === 'open' && !expired ? (
+          <div className="stack">
+            <Link href={`/giris?mod=kayit&sonra=${encodeURIComponent(here)}`} className="btn btn-primary btn-lg" style={{ textAlign: 'center' }}>Başvurmak için loncaya katıl</Link>
+            <Link href={`/giris?sonra=${encodeURIComponent(here)}`} className="link-btn" style={{ textAlign: 'center' }}>Zaten üye misin? <b>Giriş yap ve başvur</b></Link>
+          </div>
+        ) : canApply ? (
           <button className="btn btn-primary btn-lg" onClick={() => setOpen(true)}>Başvur</button>
         ) : myStatus ? (
           <Link href="/basvurularim" className="btn btn-lg" style={{ textAlign: 'center' }}>Başvurun: {APP_STATUS_LABEL[myStatus]}</Link>
@@ -67,6 +75,10 @@ function Detail({ pid, oid }: { pid: string; oid: string }) {
         ) : (
           <button className="btn btn-lg" disabled>{expired ? 'Son başvuru tarihi geçti' : 'Başvurular kapalı'}</button>
         )}
+      </div>
+
+      <div className="pad" style={{ paddingTop: 0 }}>
+        <ShareButton path={here} title={shareTitle} text={`${shareTitle} — Amplifier Guild'de açık pozisyon`} />
       </div>
 
       {opp.description && (<><div className="section-head"><span>Açıklama</span></div><p className="post-text pad" style={{ margin: 0 }}>{opp.description}</p></>)}
@@ -101,5 +113,5 @@ function Detail({ pid, oid }: { pid: string; oid: string }) {
 
 export default function IlanDetayPage() {
   const { pid, oid } = useParams<{ pid: string; oid: string }>();
-  return <AppShell title="İlan">{firebaseReady && <Detail pid={decodeURIComponent(pid)} oid={oid} />}</AppShell>;
+  return <AppShell title="İlan" publicPage>{firebaseReady && <Detail pid={decodeURIComponent(pid)} oid={oid} />}</AppShell>;
 }
