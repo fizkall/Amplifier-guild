@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 const CONTACT = 'fizkall34en@gmail.com';
-const UPDATED = '6 Kasım 2026';
+const UPDATED = '7 Kasım 2026';
 
 export default function KvkkPage() {
   return (
@@ -39,7 +39,7 @@ export default function KvkkPage() {
           <ul>
             <li><b>Kimlik ve iletişim:</b> ad soyad, kullanıcı adı, e-posta adresi, profil fotoğrafı (Google ile girişte Google hesabından alınır).</li>
             <li><b>Profil (CV) bilgileri:</b> kısa başlık, okul, şehir, mezuniyet yılı, program/takım geçmişi (ör. FRC takım numarası ve rol), yetenekler, haftalık müsaitlik, projelere açıklık tercihi.</li>
-            <li><b>Yaş ve veli bilgileri:</b> doğum tarihi; 18 yaşından küçük kullanıcılar için veli adı, veli e-postası ve veli onayının tarihi.</li>
+            <li><b>Yaş ve veli bilgileri:</b> doğum tarihi; 14 yaşından küçük kullanıcılar için veli adı, veli e-postası ve veli onayının tarihi.</li>
             <li><b>Başvuru verileri:</b> başvurduğun ilanlar, başvuru notun ve ek soru cevapların, uyum skoru, başvuru durumu ve geçmişi, kabul edildiğin projeler ve doğrulanmış deneyimler.</li>
             <li><b>Onay kayıtları:</b> bu aydınlatma metnini kabul ettiğin tarih.</li>
             <li><b>İletişim formu:</b> iletişim sayfasından gönderdiğin ad, e-posta, konu ve mesaj (yalnızca sana dönüş yapmak için).</li>
@@ -51,7 +51,7 @@ export default function KvkkPage() {
             <li>Hesap oluşturma, giriş ve platformun sunulması — sözleşmenin kurulması ve ifası (KVKK m.5/2-c).</li>
             <li>Profilinin ilanlarla eşleştirilmesi, uyum skorunun hesaplanması ve başvurunun ilgili projeye iletilmesi — sözleşmenin ifası (m.5/2-c).</li>
             <li>Kabul edildiğin projelerin profiline doğrulanmış deneyim olarak eklenmesi — sözleşmenin ifası ve meşru menfaat (m.5/2-f).</li>
-            <li>18 yaş altı kullanıcılar için veli onayının alınması ve saklanması — hukuki yükümlülük ve meşru menfaat (m.5/2-ç, m.5/2-f).</li>
+            <li>14 yaş altı kullanıcılar için veli onayının alınması ve saklanması — hukuki yükümlülük ve meşru menfaat (m.5/2-ç, m.5/2-f).</li>
             <li>Güvenlik, kötüye kullanımın önlenmesi ve şikâyet yönetimi — meşru menfaat ve hukuki yükümlülük (m.5/2-ç, m.5/2-f).</li>
             <li>Profilinin herkese açık görünmesi — açık rıza (m.5/1).</li>
           </ul>
@@ -98,7 +98,7 @@ export default function KvkkPage() {
             yalnızca senin (ve platform yöneticilerinin) erişebildiği bir alanda saklanır.
           </p>
           <p>
-            <b>Yaş sınırı:</b> 13 yaşından küçükler platformu kullanamaz. 13–18 yaş arası kullanıcılar için
+            <b>Yaş sınırı:</b> 13 yaşından küçükler platformu kullanamaz. 13 yaşını doldurmuş ancak 14 yaşından küçük kullanıcılar için
             kayıt sırasında veli bilgisi ve onayı alınır.
           </p>
           <p>

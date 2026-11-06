@@ -69,12 +69,14 @@ export default function Onboarding() {
 
   const age = birthDate ? ageFrom(birthDate) : null;
   const isMinor = age !== null && age < 18;
+  // Veli bilgisi yalnızca 14 yaşından küçükler için istenir
+  const needsGuardian = age !== null && age < 14;
   const tooYoung = age !== null && age < 13;
   const canSubmit = useMemo(
     () => handleState === 'free' && displayName.trim() && birthDate && kvkk && skills.length > 0
       && !tooYoung
-      && (!isMinor || (guardianName.trim() && /\S+@\S+\.\S+/.test(guardianEmail))),
-    [handleState, displayName, birthDate, kvkk, skills, isMinor, tooYoung, guardianName, guardianEmail],
+      && (!needsGuardian || (guardianName.trim() && /\S+@\S+\.\S+/.test(guardianEmail))),
+    [handleState, displayName, birthDate, kvkk, skills, needsGuardian, tooYoung, guardianName, guardianEmail],
   );
 
   function addSkill(s: string) {
@@ -124,7 +126,7 @@ export default function Onboarding() {
         phone: null,
         birthDate,
         isMinor,
-        guardianConsent: isMinor ? { name: guardianName.trim(), email: guardianEmail.trim(), consentedAt: serverTimestamp() } : null,
+        guardianConsent: needsGuardian ? { name: guardianName.trim(), email: guardianEmail.trim(), consentedAt: serverTimestamp() } : null,
         kvkkConsentAt: serverTimestamp(),
         marketingConsent: false,
         cvFileUrl: null,
@@ -192,9 +194,9 @@ export default function Onboarding() {
         {tooYoung && (
           <p className="error" role="alert" style={{ marginTop: 0 }}>Amplifier Guild'i kullanmak için en az 13 yaşında olmalısın.</p>
         )}
-        {isMinor && !tooYoung && (
+        {needsGuardian && !tooYoung && (
           <div className="notice" style={{ margin: '0 0 16px' }}>
-            <p style={{ marginTop: 0 }}>18 yaşından küçük olduğun için veli bilgisi gerekiyor.</p>
+            <p style={{ marginTop: 0 }}>14 yaşından küçük olduğun için veli bilgisi gerekiyor.</p>
             <div className="field"><label htmlFor="gn">Veli adı</label><input id="gn" className="input" value={guardianName} onChange={(e) => setGuardianName(e.target.value)} /></div>
             <div className="field" style={{ marginBottom: 0 }}><label htmlFor="ge">Veli e-postası</label><input id="ge" className="input" type="email" value={guardianEmail} onChange={(e) => setGuardianEmail(e.target.value)} /></div>
           </div>

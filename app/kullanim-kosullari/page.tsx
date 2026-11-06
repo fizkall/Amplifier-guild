@@ -19,7 +19,7 @@ export default function KullanimKosullariPage() {
         <h1 className="h1">Kullanım Koşulları</h1>
       </header>
       <div className="about legal">
-        <p className="meta">Son güncelleme: 6 Kasım 2026</p>
+        <p className="meta">Son güncelleme: 7 Kasım 2026</p>
 
         <section className="about-sec">
           <h2>1. Taraflar ve kapsam</h2>
@@ -32,7 +32,7 @@ export default function KullanimKosullariPage() {
         <section className="about-sec">
           <h2>2. Üyelik</h2>
           <ul>
-            <li>Platformu kullanmak için en az <b>13 yaşında</b> olmalısın. 18 yaşından küçükler veli bilgisi ve onayıyla kayıt olur.</li>
+            <li>Platformu kullanmak için en az <b>13 yaşında</b> olmalısın. 14 yaşından küçükler veli bilgisi ve onayıyla kayıt olur.</li>
             <li>Profilindeki bilgilerin (okul, takım geçmişi, yetenekler, deneyimler) doğru ve güncel olmasından sen sorumlusun.</li>
             <li>Hesabının güvenliğinden ve hesabınla yapılan işlemlerden sen sorumlusun; şifreni kimseyle paylaşma.</li>
             <li>Hesabını istediğin zaman Ayarlar&apos;dan devre dışı bırakabilir veya silebilirsin.</li>

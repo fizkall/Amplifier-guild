@@ -38,7 +38,7 @@ const PILLARS = [
 const FAQ = [
   { q: 'Ücretli mi?', a: 'Hayır. Öğrenciler için Amplifier Guild tamamen ücretsizdir.' },
   { q: 'Kimler katılabilir?', a: 'FRC, FTC, FLL, TEKNOFEST, TÜBİTAK, WRO, MUN gibi topluluklarda yer almış ya da yer almak isteyen lise ve üniversite öğrencileri.' },
-  { q: '18 yaşından küçüğüm, katılabilir miyim?', a: 'Evet. Kayıt sırasında veli bilgisi ve onayı istenir. İletişim bilgilerin yalnızca kabul edildiğin projenin yöneticisiyle paylaşılır.' },
+  { q: 'Kaç yaşında katılabilirim?', a: 'En az 13 yaşında olmalısın. 14 yaşından küçüksen kayıt sırasında veli bilgisi ve onayı istenir. İletişim bilgilerin yalnızca kabul edildiğin projenin yöneticisiyle paylaşılır.' },
   { q: 'Projeler nereden geliyor?', a: 'Guild\'in kendi kurduğu girişimler, anlaşmalı startup\'lar ve topluluk projeleri. Her proje yayına girmeden önce Guild tarafından onaylanır.' },
   { q: 'Neden "Amplifier"?', a: 'İngilizcede "amplifier", Türkçede kısaca "amfi": sesi yükselten cihaz. Okullardaki "amfi" kültürüne de selam veriyor. İkisi bir arada: amfiden sahneye, potansiyelini yükselt.' },
 ];
