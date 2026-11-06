@@ -1,3 +1,5 @@
+import { CookieSettingsLink } from './CookieSettingsLink';
+
 export const INSTAGRAM_URL = 'https://www.instagram.com/amplifierguild/';
 
 function InstagramIcon() {
@@ -20,6 +22,8 @@ export function Footer() {
         <a href="/hakkinda" style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}>Hakkında</a>
         <a href="/iletisim" style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}>İletişim</a>
         <a href="/kvkk" style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}>KVKK · Gizlilik · Çerezler</a>
+        <a href="/kullanim-kosullari" style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}>Kullanım Koşulları</a>
+        <CookieSettingsLink />
       </div>
       <div className="meta">Amplifier Guild ©2027</div>
     </footer>

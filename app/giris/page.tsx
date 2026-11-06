@@ -14,6 +14,9 @@ export default function Login() {
   const { user, profile, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, resetPassword } = useAuth();
   const router = useRouter();
   const [mode, setMode] = useState<Mode>('signin');
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('mod') === 'kayit') setMode('signup');
+  }, []);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -65,7 +68,7 @@ export default function Login() {
 
   return (
     <main className="hero" style={{ gap: 18 }}>
-      <img className="logo-img" src="/logo.png" alt="" width={84} height={84} />
+      <img className="logo-img" src="/logo.png" alt="Amplifier Guild logosu" width={84} height={84} />
       <h1 style={{ fontSize: 30 }}>{title}</h1>
 
       {!firebaseReady ? (
@@ -124,7 +127,8 @@ export default function Login() {
 
       <a href="/hakkinda" className="link-btn strong">Amplifier Guild nedir? →</a>
       <p className="meta" style={{ fontSize: 12, maxWidth: 360 }}>
-        Devam ederek <a href="/kvkk" style={{ textDecoration: 'underline' }}>KVKK aydınlatma metnini ve gizlilik politikasını</a> kabul etmiş olursun.
+        Devam ederek <a href="/kullanim-kosullari" style={{ textDecoration: 'underline' }}>Kullanım Koşulları</a>&apos;nı ve{' '}
+        <a href="/kvkk" style={{ textDecoration: 'underline' }}>KVKK aydınlatma metni / gizlilik politikasını</a> kabul etmiş olursun.
       </p>
       <Footer />
     </main>

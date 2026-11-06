@@ -37,7 +37,7 @@ export function ContactForm() {
         name: name.trim().slice(0, 80), email: email.trim().slice(0, 120), subject: subject.trim().slice(0, 120),
         message: message.trim().slice(0, 3000), topic, status: 'new', uid: user?.uid ?? null, createdAt: serverTimestamp(),
       });
-      setSent(true);
+      window.location.href = '/tesekkurler?tip=iletisim';
     } catch (e2) {
       console.error(e2);
       setErr('Mesaj gönderilemedi. Lütfen e-posta ile ulaş.');

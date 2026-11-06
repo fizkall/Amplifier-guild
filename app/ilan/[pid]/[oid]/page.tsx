@@ -39,7 +39,7 @@ function Detail({ pid, oid }: { pid: string; oid: string }) {
 
   return (
     <>
-      {opp.coverUrl && <img src={opp.coverUrl} alt="" className="opp-cover" style={{ borderRadius: 0, border: 0 }} />}
+      {opp.coverUrl && <img src={opp.coverUrl} alt={`${opp.title} ilan görseli`} className="opp-cover" style={{ borderRadius: 0, border: 0 }} />}
       <div className="pad stack">
         <Link href={`/proje/${pid}`} className="row" style={{ gap: 8 }}>
           <Avatar name={opp.projectSnapshot?.name} src={project?.logoUrl ?? opp.projectSnapshot?.logoUrl} size={28} />
@@ -83,6 +83,15 @@ function Detail({ pid, oid }: { pid: string; oid: string }) {
               <span>{l.label}</span><span className="meta" aria-hidden>↗</span>
             </a>
           ))}</>
+      )}
+
+      {canApply && (
+        <>
+          <div style={{ height: 64 }} className="mobile-only-spacer" aria-hidden />
+          <div className="sticky-cta above-nav">
+            <button className="btn btn-primary btn-lg" onClick={() => setOpen(true)}>Başvur · {opp.title}</button>
+          </div>
+        </>
       )}
 
       {open && <ApplySheet opp={opp} onClose={() => setOpen(false)} onDone={() => { setOpen(false); setMyStatus('submitted'); }} />}

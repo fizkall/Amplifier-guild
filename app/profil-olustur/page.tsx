@@ -129,7 +129,7 @@ export default function Onboarding() {
       });
 
       await batch.commit();
-      router.replace('/ana-sayfa');
+      router.replace('/tesekkurler?tip=kayit');
     } catch (e) {
       console.error(e);
       setErr('Profil kaydedilemedi. Lütfen tekrar dene.');
@@ -250,6 +250,7 @@ export default function Onboarding() {
         <label className="row" style={{ marginBottom: 20 }}>
           <input type="checkbox" checked={kvkk} onChange={(e) => setKvkk(e.target.checked)} />
           <span>
+            <a href="/kullanim-kosullari" target="_blank" rel="noopener" style={{ textDecoration: 'underline' }}>Kullanım Koşulları</a>&apos;nı kabul ediyor,{' '}
             <a href="/kvkk" target="_blank" rel="noopener" style={{ textDecoration: 'underline' }}>KVKK aydınlatma metnini</a> okudum;
             kişisel verilerimin işlenmesine ve yurt dışında (Firebase, Vercel) saklanmasına açık rıza veriyorum.
           </span>

@@ -5,7 +5,8 @@ import { ContactForm } from '@/components/ContactForm';
 import { Footer, INSTAGRAM_URL } from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'İletişim · Amplifier Guild',
+  alternates: { canonical: '/iletisim' },
+  title: 'İletişim',
   description: 'Amplifier Guild ile iletişime geç: soru, öneri, girişim/proje başvurusu veya KVKK talebi.',
 };
 
@@ -15,7 +16,7 @@ export default function IletisimPage() {
   return (
     <main>
       <header className="about-top">
-        <Link href="/" aria-label="Ana sayfaya dön"><img className="logo-img" src="/logo.png" alt="" width={40} height={40} /></Link>
+        <Link href="/" aria-label="Ana sayfaya dön"><img className="logo-img" src="/logo.png" alt="Amplifier Guild logosu" width={40} height={40} /></Link>
         <h1 className="h1">İletişim</h1>
       </header>
       <div className="about">

@@ -51,7 +51,7 @@ export function AppShell({ title, children }: { title?: string; children: ReactN
     <div className="shell">
       <aside className="rail">
         <Link href="/ana-sayfa" aria-label="Amplifier Guild">
-          <img className="logo-img" src="/logo.png" alt="" width={38} height={38} />
+          <img className="logo-img" src="/logo.png" alt="Amplifier Guild — ana sayfa" width={38} height={38} />
         </Link>
         <nav>{nav}</nav>
         <button className="nav-btn" aria-label="Çıkış yap" title="Çıkış yap" onClick={() => signOut().then(() => router.push('/'))}>

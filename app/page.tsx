@@ -25,6 +25,7 @@ export default function Landing() {
 
   return (
     <main>
+      <link rel="canonical" href="https://amplifierguild.online/" />
       {notice && <div className="notice" role="status" style={{ maxWidth: 560, margin: '16px auto 0' }}>{notice}</div>}
       <section className="hero" style={{ minHeight: '88dvh' }}>
         <img className="logo-img" src="/logo.png" alt="Amplifier Guild logosu" width={112} height={112} />
@@ -35,9 +36,10 @@ export default function Landing() {
           Projelerde yer al, network kur, <b style={{ color: 'var(--text)' }}>doğrulanmış CV</b> kazan.
         </p>
         <div className="row" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
-          <a href="#hakkinda" className="btn btn-primary btn-lg">Nasıl çalışır?</a>
-          <Link href="/giris" className="btn btn-lg">Giriş yap</Link>
+          <Link href="/giris?mod=kayit" className="btn btn-primary btn-lg">Loncaya katıl — ücretsiz</Link>
+          <a href="#hakkinda" className="btn btn-lg">Nasıl çalışır?</a>
         </div>
+        <Link href="/giris" className="link-btn">Zaten üye misin? <b>Giriş yap</b></Link>
         <a href="#hakkinda" className="scroll-hint" aria-label="Aşağı kaydır">↓</a>
       </section>
 
@@ -49,6 +51,11 @@ export default function Landing() {
         <InstallPrompt variant="button" />
       </div>
       <Footer />
+      <div style={{ height: 72 }} className="mobile-only-spacer" aria-hidden />
+      <div className="sticky-cta at-bottom">
+        <Link href="/giris?mod=kayit" className="btn btn-primary">Loncaya katıl</Link>
+        <Link href="/giris" className="btn">Giriş yap</Link>
+      </div>
     </main>
   );
 }

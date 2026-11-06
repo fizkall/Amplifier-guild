@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { Footer } from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'KVKK · Gizlilik · Çerezler — Amplifier Guild',
+  alternates: { canonical: '/kvkk' },
+  title: 'KVKK · Gizlilik · Çerezler',
   description: 'Amplifier Guild KVKK aydınlatma metni, gizlilik politikası ve çerez politikası.',
 };
 
@@ -15,7 +16,7 @@ export default function KvkkPage() {
   return (
     <main>
       <header className="about-top">
-        <Link href="/" aria-label="Ana sayfaya dön"><img className="logo-img" src="/logo.png" alt="" width={40} height={40} /></Link>
+        <Link href="/" aria-label="Ana sayfaya dön"><img className="logo-img" src="/logo.png" alt="Amplifier Guild logosu" width={40} height={40} /></Link>
         <h1 className="h1">Yasal Bilgilendirme</h1>
       </header>
 
@@ -119,12 +120,18 @@ export default function KvkkPage() {
 
         <section className="about-sec" id="cerezler">
           <h2>3. Çerez ve Yerel Depolama Politikası</h2>
-          <p>Platform <b>reklam veya izleme çerezi kullanmaz</b>. Aşağıdakiler zorunlu/işlevsel olup tarayıcı depolamasında tutulur:</p>
+          <p>Platform <b>reklam çerezi kullanmaz</b>. Aşağıdakiler zorunlu/işlevsel olup tarayıcı depolamasında tutulur:</p>
           <ul>
             <li><b>Oturum (Firebase Authentication):</b> giriş yapmış kalmanı sağlar.</li>
             <li><b>Tercihler (localStorage):</b> &quot;Uygulamayı ana ekrana ekle&quot; kartını kapatma tercihin gibi küçük ayarlar.</li>
             <li><b>Uygulama önbelleği (service worker):</b> sitenin ana ekrandan uygulama olarak açılabilmesi ve daha hızlı yüklenmesi için sayfa dosyalarını cihazında saklar; kişisel verilerini içermez.</li>
           </ul>
+          <p>
+            <b>Analitik çerezler (yalnızca onay verirsen):</b> Çerez bildiriminde &quot;Kabul et&quot; dersen, siteyi geliştirmek için
+            Google Analytics (Firebase Analytics, Google LLC) ile anonim kullanım istatistikleri (ziyaret edilen sayfalar, cihaz türü,
+            yaklaşık konum) toplanır; bu kapsamda veriler yurt dışına aktarılabilir. &quot;Sadece zorunlu&quot; dersen analitik
+            çalışmaz. Tercihini her sayfanın altındaki <b>Çerez tercihleri</b> bağlantısından değiştirebilirsin.
+          </p>
           <p>Tarayıcı ayarlarından depolamayı silebilirsin; bu durumda oturumun kapanır ve tercihlerin sıfırlanır.</p>
         </section>
 

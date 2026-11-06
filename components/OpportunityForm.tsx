@@ -131,7 +131,7 @@ export function OpportunityForm({ project, initial }: { project: ProjectDoc; ini
         <label>Görsel (isteğe bağlı)</label>
         {coverUrl && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={coverUrl} alt="" className="opp-cover" style={{ marginBottom: 8 }} />
+          <img src={coverUrl} alt="İlan görseli önizlemesi" className="opp-cover" style={{ marginBottom: 8 }} />
         )}
         <div className="row">
           <label className="btn">{coverUrl ? 'Görseli değiştir' : 'Görsel seç'}<input type="file" accept="image/*" hidden onChange={(e) => pickCover(e.target.files?.[0])} /></label>

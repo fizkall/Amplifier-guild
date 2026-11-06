@@ -148,7 +148,7 @@ export function OpportunityList({ max, filters = true, emptyText }: { max?: numb
               {o.coverUrl && (
                 <Link href={`/ilan/${o.projectId}/${o.id}`} className="opp-thumb" aria-hidden tabIndex={-1}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={o.coverUrl} alt="" />
+                  <img src={o.coverUrl} alt={`${o.title} ilan görseli`} />
                 </Link>
               )}
             </div>
@@ -232,6 +232,7 @@ export function ApplySheet({ opp, onClose, onDone }: { opp: Opp; onClose: () => 
       batch.set(doc(db, 'users', profile.uid, 'applications', aid), { projectId: opp.projectId, opportunityId: opp.id, createdAt: serverTimestamp() });
       await batch.commit();
       onDone();
+      window.location.href = '/tesekkurler?tip=basvuru';
     } catch (e) {
       console.error(e);
       setErr((e as Error).message === 'member' ? 'Zaten bu projenin ekibindesin.' : 'Başvuru gönderilemedi (zaten başvurmuş olabilirsin ya da ilan kapanmış olabilir).');
