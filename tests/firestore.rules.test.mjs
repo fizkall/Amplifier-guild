@@ -375,3 +375,18 @@ describe('Girişim başvurusu, kurucu ve keşfet', () => {
     await assertFails(getDoc(doc(verified('mert'), 'users/u2')));
   });
 });
+
+describe('Proje ekibi', () => {
+  test('yayındaki projenin ekibi misafire açık, onay bekleyeninki kapalı', async () => {
+    await env.withSecurityRulesDisabled(async (c) => {
+      const db = c.firestore();
+      await setDoc(doc(db, 'projects/acik'), { name: 'A', status: 'active', managerIds: [] });
+      await setDoc(doc(db, 'projects/acik/members/u1'), { uid: 'u1', role: 'owner' });
+      await setDoc(doc(db, 'projects/bekleyen'), { name: 'B', status: 'pending', managerIds: [] });
+      await setDoc(doc(db, 'projects/bekleyen/members/u1'), { uid: 'u1', role: 'owner' });
+    });
+    const anon = env.unauthenticatedContext().firestore();
+    await assertSucceeds(getDocs(collection(anon, 'projects/acik/members')));
+    await assertFails(getDocs(collection(anon, 'projects/bekleyen/members')));
+  });
+});

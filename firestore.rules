@@ -180,7 +180,8 @@ service cloud.firestore {
       allow delete: if isAdmin();
 
       match /members/{memberId} {
-        allow read: if signedIn();
+        // Yayındaki projelerin ekibi proje sayfasında herkese görünür
+        allow read: if signedIn() || project(pid).status == 'active';
         allow create: if isAdmin()
           // Proje önerisinde sahibin kendini eklemesi (bootstrap)
           || (isSelf(memberId)

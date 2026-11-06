@@ -87,7 +87,7 @@ export async function getOpportunity(pid: string, oid: string): Promise<OppDoc |
 
 export const KIND_LABEL: Record<string, string> = {
   guild_internal: 'Guild girişimi',
-  partner_startup: 'Anlaşmalı girişim',
+  partner_startup: 'Girişim',
   community: 'Topluluk projesi',
 };
 

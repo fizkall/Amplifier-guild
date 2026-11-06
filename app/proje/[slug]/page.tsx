@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { AppShell } from '@/components/AppShell';
 import { Avatar } from '@/components/Avatar';
+import { ProjectTeam } from '@/components/ProjectTeam';
 import { ShareButton } from '@/components/ShareButton';
 import { SocialLinks } from '@/components/SocialLinks';
 import { firebaseReady } from '@/lib/firebase';
@@ -41,6 +42,9 @@ function ProjectView({ slug }: { slug: string }) {
           <p className="post-text pad" style={{ margin: 0 }}>{project.description}</p>
         </>
       )}
+
+      <div className="section-head"><span>Ekip</span></div>
+      <ProjectTeam projectId={project.id} />
 
       <div className="section-head"><span>Açık pozisyonlar</span><span className="meta">{opps?.length ?? ''}</span></div>
       {opps === null ? (
