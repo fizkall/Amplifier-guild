@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>BumperMedia Tanıtım</title>
+<link rel="stylesheet" href="../assets/fonts.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="stage">
+  <div id="bgA" class="blob"></div><div id="bgB" class="blob"></div><div id="bgC" class="blob"></div>
+  <canvas id="bg" width="1080" height="1920"></canvas>
+  <div id="floor"><div id="grid"></div></div>
+  <div id="scenes"></div>
+  <canvas id="fx" width="1080" height="1920"></canvas>
+  <div id="hud">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <div id="hudBrand"><span class="logo-mark sm"></span><b>BUMPERMEDIA</b><span class="mono dim">// FRC SUPER APP</span></div>
+    <div id="hudRight" class="mono"><span class="rec">●</span> <span id="tc">00:00:00:00</span><span class="dim"> · SYS</span> <span class="ok">ONLINE</span></div>
+    <div id="hudChapter" class="mono"><span id="chNum">01</span><span class="bar"></span><span id="chName">SEZON MODU</span></div>
+    <div id="hudMeter"></div>
+    <div id="hudSide" class="mono"></div>
+  </div>
+  <div id="subs"><div id="subsIn"></div></div>
+  <div id="flash"></div>
+  <div id="scan"></div>
+  <div id="vig"></div>
+</div>
+<script src="timeline.js"></script>
+<script src="scenes.js"></script>
+</body>
+</html>

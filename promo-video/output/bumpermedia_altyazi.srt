@@ -1,0 +1,392 @@
+1
+00:00:00,000 --> 00:00:01,660
+Sezon başladı,
+
+2
+00:00:01,660 --> 00:00:03,309
+atölyelerde ışıklar hiç
+
+3
+00:00:03,309 --> 00:00:05,364
+sönmüyor, matkap sesleri
+
+4
+00:00:05,364 --> 00:00:06,687
+havada uçuşuyor,
+
+5
+00:00:06,687 --> 00:00:09,009
+dakikalar yarışla yarışıyor ve
+
+6
+00:00:09,009 --> 00:00:10,983
+sen onlarca farklı tarayıcı
+
+7
+00:00:10,983 --> 00:00:12,504
+sekmesi arasında kaybolup
+
+8
+00:00:12,504 --> 00:00:14,083
+gitmek üzere misin?
+
+9
+00:00:14,083 --> 00:00:15,882
+Veri çekmek için bir yere,
+
+10
+00:00:15,882 --> 00:00:17,287
+teknik tartışmalar için
+
+11
+00:00:17,287 --> 00:00:18,762
+karmaşık forumlara,
+
+12
+00:00:18,762 --> 00:00:20,794
+kurallar içinse yüzlerce
+
+13
+00:00:20,794 --> 00:00:22,477
+sayfalık İngilizce belgelere
+
+14
+00:00:22,477 --> 00:00:24,346
+bakmaktan yorulmadın mı?
+
+15
+00:00:24,346 --> 00:00:26,668
+Peki Türkiye’deki ve dünyadaki
+
+16
+00:00:26,668 --> 00:00:28,456
+yüzlerce FRC takımının
+
+17
+00:00:28,456 --> 00:00:30,314
+arkasındaki o gizli dijital
+
+18
+00:00:30,314 --> 00:00:31,939
+güç nerede saklı?
+
+19
+00:00:31,939 --> 00:00:33,530
+Gelin robotik topluluğunun
+
+20
+00:00:33,530 --> 00:00:35,214
+sınırları tamamen kaldıran
+
+21
+00:00:35,214 --> 00:00:36,874
+yeni Super App’ine,
+
+22
+00:00:36,874 --> 00:00:39,231
+yani BumperMedia’ya yakından
+
+23
+00:00:39,231 --> 00:00:40,972
+ve derinlemesine bakalım!
+
+24
+00:00:40,972 --> 00:00:42,365
+BumperMedia;
+
+25
+00:00:42,365 --> 00:00:44,095
+sadece haber okuyup geçtiğin
+
+26
+00:00:44,095 --> 00:00:46,080
+statik bir blog sitesi değil.
+
+27
+00:00:46,080 --> 00:00:48,553
+Bir FRC ve FTC takımının
+
+28
+00:00:48,553 --> 00:00:51,096
+atölyedeki ilk imalat gününden
+
+29
+00:00:51,096 --> 00:00:53,023
+sahadaki şampiyonluk ittifakı
+
+30
+00:00:53,023 --> 00:00:54,590
+seçimlerine kadar ihtiyaç
+
+31
+00:00:54,590 --> 00:00:56,576
+duyduğu tüm operasyonel beyni
+
+32
+00:00:56,576 --> 00:00:58,387
+tek çatı altında toplayan
+
+33
+00:00:58,387 --> 00:00:59,966
+devasa bir teknoloji
+
+34
+00:00:59,966 --> 00:01:01,347
+ekosistemidir.
+
+35
+00:01:01,347 --> 00:01:02,682
+Chief Delphi ve
+
+36
+00:01:02,682 --> 00:01:04,122
+The Blue Alliance’ın o soğuk,
+
+37
+00:01:04,122 --> 00:01:05,712
+karmaşık ve dil bariyeriyle
+
+38
+00:01:05,712 --> 00:01:07,814
+dolu yapısını bir kenara bırakın!
+
+39
+00:01:07,814 --> 00:01:09,880
+BumperMedia’nın gelişmiş
+
+40
+00:01:09,880 --> 00:01:11,854
+Scouting Intel modülleriyle
+
+41
+00:01:11,854 --> 00:01:13,770
+sahada atılan her sayıyı,
+
+42
+00:01:13,770 --> 00:01:15,186
+robotların anlık saha
+
+43
+00:01:15,186 --> 00:01:17,276
+performansını saniyeler içinde
+
+44
+00:01:17,276 --> 00:01:18,367
+işlersin.
+
+45
+00:01:18,367 --> 00:01:19,934
+Rakiplerin güçlü ve zayıf
+
+46
+00:01:19,934 --> 00:01:21,107
+yönlerini nokta atışı
+
+47
+00:01:21,107 --> 00:01:22,012
+raporlar,
+
+48
+00:01:22,012 --> 00:01:23,951
+stratejini masaya en baştan
+
+49
+00:01:23,951 --> 00:01:25,902
+kurarak ittifak seçimlerinde
+
+50
+00:01:25,902 --> 00:01:28,166
+mutlak bir üstünlük sağlarsın.
+
+51
+00:01:28,166 --> 00:01:30,766
+Atölyedeki stres anında yapay
+
+52
+00:01:30,766 --> 00:01:32,519
+zeka destekli Game Manual
+
+53
+00:01:32,519 --> 00:01:34,307
+asistanı devreye girer.
+
+54
+00:01:34,307 --> 00:01:36,141
+Yüzlerce sayfalık karmaşık
+
+55
+00:01:36,141 --> 00:01:38,440
+kural kitaplarında saatlerce
+
+56
+00:01:38,440 --> 00:01:40,344
+arama yapma derdine son!
+
+57
+00:01:40,344 --> 00:01:42,434
+'Robotun boyut sınırı nedir,
+
+58
+00:01:42,434 --> 00:01:44,059
+bu temas kuralı ne anlama
+
+59
+00:01:44,059 --> 00:01:46,753
+geliyor?' diye sorman yeterli;
+
+60
+00:01:46,753 --> 00:01:48,970
+sistem saniyeler içinde sana
+
+61
+00:01:48,970 --> 00:01:50,503
+doğrudan Türkçe yanıtı
+
+62
+00:01:50,503 --> 00:01:51,641
+yapıştırır.
+
+63
+00:01:51,641 --> 00:01:53,255
+Pit alanında zamanla
+
+64
+00:01:53,255 --> 00:01:55,147
+yarışırken veya hakem
+
+65
+00:01:55,147 --> 00:01:57,318
+masasında hakkını ararken asla
+
+66
+00:01:57,318 --> 00:01:58,909
+yalnız kalmazsın.
+
+67
+00:01:58,909 --> 00:02:01,521
+Olay sadece veri ve kurallarla
+
+68
+00:02:01,521 --> 00:02:02,717
+da bitmiyor;
+
+69
+00:02:02,717 --> 00:02:05,004
+BumperMedia yaşayan ve sürekli
+
+70
+00:02:05,004 --> 00:02:06,804
+büyüyen bir sistemdir.
+
+71
+00:02:06,804 --> 00:02:08,870
+Platforma her hafta eklenen
+
+72
+00:02:08,870 --> 00:02:10,496
+yeni arayüz modülleri,
+
+73
+00:02:10,496 --> 00:02:11,958
+takımlara özel strateji
+
+74
+00:02:11,958 --> 00:02:13,770
+araçları ve interaktif
+
+75
+00:02:13,770 --> 00:02:15,790
+sistemlerle dijital üssün her
+
+76
+00:02:15,790 --> 00:02:17,949
+geçen gün daha da güçlenir.
+
+77
+00:02:17,949 --> 00:02:19,424
+Anlık haber akışı,
+
+78
+00:02:19,424 --> 00:02:21,293
+bölgesel turnuvalardan son
+
+79
+00:02:21,293 --> 00:02:22,849
+dakika gelişmeleri ve
+
+80
+00:02:22,849 --> 00:02:24,648
+atölyelerden sızan o ham
+
+81
+00:02:24,648 --> 00:02:28,015
+enerji doğrudan senin ekranına akar.
+
+82
+00:02:28,015 --> 00:02:30,012
+Sadece gelişmeleri takip eden
+
+83
+00:02:30,012 --> 00:02:32,044
+değil, sahnenin tam kalbinde
+
+84
+00:02:32,044 --> 00:02:33,332
+durup üreten bir güce
+
+85
+00:02:33,332 --> 00:02:34,470
+dönüşürsün.
+
+86
+00:02:34,470 --> 00:02:36,618
+Dağınık Excel tablolarını,
+
+87
+00:02:36,618 --> 00:02:38,882
+karmaşık sekmeleri ve kaybolan
+
+88
+00:02:38,882 --> 00:02:40,832
+not kağıtlarını çöpe atın.
+
+89
+00:02:40,832 --> 00:02:42,411
+Tüm gücü tek bir merkezde
+
+90
+00:02:42,411 --> 00:02:44,129
+toplayın ve veriyi zafere
+
+91
+00:02:44,129 --> 00:02:45,174
+dönüştürün.
+
+92
+00:02:45,174 --> 00:02:46,927
+Çünkü BumperMedia;
+
+93
+00:02:46,927 --> 00:02:48,506
+robotik tutkunlarının yeni
+
+94
+00:02:48,506 --> 00:02:50,561
+nesil dijital devrimidir.
+
+95
+00:02:50,561 --> 00:02:52,210
+BumperMedia sunar;
+
+96
+00:02:52,210 --> 00:02:53,475
+tek platform,
+
+97
+00:02:53,475 --> 00:02:54,869
+sınırsız güç,
+
+98
+00:02:54,869 --> 00:02:58,853
+anlık veri, efsane sonuçlar!
+

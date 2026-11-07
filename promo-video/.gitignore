@@ -1,0 +1,7 @@
+output/frames/
+output/segments/
+output/video_silent.mp4
+output/mix.wav
+output/render.log
+assets/music.wav
+assets/sfx.wav
