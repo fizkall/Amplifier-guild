@@ -71,7 +71,6 @@ const S1_TITLES = ['Chief Delphi — Swerve help?', 'TBA · Event Rankings', 'Ga
 scene({
   id: 's1', a: 0, b: 14.0, ch: ['01', 'SEZON MODU'],
   html: `
-  <div class="lights">${range(9).map(i => `<i style="left:${70 + i * 215}px"></i>`).join('')}</div>
   <div class="abs" id="s1title" style="text-align:center"><div class="big glow">${up('Sezon')}</div><div class="big grad">${up('başladı')}</div></div>
   <div class="abs glass-card" id="s1timer" style="width:520px;padding:26px 30px">
     <div class="lbl"><span class="dot r"></span>&nbsp; BUILD SEASON · KALAN</div>
@@ -84,14 +83,8 @@ scene({
     <div style="padding:26px 30px">${range(9).map(i => `<div class="sk" style="width:${40 + rnd(i + 3) * 55}%"></div>`).join('')}</div></div>
   <div id="s1wins">${range(16).map(i => `<div class="abs glass-card win"><div class="wb"><i></i><i></i><i></i>&nbsp;${S1_TITLES[(i + 3) % 16]}</div><div class="wc">${range(5).map(k => `<div class="sk" style="width:${30 + rnd(i * 9 + k) * 65}%;height:10px"></div>`).join('')}</div></div>`).join('')}</div>
   <div class="abs kwbig" id="s1q" style="line-height:1.1;font-size:100px"><span class="glow">Kaybolup gitmek</span><br><span class="grad">üzere misin?</span></div>`,
-  init(el) { this.lights = $$('.lights i', el); this.tabs = $$('.tab', el); this.wins = $$('#s1wins .win', el); },
+  init(el) { this.tabs = $$('.tab', el); this.wins = $$('#s1wins .win', el); },
   update(t) {
-    this.lights.forEach((l, i) => {
-      const flick = t < 2.6 ? (rnd(i * 13 + Math.floor(t * 14)) > .78 ? .2 : 1) : 1;
-      const on = pe(t, .15 + i * .12, .3);
-      l.style.opacity = (on * flick * (t > 1.6 && t < 4.3 ? 1 : .75)).toFixed(3);
-      l.style.transform = `translateY(${-20 + 20 * on}px)`;
-    });
     const tp = pe(t, .05, 1.1, E.out5), mv = pe(t, 4.0, 1.0, E.io);
     T($('#s1title'), { y: lerp(-80, -620, mv) + (1 - tp) * 30, s: lerp(1.25, 1, tp) * lerp(1, .42, mv), b: (1 - tp) * 24, o: tp * (1 - pe(t, 9.2, .5)) });
     // drill sparks HUD

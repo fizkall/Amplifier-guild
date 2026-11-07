@@ -5,3 +5,6 @@ output/mix.wav
 output/render.log
 assets/music.wav
 assets/sfx.wav
+output/segments_old/
+output/video_head.mp4
+output/video_silent_old.mp4

@@ -98,10 +98,6 @@ body{font-family:'Space Grotesk','Inter',system-ui,sans-serif;color:var(--tx);-w
 #vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,.5) 100%)}
 
 /* ===== Scene-specific ===== */
-.lights i{position:absolute;top:0;width:170px;height:7px;border-radius:4px;background:#e6fbff;
-  box-shadow:0 0 30px 8px rgba(243,245,247,.55),0 0 140px 40px rgba(243,245,247,.12)}
-.lights i::after{content:"";position:absolute;left:-60px;right:-60px;top:7px;height:620px;
-  background:linear-gradient(to bottom,rgba(255,255,255,.13),transparent);clip-path:polygon(30% 0,70% 0,100% 100%,0 100%)}
 .big{font:700 210px/0.9 'Space Grotesk';letter-spacing:-.04em;text-align:center}
 .browser{width:1120px;height:580px;overflow:hidden}
 .browser .tabs{display:flex;gap:4px;padding:16px 16px 0;height:58px}
