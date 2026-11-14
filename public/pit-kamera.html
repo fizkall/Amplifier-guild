@@ -119,6 +119,12 @@ select.input { max-width: 100%; text-overflow: ellipsis; }
 .dot.ok { background: var(--success); } .dot.warn { background: var(--warning); } .dot.bad { background: var(--danger); }
 .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
 .hint { color: var(--muted); font-size: 13px; }
+.cam-help { margin-top: 12px; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--warning); background: color-mix(in srgb, var(--warning) 10%, var(--surface)); }
+.cam-help b.h { display: block; font-size: 15px; margin-bottom: 6px; }
+.cam-help ol, .cam-help ul { margin: 6px 0 0; padding-left: 20px; }
+.cam-help li { margin: 4px 0; }
+.cam-help code { font: 12.5px ui-monospace, monospace; padding: 1px 5px; border-radius: 5px; background: var(--raised); border: 1px solid var(--border); overflow-wrap: anywhere; }
+.cam-help .row { margin-top: 10px; }
 .zones-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
 .zone-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
 .zone-item .sw { width: 12px; height: 12px; border-radius: 3px; flex: none; }
@@ -247,6 +253,7 @@ kbd { font: 12px ui-monospace, monospace; padding: 1px 5px; border: 1px solid va
             <label class="btn" title="Kamera yerine bir video dosyasıyla dene">Video dosyası<input id="fileInput" type="file" accept="video/*" hidden></label>
           </div>
         </div>
+        <div class="cam-help" id="camHelp" hidden role="alert"></div>
         <div class="stage" id="stage" style="margin-top:12px">
           <video id="video" playsinline muted></video>
           <canvas id="overlay"></canvas>
@@ -618,7 +625,7 @@ const video = $('#video'), overlay = $('#overlay'), ctx = overlay.getContext('2d
 let stream = null, running = false, sourceLabel = '', wakeLock = null, fileUrl = null;
 
 async function listCameras(askPermission = false) {
-  if (!navigator.mediaDevices?.enumerateDevices) { $('#camSelect').innerHTML = '<option value="">Bu tarayıcı kamerayı desteklemiyor</option>'; return; }
+  if (!navigator.mediaDevices?.enumerateDevices) { $('#camSelect').innerHTML = `<option value="">${window.isSecureContext ? 'Bu tarayıcı kamerayı desteklemiyor' : 'Bu adreste kamera kullanılamaz'}</option>`; return; }
   if (askPermission) {
     try { const s = await navigator.mediaDevices.getUserMedia({ video: true }); s.getTracks().forEach((t) => t.stop()); }
     catch (e) { toast(camError(e), 5000); }
@@ -631,14 +638,75 @@ async function listCameras(askPermission = false) {
     + devs.map((d, i) => `<option value="${esc(d.deviceId)}">${esc(d.label || `Kamera ${i + 1}`)}</option>`).join('');
   if (cfg.cam && devs.some((d) => d.deviceId === cfg.cam)) sel.value = cfg.cam;
 }
+// ── Kamera izni teşhisi: neden açılmadığını ve ne yapılacağını gösterir ──
+const isWin = /Windows/i.test(navigator.userAgent), isMac = /Macintosh/i.test(navigator.userAgent) && !('ontouchend' in document);
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (/Macintosh/i.test(navigator.userAgent) && 'ontouchend' in document);
+const inFrame = (() => { try { return window.top !== window.self; } catch { return true; } })();
+function showCamHelp(kind, detail) {
+  const box = $('#camHelp');
+  const reload = '<div class="row"><button class="btn btn-sm btn-primary" onclick="location.reload()">Sayfayı yenile</button></div>';
+  const osSteps = isWin
+    ? '<li><b>Windows:</b> Başlat → Ayarlar → Gizlilik ve güvenlik → Kamera → <b>Kamera erişimi</b> ve <b>Masaüstü uygulamalarının kameranıza erişmesine izin ver</b> açık olsun.</li>'
+    : isMac ? '<li><b>Mac:</b> Sistem Ayarları → Gizlilik ve Güvenlik → Kamera → <b>Google Chrome</b> (veya Edge) açık olsun. Sonra tarayıcıyı tamamen kapatıp aç.</li>'
+    : isMobile ? '<li><b>Telefon:</b> Ayarlar → Uygulamalar → Chrome → İzinler → <b>Kamera</b> → İzin ver.</li>' : '';
+  const html = {
+    frame: `<b class="h">Bu önizlemede kamera açılamaz</b>Sayfa başka bir uygulamanın içinde (ör. Claude önizlemesi) açılmış. Bu pencereler kameraya izin vermez.
+      <ol><li>Dosyayı bilgisayarına indir.</li><li>Dosyaya sağ tık → <b>Birlikte aç</b> → <b>Google Chrome</b> veya <b>Microsoft Edge</b>.</li></ol>`,
+    insecure: `<b class="h">Bu adreste kamera kullanılamaz</b>Tarayıcılar kamerayı yalnızca <code>https://</code> adreslerinde veya bilgisayarda dosya olarak açılan sayfalarda verir.
+      Şu an: <code>${esc(location.protocol + '//' + (location.host || '') + location.pathname)}</code>
+      <ul>${isMobile ? '<li><b>Telefonda indirilen dosyadan açınca kamera çalışmaz.</b> Sayfayı sitenin adresinden aç: <code>amplifierguild.online/pit-kamera</code></li>' : '<li>Dosyayı bilgisayarda Chrome veya Edge ile aç ya da sitenin adresini kullan: <code>amplifierguild.online/pit-kamera</code></li>'}
+      <li>Yerel ağda başka bir bilgisayardan <code>http://192.168…</code> ile açıyorsan kamera çalışmaz; aynı bilgisayarda <code>localhost</code> kullan.</li></ul>`,
+    denied: `<b class="h">Kamera izni engellenmiş</b>Tarayıcı bu sayfaya kamera izni vermiyor. Daha önce "Engelle"ye basılmış olabilir.
+      <ol><li>Adres çubuğunun solundaki simgeye (🔒 veya ⚙) tıkla → <b>Kamera</b> → <b>İzin ver</b>.</li>
+      <li>Dosyadan açtıysan Chrome'da <code>chrome://settings/content/camera</code> (Edge'de <code>edge://settings/content/camera</code>) adresine git, <b>Kamera kullanmasına izin verilmeyen</b> listesinden bu sayfayı kaldır.</li>
+      ${osSteps}<li>Sonra sayfayı yenile.</li></ol>${reload}`,
+    system: `<b class="h">İşletim sistemi kamerayı engelliyor</b>Tarayıcı izin verdi ama ${isWin ? 'Windows' : isMac ? 'macOS' : 'sistem'} kameraya erişimi kapatmış.
+      <ol>${osSteps || '<li>Sistem ayarlarından tarayıcının kamera iznini aç.</li>'}<li>Tarayıcıyı tamamen kapatıp yeniden aç.</li></ol>${reload}`,
+    busy: `<b class="h">Kamera başka bir programda açık</b>Zoom, Teams, Discord, OBS, Kamera uygulaması veya başka bir tarayıcı sekmesi kamerayı kullanıyor olabilir. Kapatıp <b>Başlat</b>'a tekrar bas.`,
+    none: `<b class="h">Kamera bulunamadı</b>Bilgisayara bağlı kamera görünmüyor. USB kamerayı çıkarıp tak, ${isWin ? 'Aygıt Yöneticisi → Kameralar altında göründüğünü kontrol et, ' : ''}sonra sayfayı yenile. Telefonu kamera olarak kullanmak için DroidCam veya Iriun gibi bir uygulama kurabilirsin.${reload}`,
+    unsupported: `<b class="h">Bu tarayıcı kamerayı desteklemiyor</b>Güncel <b>Google Chrome</b> veya <b>Microsoft Edge</b> ile aç.`,
+    other: `<b class="h">Kamera açılamadı</b><code>${esc(detail || '')}</code><ul><li>Başka bir kamera seçip tekrar dene veya daha düşük çözünürlük seç.</li><li>Tarayıcıyı kapatıp aç.</li></ul>`,
+  }[kind];
+  box.innerHTML = html; box.hidden = false;
+  box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+function hideCamHelp() { $('#camHelp').hidden = true; }
+function diagnoseError(e) {
+  const msg = String(e?.message || '');
+  if (e?.name === 'NotAllowedError' || e?.name === 'SecurityError' || e?.name === 'PermissionDeniedError') {
+    if (inFrame) return 'frame';
+    if (/system/i.test(msg)) return 'system';
+    return 'denied';
+  }
+  if (e?.name === 'NotSupportedError' && !window.isSecureContext) return 'insecure';
+  if (e?.name === 'NotReadableError' || e?.name === 'TrackStartError' || e?.name === 'AbortError') return 'busy';
+  if (e?.name === 'NotFoundError' || e?.name === 'DevicesNotFoundError' || e?.name === 'OverconstrainedError') return 'none';
+  return 'other';
+}
+/** Açılışta: kameranın bu ortamda hiç kullanılamayacağı durumları baştan söyle. */
+async function preflightCamera() {
+  if (!window.isSecureContext) { showCamHelp('insecure'); return false; }
+  if (!navigator.mediaDevices?.getUserMedia) { showCamHelp(inFrame ? 'frame' : 'unsupported'); return false; }
+  try {
+    const st = await navigator.permissions?.query({ name: 'camera' });
+    if (st) {
+      if (st.state === 'denied') showCamHelp(inFrame ? 'frame' : 'denied');
+      st.onchange = () => { if (st.state === 'granted') { hideCamHelp(); listCameras(); } else if (st.state === 'denied') showCamHelp('denied'); };
+    }
+  } catch { /* Firefox/Safari 'camera' sorgusunu desteklemeyebilir */ }
+  return true;
+}
 function camError(e) {
-  if (e?.name === 'NotAllowedError') return 'Kamera izni verilmedi. Adres çubuğundaki kamera simgesinden izin ver.';
+  const kind = diagnoseError(e);
+  showCamHelp(kind, `${e?.name || ''} ${e?.message || ''}`.trim());
+  if (e?.name === 'NotAllowedError') return 'Kamera izni verilmedi. Sarı kutudaki adımlara bak.';
   if (e?.name === 'NotFoundError') return 'Kamera bulunamadı.';
   if (e?.name === 'NotReadableError') return 'Kamera başka bir uygulamada açık (Zoom, Teams, OBS…). Kapatıp tekrar dene.';
   if (!window.isSecureContext) return 'Kamera için sayfa https:// veya dosya olarak açılmalı.';
   return `Kamera açılamadı: ${e?.message || e}`;
 }
 async function startCamera() {
+  if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) { preflightCamera(); return; }
   let id = $('#camSelect').value;
   if (id === '__izin' || !id) { await listCameras(true); id = $('#camSelect').value; if (id === '__izin') return; }
   const [w, h] = $('#resSelect').value.split('x').map(Number);
@@ -646,6 +714,7 @@ async function startCamera() {
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: id ? { exact: id } : undefined, width: { ideal: w }, height: { ideal: h } }, audio: false });
   } catch (e) { toast(camError(e), 5000); return; }
+  hideCamHelp();
   const track = stream.getVideoTracks()[0];
   sourceLabel = track.label || 'Kamera';
   cfg.cam = track.getSettings().deviceId || id; cfg.res = $('#resSelect').value; saveCfg();
@@ -1527,7 +1596,7 @@ setInterval(() => { if (running) renderRulesLive(); }, 1000);
   await loadEvents().catch(() => {});
   await loadAudit(dayKey());
   await loadDir();
-  await listCameras();
+  if (await preflightCamera()) await listCameras();
   const h = location.hash.slice(1); if (['canli', 'olaylar', 'denetim', 'ayarlar'].includes(h)) showView(h);
   loadModels().catch(() => {});
 })();
