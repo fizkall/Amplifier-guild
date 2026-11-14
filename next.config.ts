@@ -8,7 +8,11 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     // amplifierguild.online/@ayse → profil sayfası
-    return [{ source: '/@:handle', destination: '/profil/:handle' }];
+    return [
+      { source: '/@:handle', destination: '/profil/:handle' },
+      // Pit Kamera: tarayıcıda çalışan tek dosyalık HTML aracı (public/pit-kamera.html)
+      { source: '/pit-kamera', destination: '/pit-kamera.html' },
+    ];
   },
   async redirects() {
     // Eski İngilizce adresler → Türkçe adresler

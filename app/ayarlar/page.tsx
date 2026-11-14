@@ -120,6 +120,16 @@ function Settings() {
         <button className="link-btn strong" onClick={copyUid}>{copied ? 'Kopyalandı ✓' : 'Kopyala'}</button>
       </div>
 
+      <div className="section-head"><span>Araçlar</span></div>
+      {/* Statik HTML sayfası: Next Link yerine düz bağlantı */}
+      <a href="/pit-kamera" className="set-row">
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontWeight: 600 }}>Pit Kamera</div>
+          <div className="meta">FRC pit güvenliği: gözlük, yasak bölge, kalabalık ve koşma uyarıları. Kayıtlar bu cihazda kalır.</div>
+        </div>
+        <span className="meta" aria-hidden>→</span>
+      </a>
+
       <div className="section-head"><span>Destek</span></div>
       <Row href="/iletisim" title="İletişim" desc="Soru, öneri, proje başvurusu veya KVKK talebi" />
       <Row href="/hakkinda" title="Hakkında" />
