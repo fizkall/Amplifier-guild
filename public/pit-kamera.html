@@ -119,6 +119,50 @@ select.input { max-width: 100%; text-overflow: ellipsis; }
 .dot.ok { background: var(--success); } .dot.warn { background: var(--warning); } .dot.bad { background: var(--danger); }
 .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
 .hint { color: var(--muted); font-size: 13px; }
+.coach { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 24px; background: rgba(0,0,0,.55); color: #fff; z-index: 3; }
+.coach[hidden] { display: none; }
+.coach-t { font-size: clamp(20px, 4vw, 40px); font-weight: 800; letter-spacing: -.01em; }
+.coach-s { font-size: clamp(14px, 2vw, 20px); margin-top: 6px; opacity: .9; }
+.coach .row { justify-content: center; margin-top: 14px; }
+.coach .btn { color: #fff; border-color: rgba(255,255,255,.5); }
+.coach .btn-primary { background: #fff; color: #000; border-color: #fff; }
+.people { display: flex; flex-direction: column; gap: 6px; max-height: 340px; overflow: auto; }
+.person { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--raised); }
+.person.bad { border-color: var(--danger); }
+.person .pid { font-weight: 800; min-width: 38px; font-variant-numeric: tabular-nums; }
+.person .ps { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+.person .pt { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.st { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--border); white-space: nowrap; }
+.st.ok { color: var(--success); border-color: color-mix(in srgb, var(--success) 50%, var(--border)); }
+.st.bad { color: #fff; background: var(--danger); border-color: var(--danger); }
+.st.unk { color: var(--muted); }
+.ai-box { margin-top: 8px; padding: 8px 10px; border-radius: 10px; background: var(--raised); border: 1px solid var(--border); font-size: 13px; white-space: pre-wrap; }
+.ai-box .v { font-weight: 800; }
+.ai-box .v.ok { color: var(--success); } .ai-box .v.bad { color: var(--danger); } .ai-box .v.warn { color: var(--warning); }
+.ai-sum { white-space: pre-wrap; font-size: 14px; }
+.ekip-top { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; margin-bottom: 12px; align-items: start; }
+.ekip-top .card + .card { margin-top: 0; }
+.ekip-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.mem { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); padding: 14px; }
+.mem-h { display: flex; gap: 10px; align-items: center; }
+.av { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #000; flex: none; }
+.mem-h .nm { font-weight: 700; } .mem-h .rl { font-size: 12px; color: var(--muted); }
+.mem .live { font-size: 12px; font-weight: 700; color: var(--success); }
+.mem .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px 0; text-align: center; }
+.mem .stats b { display: block; font-size: 18px; }
+.mem .stats span { font-size: 11px; color: var(--muted); }
+.assign-list { display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow: auto; margin: 8px 0; }
+.assign-list button { display: flex; gap: 10px; align-items: center; text-align: left; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--raised); }
+.assign-list button:hover { border-color: var(--muted); }
+.assign-list .av { width: 30px; height: 30px; font-size: 12px; }
+.person { cursor: pointer; }
+img.av { object-fit: cover; background: var(--raised); }
+.who { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0; }
+.who div { display: flex; align-items: center; gap: 6px; padding: 3px 8px 3px 3px; border-radius: 10px; background: var(--raised); border: 1px solid var(--border); font-size: 13px; font-weight: 600; }
+.ev .who img, .who img { width: 34px; height: 46px; aspect-ratio: auto; object-fit: cover; border-radius: 7px; background: #111; cursor: default; }
+.strip { display: flex; gap: 4px; margin-top: 8px; overflow-x: auto; }
+.strip img { width: 46px; height: 62px; object-fit: cover; border-radius: 6px; cursor: zoom-in; flex: none; border: 2px solid var(--danger); }
+.person .pn { font-weight: 700; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cam-help { margin-top: 12px; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--warning); background: color-mix(in srgb, var(--warning) 10%, var(--surface)); }
 .cam-help b.h { display: block; font-size: 15px; margin-bottom: 6px; }
 .cam-help ol, .cam-help ul { margin: 6px 0 0; padding-left: 20px; }
@@ -226,6 +270,7 @@ kbd { font: 12px ui-monospace, monospace; padding: 1px 5px; border: 1px solid va
     <nav class="tabs" role="tablist">
       <button class="tab" role="tab" data-view="canli" aria-selected="true">Canlı</button>
       <button class="tab" role="tab" data-view="olaylar" aria-selected="false">Olaylar<span class="count" id="unreadCount"></span></button>
+      <button class="tab" role="tab" data-view="ekip" aria-selected="false">Ekip</button>
       <button class="tab" role="tab" data-view="denetim" aria-selected="false">Denetim<span class="count soft" id="auditCount"></span></button>
       <button class="tab" role="tab" data-view="ayarlar" aria-selected="false">Ayarlar</button>
     </nav>
@@ -233,7 +278,7 @@ kbd { font: 12px ui-monospace, monospace; padding: 1px 5px; border: 1px solid va
 
   <div class="privacy">
     <span aria-hidden="true">🔒</span>
-    <div><b>Görüntü bu bilgisayarda işlenir ve kayıtlar burada saklanır.</b> Hiçbir kare veya olay sunucuya gönderilmez. İnternet yalnızca ilk açılışta yapay zekâ modellerini indirmek için kullanılır. Kamera, Safety Advisor'ın ve ekibin yerine geçmez; yardımcı olur.</div>
+    <div><b>Görüntü bu bilgisayarda işlenir ve kayıtlar burada saklanır.</b> İnternet ilk açılışta modelleri indirmek için kullanılır. Ekip üyeleri QR kart, elle atama veya kıyafet renkleriyle tanınır; <b>yüz verisi tutulmaz</b>. <b>Claude analizini</b> açarsan seçtiğin olay karesi (yüzler gizli) ve olay listesi Anthropic'e, <b>Roboflow modelini</b> açarsan birkaç saniyede bir kare Roboflow'a gönderilir. Kamera, Safety Advisor'ın ve ekibin yerine geçmez; yardımcı olur.</div>
   </div>
 
   <!-- ── CANLI ── -->
@@ -259,6 +304,7 @@ kbd { font: 12px ui-monospace, monospace; padding: 1px 5px; border: 1px solid va
           <canvas id="overlay"></canvas>
           <div class="empty" id="stageEmpty"><div><b>Kamera kapalı</b>Bir kamera seç ve Başlat'a bas.<br>USB/web kamera, telefon (ör. DroidCam) veya OBS sanal kamerası olabilir.</div></div>
           <div class="alarm" id="alarm"></div>
+          <div class="coach" id="coach" hidden><div><div class="coach-t" id="coachT"></div><div class="coach-s" id="coachS"></div><div class="row" id="coachBtns"></div></div></div>
           <div class="hud">
             <span class="pill"><span class="dot" id="modelDot"></span><span id="modelText">Modeller yüklenmedi</span></span>
             <span class="pill" id="peoplePill">Kişi: 0</span>
@@ -278,6 +324,12 @@ kbd { font: 12px ui-monospace, monospace; padding: 1px 5px; border: 1px solid va
 
       <aside>
         <div class="card">
+          <h2>Kişiler <span class="hint" id="peopleCount"></span></h2>
+          <p class="sub">Herkes bir numarayla takip edilir. Ad; QR yaka kartı, kişiye tıklayıp seçme veya o günkü kıyafetinin rengi ve tarzıyla bağlanır, olaylar profiline yazılır. Yüz tanıma yapılmaz.</p>
+          <div class="people" id="peopleList"><div class="hint">Kamera başlayınca kişiler burada görünür.</div></div>
+          <div class="hint" id="peopleStats" style="margin-top:8px"></div>
+        </div>
+        <div class="card">
           <h2>Kamera kuralları</h2>
           <p class="sub">Ayarları <a href="#" data-goto="ayarlar" style="text-decoration:underline">Ayarlar</a>'da. Kameranın göremediği kurallar <a href="#" data-goto="denetim" style="text-decoration:underline">Denetim</a> listesinde.</p>
           <div class="rules-live" id="rulesLive"></div>
@@ -292,14 +344,21 @@ kbd { font: 12px ui-monospace, monospace; padding: 1px 5px; border: 1px solid va
             <div class="sample-box"><div class="n" id="nYok">0</div><div class="l" id="lYok">Uygun değil</div></div>
           </div>
           <div class="meter" aria-hidden="true"><i id="trainMeter"></i></div>
+          <div class="hint" id="trainAcc" style="margin-top:6px"></div>
           <div class="row" style="margin-top:10px">
-            <button class="btn btn-sm" id="addVarBtn" disabled>+ Uygun</button>
-            <button class="btn btn-sm" id="addYokBtn" disabled>+ Uygun değil</button>
+            <button class="btn btn-sm btn-primary" id="wizardBtn" disabled>Sihirbazla eğit</button>
           </div>
           <div class="row" style="margin-top:8px">
-            <label class="hint" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="burstChk" checked> 3 saniye boyunca seri çek</label>
+            <button class="btn btn-sm" id="addVarBtn" disabled>+ Uygun</button>
+            <button class="btn btn-sm" id="addYokBtn" disabled>+ Uygun değil</button>
+            <label class="hint" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="burstChk" checked> 3 sn seri çek</label>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <label class="btn btn-sm"><span id="photoVarL">Fotoğraf: uygun</span><input type="file" id="photoVar" accept="image/*" multiple hidden></label>
+            <label class="btn btn-sm"><span id="photoYokL">Fotoğraf: uygun değil</span><input type="file" id="photoYok" accept="image/*" multiple hidden></label>
           </div>
           <div class="status" id="trainStatus" style="margin-top:8px">Kamerayı başlat.</div>
+          <div class="status" id="trainLive" style="margin-top:4px;font-weight:600"></div>
           <div class="thumbs" id="thumbs"></div>
           <div class="row" style="margin-top:10px"><button class="btn btn-sm btn-danger" id="clearSamplesBtn">Bu kontrolün örneklerini sil</button></div>
         </div>
@@ -311,16 +370,58 @@ kbd { font: 12px ui-monospace, monospace; padding: 1px 5px; border: 1px solid va
   <section class="view" id="view-olaylar" hidden>
     <div class="events-head">
       <select id="filterRule" class="input" aria-label="Kural filtresi"><option value="">Tüm kurallar</option></select>
+      <select id="filterKisi" class="input" aria-label="Kişi filtresi"><option value="">Tüm kişiler</option></select>
       <select id="filterState" class="input" aria-label="Durum filtresi">
         <option value="">Tüm olaylar</option><option value="new">İncelenmemiş</option><option value="reviewed">İncelenmiş</option>
       </select>
       <span class="hint" id="eventsInfo"></span>
       <span style="flex:1"></span>
+      <button class="btn btn-sm btn-primary" id="aiSumBtn">Claude ile günü özetle</button>
       <button class="btn btn-sm" id="markAllBtn">Tümünü incelendi yap</button>
       <button class="btn btn-sm" id="csvBtn">CSV indir</button>
       <button class="btn btn-sm btn-danger" id="clearEventsBtn">Tümünü sil</button>
     </div>
+    <div class="card" id="aiSumCard" hidden style="margin-bottom:12px">
+      <div class="row" style="justify-content:space-between"><h2 style="margin:0">Claude günlük güvenlik özeti</h2><button class="btn btn-sm" id="aiSumClose">Kapat</button></div>
+      <div class="ai-sum" id="aiSum" style="margin-top:8px"></div>
+    </div>
     <div class="events" id="events"></div>
+  </section>
+
+  <!-- ── EKİP ── -->
+  <section class="view" id="view-ekip" hidden>
+    <div class="ekip-top">
+      <div class="card">
+        <h2>Ekip üyesi ekle</h2>
+        <p class="sub">Her üyeye dijital kimlik (profil) açılır; olaylar ve istatistikler bu profilde birikir.</p>
+        <form id="memForm" autocomplete="off">
+          <div class="row"><input class="input grow" id="memAd" maxlength="40" placeholder="Ad Soyad" required aria-label="Ad Soyad"></div>
+          <div class="row" style="margin-top:8px">
+            <select class="input" id="memRol" aria-label="Rol"><option>Öğrenci</option><option>Mentor</option><option>Ebeveyn / Gönüllü</option><option>Ziyaretçi</option></select>
+            <input class="input grow" id="memTakim" maxlength="30" placeholder="Alt ekip (ör. Mekanik)" aria-label="Alt ekip">
+          </div>
+          <div class="row" style="margin-top:8px"><input class="input grow" id="memForma" maxlength="24" placeholder="Formanın arkasındaki yazı (ör. YILMAZ veya 7)" aria-label="Formadaki yazı"></div>
+          <label class="hint" style="display:flex;gap:8px;align-items:flex-start;margin-top:10px"><input type="checkbox" id="memOnay" required style="margin-top:3px"> Kişinin (18 yaşından küçükse velisinin) bu kayıt, kamera takibi ve görünüm bilgisi (kıyafet, saç, boy) tutulması için onayı alındı.</label>
+          <div class="row" style="margin-top:10px"><button class="btn btn-primary btn-sm" type="submit">Ekle</button></div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>QR yaka kartları</h2>
+        <p class="sub">Her üyenin kendine özel QR kartı var. Kart göğüs hizasında takılınca kamera kişiyi tanır. En iyi sonuç: pit girişine, 1–2 m mesafeye bakan kamera ve 1280×720 veya üstü çözünürlük. Kartta yalnızca rastgele bir kod var, ad yazılı değil.</p>
+        <div class="set"><div class="lbl">QR kartla otomatik tanıma</div><label class="switch"><input type="checkbox" data-k="qrOn" aria-label="QR tanıma"><span></span></label></div>
+        <div class="row" style="margin-top:8px"><button class="btn btn-sm" id="printAllBtn">Tüm kartları yazdır</button></div>
+        <h2 style="margin-top:16px">Görünümden tanıma</h2>
+        <p class="sub">Bir kişiye ad bağlandığında (QR veya elle) sistem o günkü <b>kıyafet renklerini ve tarzını</b>, <b>saç yapısını</b> (rengi; baret/şapka varsa onu) ve <b>boyunu</b> öğrenir; kadrajdan çıkıp dönünce bunlardan tanır. Yüz kullanılmaz. Herkes aynı formayı giyiyorsa ve boyları yakınsa ayırt edemez; o zaman tahmin etmez.</p>
+        <div class="set"><div class="lbl">Formadaki yazıdan tanıma<small id="ocrInfo">Arkası dönük kişinin formasındaki ad/numara okunur (ilk kullanımda ~5 MB yazı tanıma modeli iner)</small></div><label class="switch"><input type="checkbox" data-k="formaOn" aria-label="Formadan tanıma"><span></span></label></div>
+        <div class="set"><div class="lbl">Görünümden tanıma</div><label class="switch"><input type="checkbox" data-k="kiyafetOn" aria-label="Kıyafetten tanıma"><span></span></label></div>
+        <div class="set"><div class="lbl">Benzerlik eşiği<small>Yükseltirsen yanlış eşleşme azalır, daha az kişi tanınır (0,75–0,92)</small></div><input class="input" type="number" min="0.6" max="0.98" step="0.01" data-k="kiyafetEsik" aria-label="Kıyafet eşiği"></div>
+        <div class="set"><div class="lbl">Ortalama boy (cm)<small>Tahmini boyu santimetreye çevirmek için. Boy, kamera açısına göre kadrajdaki herkesle karşılaştırılarak hesaplanır.</small></div><input class="input" type="number" min="120" max="210" step="1" data-k="ortBoy" aria-label="Ortalama boy"></div>
+        <div class="set"><div class="lbl">Boy kalibrasyonu<small id="boyInfo">Kamera başlayınca kadrajdaki kişilerden öğrenilir</small></div><button class="btn btn-sm" id="boyReset" type="button">Sıfırla</button></div>
+        <div class="set"><div class="lbl">Kıyafet her gün yeniden öğrenilsin<small>Kapatırsan (ör. herkes her gün aynı formayı giyiyorsa) önceki günlerin imzası da kullanılır</small></div><label class="switch"><input type="checkbox" data-k="kiyafetGunluk" aria-label="Günlük sıfırlama"><span></span></label></div>
+        <p class="hint" style="margin-top:10px">Profiller yalnızca bu bilgisayarda saklanır. Yüz veya biyometrik veri tutulmaz. Bir üye ayrılınca profilini sil.</p>
+      </div>
+    </div>
+    <div class="ekip-list" id="ekipList"></div>
   </section>
 
   <!-- ── DENETİM ── -->
@@ -371,6 +472,7 @@ kbd { font: 12px ui-monospace, monospace; padding: 1px 5px; border: 1px solid va
         <div class="set"><div class="lbl">Koridor değişim eşiği (%)<small>Koridorun yüzde kaçı referanstan farklıysa "dolu" sayılır</small></div><input class="input" type="number" min="3" max="80" step="1" data-k="koridorOran" aria-label="Koridor eşiği"></div>
         <div class="set"><div class="lbl">Masada yiyecek / içecek<small>Elektronik/batarya masası bölgesinde şişe, bardak, yiyecek</small></div><input class="input" type="number" min="0.5" max="30" step="0.5" data-k="yiyecekSure" aria-label="Yiyecek süresi"><label class="switch"><input type="checkbox" data-rule="yiyecek" aria-label="Yiyecek kuralı"><span></span></label></div>
         <div class="set"><div class="lbl">Makine alanında fazla kişi<small>Torna, matkap gibi alanlar; sınır bölgeye göre ayarlanır</small></div><label class="switch"><input type="checkbox" data-rule="makine" aria-label="Makine kuralı"><span></span></label></div>
+        <div class="set"><div class="lbl">Tehlikeli bölgede el<small>El takibiyle: testere ağzı, matkap ucu, torna aynası gibi "el tehlike bölgesi"ne el bu kadar saniye girerse</small></div><input class="input" type="number" min="0" max="5" step="0.1" data-k="elSure" aria-label="El süresi"><label class="switch"><input type="checkbox" data-rule="el" aria-label="El kuralı"><span></span></label></div>
         <div class="set"><div class="lbl">Yasak bölgeye giriş<small>Kişinin ayakları bölgede bu kadar saniye kalırsa</small></div><input class="input" type="number" min="0" max="10" step="0.5" data-k="bolgeSure" aria-label="Bölge süresi"><label class="switch"><input type="checkbox" data-rule="bolge" aria-label="Bölge kuralı"><span></span></label></div>
         <div class="set"><div class="lbl">Pit'te fazla kişi<small>Kadrajdaki en fazla kişi</small></div><input class="input" type="number" min="1" max="50" step="1" data-k="maxKisi" aria-label="Kişi sınırı"><label class="switch"><input type="checkbox" data-rule="kalabalik" aria-label="Kalabalık kuralı"><span></span></label></div>
       </div>
@@ -381,6 +483,7 @@ kbd { font: 12px ui-monospace, monospace; padding: 1px 5px; border: 1px solid va
         <div class="set"><div class="lbl">Analiz hızı (FPS)</div><input class="input" type="number" min="1" max="30" step="1" data-k="fps" aria-label="FPS"></div>
         <div class="set"><div class="lbl">Kişi algılama güveni<small>0,3–0,7 arası. Yükseltirsen yanlış alarm azalır.</small></div><input class="input" type="number" min="0.1" max="0.95" step="0.05" data-k="kisiGuven" aria-label="Kişi güveni"></div>
         <div class="set"><div class="lbl">Nesne algılama güveni<small>Yiyecek/içecek ve koridor nesneleri</small></div><input class="input" type="number" min="0.1" max="0.95" step="0.05" data-k="nesneGuven" aria-label="Nesne güveni"></div>
+        <div class="set"><div class="lbl">El takibi<small>Ellerin 21 eklem noktasını takip eder. Yavaş bilgisayarda kapatılabilir.</small></div><label class="switch"><input type="checkbox" data-k="elTakip" aria-label="El takibi"><span></span></label></div>
         <div class="set"><div class="lbl">En küçük yüz genişliği (px)<small>Gözlük ve saç kontrolü bundan küçük yüzlerde yapılmaz</small></div><input class="input" type="number" min="20" max="400" step="5" data-k="minYuz" aria-label="En küçük yüz"></div>
         <div class="set"><div class="lbl">En küçük kişi boyu (px)<small>Ayakkabı kontrolü bundan kısa görünen kişilerde yapılmaz</small></div><input class="input" type="number" min="60" max="1000" step="10" data-k="minBoy" aria-label="En küçük kişi boyu"></div>
         <div class="set"><div class="lbl">Aynı kural için bekleme (sn)<small>Bir kural bu süre içinde tekrar kaydedilmez</small></div><input class="input" type="number" min="2" max="600" step="1" data-k="bekleme" aria-label="Bekleme"></div>
@@ -393,6 +496,26 @@ kbd { font: 12px ui-monospace, monospace; padding: 1px 5px; border: 1px solid va
         <div class="set"><div class="lbl">Kaydedilen karelerde yüzleri gizle<small>Algılanan yüzler pikselleştirilir. Algılanmayan yüz açık kalabilir.</small></div><label class="switch"><input type="checkbox" data-k="yuzGizle" aria-label="Yüz gizle"><span></span></label></div>
         <div class="set"><div class="lbl">Ekranı açık tut<small>Analiz sırasında bilgisayar uykuya geçmesin</small></div><label class="switch"><input type="checkbox" data-k="uyanik" aria-label="Ekranı açık tut"><span></span></label></div>
         <div class="set"><div class="lbl">Eski olayları otomatik sil (gün)<small>0 = silme</small></div><input class="input" type="number" min="0" max="365" step="1" data-k="saklaGun" aria-label="Saklama günü"></div>
+      </div>
+
+      <div class="card">
+        <h2>Roboflow PPE modeli</h2>
+        <p class="sub">Hazır eğitilmiş model: iş gözlüğü var/yok ve iş ayakkabısı var/yok. Eğitim yapmadan çalışır; kendi eğitiminle birlikte de kullanılabilir. Açıkken birkaç saniyede bir kare (yüzler dahil) Roboflow sunucusuna gider ve Roboflow kredisi harcar.</p>
+        <div class="set"><div class="lbl">Roboflow modelini kullan<small id="rfInfo">Kapalı</small></div><label class="switch"><input type="checkbox" data-k="rfOn" aria-label="Roboflow modeli"><span></span></label></div>
+        <div class="set"><div class="lbl">API anahtarı<small id="rfKeyInfo">Kayıtlı değil (app.roboflow.com → Settings → API Keys)</small></div></div>
+        <div class="row"><input class="input grow" type="password" id="rfKey" placeholder="Roboflow API anahtarı" autocomplete="off" aria-label="Roboflow API anahtarı"><button class="btn btn-sm" id="rfKeySave">Kaydet</button><button class="btn btn-sm btn-danger" id="rfKeyDel" hidden>Sil</button></div>
+        <div class="set"><div class="lbl">Model<small>Varsayılan: "PPE - Detection Y" (Metehans Workspace, Roboflow Universe, CC BY 4.0)</small></div><input class="input" type="text" data-k="rfModel" style="width:170px" aria-label="Roboflow model"></div>
+        <div class="set"><div class="lbl">Gönderme aralığı (sn)<small>Kısaltırsan daha hızlı tepki, daha çok kredi</small></div><input class="input" type="number" min="0.5" max="30" step="0.5" data-k="rfAralik" aria-label="Roboflow aralığı"></div>
+        <div class="set"><div class="lbl">Model güveni<small>0,3–0,7 arası</small></div><input class="input" type="number" min="0.1" max="0.95" step="0.05" data-k="rfGuven" aria-label="Roboflow güveni"></div>
+      </div>
+
+      <div class="card">
+        <h2>Yapay zekâ analizi (Claude)</h2>
+        <p class="sub">İsteğe bağlı. Olay karesini Claude'a inceletir: ihlal gerçek mi, yanlış alarm mı, ne yapılmalı. "Claude ile günü özetle" günün olaylarını ve denetim listesini özetler. Kendi Anthropic API anahtarın gerekir (console.anthropic.com). Kullanım ücretlidir.</p>
+        <div class="set"><div class="lbl">API anahtarı<small id="aiKeyInfo">Kayıtlı değil. Anahtar yalnızca bu tarayıcıda saklanır; ortak bilgisayarda kaydetme.</small></div></div>
+        <div class="row"><input class="input grow" type="password" id="aiKey" placeholder="sk-ant-…" autocomplete="off" aria-label="Anthropic API anahtarı"><button class="btn btn-sm" id="aiKeySave">Kaydet</button><button class="btn btn-sm btn-danger" id="aiKeyDel" hidden>Sil</button></div>
+        <div class="set"><div class="lbl">Her olayı otomatik analiz et<small>Her yeni olayda kare Claude'a gönderilir (ücretli)</small></div><label class="switch"><input type="checkbox" data-k="aiAuto" aria-label="Otomatik analiz"><span></span></label></div>
+        <div class="set"><div class="lbl">Gönderilen veri<small>Olay karesi (yüz gizleme açıksa yüzler pikselli), kural adı, saat, kişi sayısı. Model: Claude Opus 5.5.</small></div></div>
       </div>
 
       <div class="card">
@@ -432,6 +555,16 @@ kbd { font: 12px ui-monospace, monospace; padding: 1px 5px; border: 1px solid va
     </div>
   </form>
 </dialog>
+<dialog id="assignDlg">
+  <form method="dialog" style="width:min(380px,90vw)">
+    <h3 id="assignT">Bu kişi kim?</h3>
+    <div class="assign-list" id="assignList"></div>
+    <div class="row" style="justify-content:space-between;margin-top:8px">
+      <button class="btn btn-sm btn-danger" type="button" id="assignClear">Adı kaldır</button>
+      <span><button class="btn btn-sm" type="button" id="assignNew">+ Yeni üye</button> <button class="btn btn-sm" value="cancel">Kapat</button></span>
+    </div>
+  </form>
+</dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script type="module">
@@ -446,7 +579,15 @@ const MODELS = {
   nesne: 'https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.tflite',
   yuz: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite',
   gomme: 'https://storage.googleapis.com/mediapipe-models/image_embedder/mobilenet_v3_small/float32/1/mobilenet_v3_small.tflite',
+  el: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
 };
+const SDK_URL = 'https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@1.3.0/+esm';
+const JSQR_URL = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
+const QRGEN_URL = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
+const TESS_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+const TESS_WORKER = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js';
+const TESS_CORE = 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1';
+const AI_MODEL = 'claude-opus-5-5';
 // COCO sınıfları
 const FOOD = ['bottle', 'cup', 'wine glass', 'bowl', 'banana', 'apple', 'sandwich', 'orange', 'hot dog', 'pizza', 'donut', 'cake', 'broccoli', 'carrot'];
 const OBSTACLE = ['chair', 'bench', 'backpack', 'suitcase', 'handbag', 'dining table'];
@@ -461,6 +602,7 @@ const RULES = {
   koridor:   { name: 'Koridor kapalı',            group: 'Davranış ve alan' },
   yiyecek:   { name: 'Masada yiyecek / içecek',   group: 'Davranış ve alan' },
   makine:    { name: 'Makine alanında fazla kişi', group: 'Davranış ve alan' },
+  el:        { name: 'Tehlikeli bölgede el',      group: 'Davranış ve alan' },
   bolge:     { name: 'Yasak bölgeye giriş',       group: 'Davranış ve alan' },
   kalabalik: { name: "Pit'te fazla kişi",         group: 'Davranış ve alan' },
 };
@@ -479,6 +621,7 @@ const ZONE_TYPES = {
   yasak:   { name: 'Yasak bölge',                  color: '#ff6b3d', rule: 'bolge',   help: 'Kimsenin girmemesi gereken alan (ör. robot test alanı, şarj dolabı arkası).' },
   makine:  { name: 'Makine alanı',                 color: '#b26bff', rule: 'makine',  help: 'Torna, dikey matkap, şerit testere çevresi. Kişi sınırını aşınca uyarır.' },
   koridor: { name: 'Koridor / geçiş yolu',         color: '#2f9bff', rule: 'koridor', help: "Pit önündeki koridor. Çizdikten sonra koridor BOŞKEN referans alınır." },
+  el:      { name: 'El tehlike bölgesi',           color: '#ffd60a', rule: 'el',      help: 'Testere ağzı, matkap ucu, torna aynası, zımpara bandı. Bu alana el girince uyarır. Dar çiz: sadece kesici/dönen kısım.' },
   masa:    { name: 'Elektronik / batarya masası',  color: '#19c3a6', rule: 'yiyecek', help: 'Elektronik, batarya ve şarj masası. Yiyecek ve içecek görülünce uyarır.' },
 };
 
@@ -508,6 +651,7 @@ const AUDIT = [
     ['rob-tasima', 'Robot pitte yavaş ve kontrollü taşınıyor', 'Cart ile, çevredekilere uyarı vererek.'],
     ['rob-pnomatik', 'Pnömatik basınç güvenli; çalışmadan önce hava tahliye ediliyor', 'Tahliye valfi erişilebilir, basınç göstergesi okunuyor.'],
     ['rob-destek', 'Robotun altında çalışırken emniyet bloğu / destek kullanılıyor', 'Kol, tırmanma ve kesim mekanizmaları ani hareket etmeyecek şekilde.'],
+    ['rob-el', 'Eller kesici ve dönen parçalardan uzak; itme çubuğu kullanılıyor', 'Testere, matkap, torna, zımpara başında.', 'el'],
   ] },
   { g: 'Atık ve acil durum', items: [
     ['acil-kit', 'Pil döküntü kiti (spill kit) pitte ve eksiksiz', 'Nötralizatör, eldiven, gözlük. Sızıntıda çıplak elle dokunulmaz, Safety Advisor çağrılır.'],
@@ -517,7 +661,10 @@ const AUDIT = [
 ];
 
 const DEFAULTS = {
-  rules: { gozluk: true, ayakkabi: true, sac: true, kosma: true, koridor: true, yiyecek: true, makine: true, bolge: true, kalabalik: false },
+  rules: { gozluk: true, ayakkabi: true, sac: true, kosma: true, koridor: true, yiyecek: true, makine: true, el: true, bolge: true, kalabalik: false },
+  elSure: 0.3, elTakip: true, aiAuto: false,
+  qrOn: true, formaOn: true, kiyafetOn: true, kiyafetEsik: 0.82, kiyafetGunluk: true, ortBoy: 170, hreg: null,
+  rfOn: false, rfModel: 'ppe-detection-y/5', rfAralik: 1.5, rfGuven: 0.45,
   gozlukSure: 2, ayakkabiSure: 2, sacSure: 2, bolgeSure: 0.5, maxKisi: 10, kosmaEsik: 1.8,
   koridorSure: 60, koridorOran: 15, yiyecekSure: 2,
   fps: 10, kisiGuven: 0.45, nesneGuven: 0.4, minYuz: 48, minBoy: 160, bekleme: 20,
@@ -590,12 +737,24 @@ function applyTheme() {
 }
 
 // ─────────────────────────── Modeller ───────────────────────────
-const M = { vision: null, nesne: null, yuz: null, gomme: null, ready: false, loading: null };
+const M = { vision: null, nesne: null, yuz: null, gomme: null, el: null, ready: false, loading: null, lib: null, img: null };
 function setModel(state, text) { $('#modelDot').className = `dot ${state}`; $('#modelText').textContent = text; }
 async function makeTask(Cls, path, extra, preferGpu = true) {
   const opts = (delegate) => ({ baseOptions: { modelAssetPath: path, delegate }, ...extra });
   if (preferGpu) { try { return await Cls.createFromOptions(M.vision, opts('GPU')); } catch (e) { console.warn('GPU olmadı, CPU deneniyor', e); } }
   return Cls.createFromOptions(M.vision, opts('CPU'));
+}
+/** Fotoğraftan eğitim için IMAGE modunda yüz ve kişi algılayıcıları (ilk kullanımda). */
+async function imageDetectors() {
+  await loadModels();
+  M.img ??= (async () => {
+    const [yuz, kisi] = await Promise.all([
+      makeTask(M.lib.FaceDetector, MODELS.yuz, { runningMode: 'IMAGE', minDetectionConfidence: 0.5 }, false),
+      makeTask(M.lib.ObjectDetector, MODELS.nesne, { runningMode: 'IMAGE', scoreThreshold: 0.35, categoryAllowlist: ['person'], maxResults: 10 }, false),
+    ]);
+    return { yuz, kisi };
+  })();
+  return M.img;
 }
 function loadModels() {
   if (M.loading) return M.loading;
@@ -603,11 +762,14 @@ function loadModels() {
     setModel('warn', 'Modeller indiriliyor…');
     const mp = await import(`${MP_URL}/vision_bundle.mjs`);
     M.vision = await mp.FilesetResolver.forVisionTasks(`${MP_URL}/wasm`);
-    [M.nesne, M.yuz, M.gomme] = await Promise.all([
+    M.lib = mp;
+    [M.nesne, M.yuz, M.gomme, M.el] = await Promise.all([
       makeTask(mp.ObjectDetector, MODELS.nesne, { runningMode: 'VIDEO', scoreThreshold: 0.25, categoryAllowlist: ['person', ...FOOD, ...OBSTACLE], maxResults: 40 }),
       makeTask(mp.FaceDetector, MODELS.yuz, { runningMode: 'VIDEO', minDetectionConfidence: 0.55 }),
       makeTask(mp.ImageEmbedder, MODELS.gomme, { runningMode: 'IMAGE', l2Normalize: true, quantize: false }, false),
+      makeTask(mp.HandLandmarker, MODELS.el, { runningMode: 'VIDEO', numHands: 8, minHandDetectionConfidence: 0.5, minTrackingConfidence: 0.5 }).catch((e) => { console.warn('El modeli yüklenemedi', e); return null; }),
     ]);
+    M.handConn = mp.HandLandmarker.HAND_CONNECTIONS;
     M.ready = true;
     setModel('ok', 'Modeller hazır');
     updateTrainButtons();
@@ -772,16 +934,28 @@ function iou(a, b) {
   return i / (a.w * a.h + b.w * b.h - i || 1);
 }
 let nextTrack = 1;
-function track(list, boxes, now, ttl = 900) {
-  const used = new Set(), matchedT = new Set(), pairs = [];
+/** Basit çoklu nesne takibi: önce örtüşme (IoU), sonra merkez uzaklığı. Kısa kaybolmalarda numara korunur. */
+function track(list, boxes, now, ttl = 2500) {
+  const used = new Set(), matchedT = new Set();
+  const assign = (ti, bi) => { matchedT.add(ti); used.add(bi); const t = list[ti]; t.box = boxes[bi]; t.last = now; t.hits++; };
+  const pairs = [];
   list.forEach((t, ti) => boxes.forEach((b, bi) => { const v = iou(t.box, b); if (v > 0.2) pairs.push([v, ti, bi]); }));
   pairs.sort((a, b) => b[0] - a[0]);
-  for (const [, ti, bi] of pairs) {
-    if (matchedT.has(ti) || used.has(bi)) continue;
-    matchedT.add(ti); used.add(bi);
-    const t = list[ti]; t.box = boxes[bi]; t.last = now; t.hits++;
-  }
-  boxes.forEach((b, bi) => { if (!used.has(bi)) list.push({ id: nextTrack++, box: b, first: now, last: now, hits: 1, hist: [], chk: {} }); });
+  for (const [, ti, bi] of pairs) if (!matchedT.has(ti) && !used.has(bi)) assign(ti, bi);
+  const near = [];
+  list.forEach((t, ti) => {
+    if (matchedT.has(ti)) return;
+    const tc = [t.box.x + t.box.w / 2, t.box.y + t.box.h / 2], sz = Math.sqrt(t.box.w * t.box.h);
+    boxes.forEach((b, bi) => {
+      if (used.has(bi)) return;
+      const d = Math.hypot(b.x + b.w / 2 - tc[0], b.y + b.h / 2 - tc[1]) / sz;
+      const ratio = Math.max(b.w * b.h, t.box.w * t.box.h) / Math.max(1, Math.min(b.w * b.h, t.box.w * t.box.h));
+      if (d < 0.7 && ratio < 2.5) near.push([d, ti, bi]);
+    });
+  });
+  near.sort((a, b) => a[0] - b[0]);
+  for (const [, ti, bi] of near) if (!matchedT.has(ti) && !used.has(bi)) assign(ti, bi);
+  boxes.forEach((b, bi) => { if (!used.has(bi)) list.push({ id: nextTrack++, box: b, first: now, last: now, hits: 1, hist: [], chk: {}, known: {} }); });
   return list.filter((t) => now - t.last < ttl);
 }
 
@@ -793,7 +967,7 @@ const crops = {
   feet: Object.assign(document.createElement('canvas'), { width: 192, height: 96 }),
 };
 /** Kontrolün baktığı bölgeyi kırpar. box: yüz (face/head) veya kişi (feet) kutusu. */
-function cropFor(check, box) {
+function cropFor(check, box, srcEl = video) {
   const src = CHECKS[check].src, c = crops[src], b = box;
   let x, y, w, h;
   if (src === 'face') { x = b.x - b.w * 0.12; y = b.y - b.h * 0.12; w = b.w * 1.24; h = b.h * 0.7; }        // göz bölgesi
@@ -801,7 +975,7 @@ function cropFor(check, box) {
   else { x = b.x - b.w * 0.08; y = b.y + b.h * 0.84; w = b.w * 1.16; h = b.h * 0.2; }                      // ayaklar
   const g = c.getContext('2d', { willReadFrequently: true });
   g.fillStyle = '#000'; g.fillRect(0, 0, c.width, c.height);
-  g.drawImage(video, x, y, w, h, 0, 0, c.width, c.height);
+  g.drawImage(srcEl, x, y, w, h, 0, 0, c.width, c.height);
   return c;
 }
 const embed = (canvas) => M.gomme.embed(canvas).embeddings[0].floatEmbedding;
@@ -813,6 +987,9 @@ function cosine(a, b) {
 const counts = (check) => ({ var: samples.filter((s) => s.check === check && s.label === 'var').length, yok: samples.filter((s) => s.check === check && s.label === 'yok').length });
 const trainedCache = {};
 const trained = (check) => trainedCache[check] ??= (() => { const c = counts(check); return c.var >= 3 && c.yok >= 3; })();
+const rfActive = () => cfg.rfOn && !!rfKey;
+/** Kural çalışabiliyor mu: kendi eğitimi veya (gözlük/ayakkabı için) Roboflow modeli. */
+const canCheck = (ck) => trained(ck) || (rfActive() && (ck === 'gozluk' || ck === 'ayakkabi'));
 function samplesChanged() { for (const k in trainedCache) delete trainedCache[k]; }
 function classify(check, vec) {
   const scored = [];
@@ -821,7 +998,22 @@ function classify(check, vec) {
   const k = Math.min(5, scored.length);
   let v = 0, y = 0;
   for (let i = 0; i < k; i++) { const [sim, l] = scored[i]; const w = Math.max(0, sim); if (l === 'var') v += w; else y += w; }
-  return v >= y ? 'var' : 'yok';
+  return { label: v >= y ? 'var' : 'yok', conf: Math.max(v, y) / ((v + y) || 1) };
+}
+/** Birini-dışarıda-bırak doğruluğu: her örnek, geri kalanlarla doğru sınıflanıyor mu. */
+function looAccuracy(check) {
+  const mine = samples.filter((s) => s.check === check);
+  if (mine.length < 6) return null;
+  let ok = 0;
+  for (const s of mine) {
+    const scored = [];
+    for (const o of mine) if (o !== s) scored.push([cosine(s.embedding, o.embedding), o.label]);
+    scored.sort((a, b) => b[0] - a[0]);
+    let v = 0, y = 0;
+    for (let i = 0; i < Math.min(5, scored.length); i++) { const w = Math.max(0, scored[i][0]); if (scored[i][1] === 'var') v += w; else y += w; }
+    if ((v >= y ? 'var' : 'yok') === s.label) ok++;
+  }
+  return ok / mine.length;
 }
 
 /** Eğitim için kontrolün kaynağı: en büyük yüz veya boydan görünen en büyük kişi. */
@@ -835,6 +1027,115 @@ function trainTarget(check) {
   return state.faces.filter((f) => f.last === t && f.box.w >= cfg.minYuz).sort((a, b) => b.box.w - a.box.w)[0];
 }
 let trainCheck = 'gozluk', trainBusy = false;
+async function storeSample(ck, label, canvas) {
+  const vec = Array.from(embed(canvas));
+  const thumb = await new Promise((r) => canvas.toBlob(r, 'image/jpeg', 0.7));
+  const s = { id: newId(), ts: Date.now(), check: ck, label, embedding: vec, thumb };
+  await db.put('samples', s); samples.push(s); samplesChanged();
+}
+// ── Eğitim sihirbazı: ekrandaki yönergelerle iki sınıfı da otomatik çeker ──
+const POSES = {
+  face: ['Kameraya düz bak', 'Başını hafifçe sağa çevir', 'Başını hafifçe sola çevir', 'Hafifçe yukarı bak', 'Hafifçe aşağı bak', 'Bir adım geri git'],
+  head: ['Kameraya düz bak', 'Sağa dön', 'Sola dön', 'Omuzların görünsün', 'Bir adım geri git'],
+  feet: ['Kameraya doğru dur', 'Sağa dön', 'Sola dön', 'Bir adım öne gel', 'Bir adım geri git'],
+};
+const PREP = {
+  gozluk:   { var: 'İş gözlüğünü tak', yok: 'Gözlüğü çıkar' },
+  ayakkabi: { var: 'Kapalı ayakkabıyla dur', yok: 'Terlik / sandaletle dur' },
+  sac:      { var: 'Saçını topla, takıları çıkar', yok: 'Saçını aç veya kolye / atkı tak' },
+};
+let wizardAbort = false;
+/** Görüntü üzerinde büyük yönerge. buttons: [[yazı, değer, birincil]]; wait=false ise tıklamayı beklemez. */
+function coach(title, sub, buttons = [], wait = true) {
+  const c = $('#coach');
+  if (title === null) { c.hidden = true; return Promise.resolve(); }
+  c.hidden = false; $('#coachT').textContent = title; $('#coachS').textContent = sub || '';
+  const box = $('#coachBtns'); box.innerHTML = '';
+  return new Promise((res) => {
+    for (const [txt, val, primary] of buttons) {
+      const b = document.createElement('button'); b.type = 'button'; b.className = `btn${primary ? ' btn-primary' : ''}`; b.textContent = txt;
+      b.onclick = () => { if (val === 'stop' || val === 'cancel') wizardAbort = true; res(val); }; box.appendChild(b);
+    }
+    if (!buttons.length || !wait) res();
+  });
+}
+async function runWizard() {
+  if (!M.ready || !running) { toast('Önce kamerayı başlat, modeller yüklensin.'); return; }
+  const ck = trainCheck, C = CHECKS[ck], poses = POSES[C.src];
+  wizardAbort = false; trainBusy = true; updateTrainButtons();
+  $('#stage').scrollIntoView({ block: 'center', behavior: 'smooth' });
+  const got = { var: 0, yok: 0 };
+  try {
+    for (const label of ['var', 'yok']) {
+      if (wizardAbort) break;
+      const go = await coach(PREP[ck][label], `${C.how} Hazır olunca "Başla"ya bas.`, [['Başla', 'go', true], ['Bu adımı atla', 'skip'], ['İptal', 'cancel']]);
+      if (go === 'cancel') break;
+      if (go === 'skip') continue;
+      for (let n = 3; n > 0 && !wizardAbort; n--) { coach(String(n), PREP[ck][label], [['Durdur', 'stop']], false); await sleep(800); }
+      for (const pose of poses) {
+        if (wizardAbort) break;
+        coach(pose, `${C[label]} · ${got[label]} örnek`, [['Durdur', 'stop']], false);
+        await sleep(900); // poz değiştirme süresi
+        let shots = 0, tries = 0;
+        while (shots < 3 && tries < 12 && !wizardAbort) {
+          tries++;
+          const tg = trainTarget(ck);
+          if (!tg) { $('#coachS').textContent = C.src === 'feet' ? 'Kafadan ayağa kadrajda ol' : 'Yüz görünmüyor, kameraya yaklaş'; await sleep(300); continue; }
+          await storeSample(ck, label, cropFor(ck, tg.box)); shots++; got[label]++;
+          $('#coachS').textContent = `${C[label]} · ${got[label]} örnek`;
+          await sleep(280);
+        }
+      }
+      renderSamples();
+    }
+  } catch (e) { console.error(e); toast(`Sihirbaz durdu: ${e.message}`); }
+  coach(null);
+  trainBusy = false; updateTrainButtons(); renderSamples();
+  const acc = looAccuracy(ck);
+  $('#trainStatus').textContent = `Sihirbaz bitti: ${got.var} ${C.var.toLowerCase()}, ${got.yok} ${C.yok.toLowerCase()} örnek eklendi.${acc != null ? ` Tahmini doğruluk %${Math.round(acc * 100)}.` : ''} Farklı kişilerle tekrarla.`;
+}
+// ── Fotoğraflardan eğitim ──
+async function addPhotos(label, files) {
+  if (!files.length) return;
+  const ck = trainCheck, C = CHECKS[ck];
+  trainBusy = true; updateTrainButtons();
+  let added = 0, skipped = 0;
+  try {
+    $('#trainStatus').textContent = 'Fotoğraf modelleri hazırlanıyor…';
+    const det = await imageDetectors();
+    const cv = document.createElement('canvas');
+    for (const [i, f] of [...files].entries()) {
+      $('#trainStatus').textContent = `Fotoğraf ${i + 1}/${files.length} işleniyor…`;
+      try {
+        const bm = await createImageBitmap(f);
+        const sc = Math.min(1, 1600 / Math.max(bm.width, bm.height));
+        cv.width = Math.round(bm.width * sc); cv.height = Math.round(bm.height * sc);
+        cv.getContext('2d').drawImage(bm, 0, 0, cv.width, cv.height); bm.close?.();
+        const toBox = (d) => ({ x: d.boundingBox.originX, y: d.boundingBox.originY, w: d.boundingBox.width, h: d.boundingBox.height });
+        let boxes;
+        if (C.src === 'feet') boxes = det.kisi.detect(cv).detections.map(toBox).filter((b) => b.y + b.h < cv.height * 0.985 && b.h > cv.height * 0.3);
+        else boxes = det.yuz.detect(cv).detections.map(toBox).filter((b) => b.w >= 24);
+        if (!boxes.length) { skipped++; continue; }
+        // Fotoğraftaki her uygun kişi/yüz ayrı örnek olur (en fazla 6)
+        for (const b of boxes.sort((a, z) => z.w * z.h - a.w * a.h).slice(0, 6)) { await storeSample(ck, label, cropFor(ck, b, cv)); added++; }
+      } catch (e) { console.warn(f.name, e); skipped++; }
+    }
+  } catch (e) { console.error(e); toast(`Fotoğraflar işlenemedi: ${e.message}`); }
+  trainBusy = false; updateTrainButtons(); renderSamples();
+  $('#trainStatus').textContent = `${added} örnek eklendi (${C[label]})${skipped ? `, ${skipped} fotoğrafta ${C.src === 'feet' ? 'boydan kişi' : 'yüz'} bulunamadı` : ''}.`;
+}
+// ── Canlı tahmin: kameradaki kişi için o anki sonuç ──
+setInterval(() => {
+  const el = $('#trainLive');
+  if (!running || !M.ready || trainBusy || $('#view-canli').hidden || !trained(trainCheck)) { el.textContent = ''; return; }
+  const tg = trainTarget(trainCheck);
+  if (!tg) { el.textContent = CHECKS[trainCheck].src === 'feet' ? 'Canlı test: boydan görünen kişi yok' : 'Canlı test: yüz yok'; return; }
+  try {
+    const r = classify(trainCheck, embed(cropFor(trainCheck, tg.box)));
+    el.textContent = `Canlı test: ${CHECKS[trainCheck][r.label]} · %${Math.round(r.conf * 100)} emin`;
+    el.style.color = r.label === 'yok' ? 'var(--danger)' : 'var(--success)';
+  } catch { el.textContent = ''; }
+}, 700);
 async function addSamples(label) {
   if (!M.ready) { toast('Modeller henüz hazır değil.'); return; }
   const n = $('#burstChk').checked ? 10 : 1, ck = trainCheck;
@@ -846,11 +1147,7 @@ async function addSamples(label) {
       $('#trainStatus').textContent = CHECKS[ck].src === 'feet' ? 'Boydan görünen kimse yok: kafadan ayağa kadrajda ol.' : 'Yeterince büyük yüz yok: kameraya yaklaş.';
       await sleep(300); continue;
     }
-    const c = cropFor(ck, tg.box);
-    const vec = Array.from(embed(c));
-    const thumb = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.7));
-    const s = { id: newId(), ts: Date.now(), check: ck, label, embedding: vec, thumb };
-    await db.put('samples', s); samples.push(s); samplesChanged(); added++;
+    await storeSample(ck, label, cropFor(ck, tg.box)); added++;
     $('#trainStatus').textContent = `${CHECKS[ck][label]}: ${added}/${n}… Hafifçe dön, açı değiştir.`;
     renderSamples();
     if (n > 1) await sleep(300);
@@ -860,7 +1157,7 @@ async function addSamples(label) {
 }
 function updateTrainButtons() {
   const ok = running && M.ready && !trainBusy;
-  $('#addVarBtn').disabled = !ok; $('#addYokBtn').disabled = !ok;
+  $('#addVarBtn').disabled = !ok; $('#addYokBtn').disabled = !ok; $('#wizardBtn').disabled = !ok;
   if (!running) $('#trainStatus').textContent = 'Kamerayı başlat.';
 }
 let thumbUrls = [];
@@ -874,6 +1171,9 @@ function renderSamples() {
   $('#trainHow').textContent = C.how;
   $('#lVar').textContent = C.var; $('#lYok').textContent = C.yok;
   $('#addVarBtn').textContent = `+ ${C.var}`; $('#addYokBtn').textContent = `+ ${C.yok}`;
+  $('#photoVarL').textContent = `Fotoğraf: ${C.var.toLowerCase()}`; $('#photoYokL').textContent = `Fotoğraf: ${C.yok.toLowerCase()}`;
+  const acc = looAccuracy(ck);
+  $('#trainAcc').textContent = acc == null ? (trained(ck) ? '' : 'Eğitim gerekli: her sınıftan en az 3 örnek.') : `Tahmini doğruluk: %${Math.round(acc * 100)} (kendi örnekleri üzerinde; gerçek kamerada daha düşük olabilir)${acc < 0.85 ? ' — daha fazla ve çeşitli örnek ekle' : ''}`;
   $('#nVar').textContent = c.var; $('#nYok').textContent = c.yok;
   $('#trainMeter').style.width = `${Math.min(100, (Math.min(c.var, 15) + Math.min(c.yok, 15)) / 30 * 100)}%`;
   $('#trainMeter').style.background = trained(ck) ? 'var(--success)' : 'var(--warning)';
@@ -957,7 +1257,7 @@ function corridorFill(persons) {
 const now = () => performance.now();
 let state, lastLive = {};
 function resetState() {
-  state = { persons: [], faces: [], objects: [], lastRun: 0, lastTs: 0, fpsT: now(), fpsN: 0, crowdSince: 0, cooldown: {}, lastCorr: 0, corr: null, foodSince: {}, embedRR: 0 };
+  state = { persons: [], faces: [], objects: [], lastRun: 0, lastTs: 0, fpsT: now(), fpsN: 0, crowdSince: 0, cooldown: {}, lastCorr: 0, corr: null, foodSince: {}, embedRR: 0, seen: new Set(), hands: [], visible: [], faceOnly: [], violCount: {}, idmap: {}, idhow: {} };
 }
 resetState();
 
@@ -977,7 +1277,7 @@ function judge(tr, check, t, sureSec, budget) {
   const st = tr.chk[check] ??= { votes: [], lastEmbed: 0, since: 0, res: null };
   if (budget.n > 0 && t - st.lastEmbed > 330) {
     budget.n--; st.lastEmbed = t;
-    try { st.votes.push(classify(check, embed(cropFor(check, tr.box)))); if (st.votes.length > 9) st.votes.shift(); } catch (e) { console.warn(e); }
+    try { st.votes.push(classify(check, embed(cropFor(check, tr.box))).label); if (st.votes.length > 9) st.votes.shift(); } catch (e) { console.warn(e); }
   }
   const yok = st.votes.filter((v) => v === 'yok').length;
   st.res = st.votes.length < 3 ? null : yok / st.votes.length >= 0.6 ? 'yok' : 'var';
@@ -1005,10 +1305,44 @@ function loop() {
   state.faces = track(state.faces, faceDet.map(toBox), t, 700);
 
   const W = video.videoWidth, H = video.videoHeight;
-  const live = { gozluk: [], ayakkabi: [], sac: [], kosma: [], bolge: [], makine: [], koridor: [], yiyecek: [], kalabalik: false };
+  const live = { gozluk: [], ayakkabi: [], sac: [], kosma: [], bolge: [], makine: [], koridor: [], yiyecek: [], el: [], kalabalik: false };
   const persons = state.persons.filter((p) => p.last === t);
   const faces = state.faces.filter((f) => f.last === t);
   const budget = { n: 6 }; // kare başına en fazla gömme hesabı
+
+  // Yüzü kişiye bağla: yüz merkezi kişi kutusunun üst kısmındaysa aynı kişi
+  for (const f of faces) {
+    const cx = f.box.x + f.box.w / 2, cy = f.box.y + f.box.h / 2;
+    const cand = persons.filter((p) => cx >= p.box.x && cx <= p.box.x + p.box.w && cy >= p.box.y - p.box.h * 0.05 && cy <= p.box.y + p.box.h * 0.45)
+      .sort((a, b) => a.box.w * a.box.h - b.box.w * b.box.h)[0];
+    f.pid = cand?.id ?? null;
+    if (cand) cand.faceId = f.id;
+  }
+  for (const p of persons) { if (p.hits >= 5) state.seen.add(p.id); }
+
+  // Eller: 21 eklem noktası, kişiye bilek üzerinden bağlanır
+  state.hands = [];
+  if (cfg.elTakip && M.el) {
+    try {
+      const hr = M.el.detectForVideo(video, ts);
+      state.hands = (hr.landmarks || []).map((lm, i) => {
+        const pts = lm.map((q) => [q.x * W, q.y * H]);
+        const [wx, wy] = pts[0];
+        const owner = persons.filter((p) => wx >= p.box.x - p.box.w * 0.3 && wx <= p.box.x + p.box.w * 1.3 && wy >= p.box.y && wy <= p.box.y + p.box.h)
+          .sort((a, b) => Math.hypot(a.box.x + a.box.w / 2 - wx, a.box.y + a.box.h / 2 - wy) - Math.hypot(b.box.x + b.box.w / 2 - wx, b.box.y + b.box.h / 2 - wy))[0];
+        const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
+        const box = { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+        return { pts, box, side: hr.handedness?.[i]?.[0]?.categoryName === 'Left' ? 'sağ' : 'sol', pid: owner?.id ?? null };
+      });
+    } catch (e) { console.warn(e); }
+  }
+  const elZones = cfg.zones.filter((z) => z.type === 'el');
+  for (const z of elZones) {
+    const inside = state.hands.filter((h) => [0, 4, 8, 12, 16, 20].some((k) => pointInPoly(h.pts[k][0] / W, h.pts[k][1] / H, z.pts)));
+    if (inside.length) z.handSince ||= t; else z.handSince = 0;
+    z.hands = inside;
+    if (cfg.rules.el && inside.length && t - z.handSince >= cfg.elSure * 1000) for (const h of inside) live.el.push({ zone: z, hand: h, box: h.box, pid: h.pid });
+  }
 
   for (const p of persons) {
     // Koşma: ayak noktasının hızı, kişinin boyuna göre normalize
@@ -1053,7 +1387,26 @@ function loop() {
       if (!cfg.rules[ck] || !trained(ck) || f.small) { if (f.chk[ck]) f.chk[ck].res = null; continue; }
       if (judge(f, ck, t, cfg[`${ck}Sure`], budget)) live[ck].push(f);
     }
+    // Sonucu bağlı kişiye taşı: yüz bir an kaybolsa da kişinin durumu kalır
+    const p = f.pid && state.persons.find((q) => q.id === f.pid);
+    if (p) for (const ck of ['gozluk', 'sac']) if (f.chk[ck]?.res) p.known[ck] = f.chk[ck].res;
   }
+  for (const p of persons) if (p.chk.ayakkabi?.res) p.known.ayakkabi = p.chk.ayakkabi.res;
+  // Roboflow sonuçları kişinin oylarına eklenir (rfTick); burada karar ver
+  if (rfActive()) {
+    rfTick(t, persons);
+    for (const p of persons) for (const ck of ['gozluk', 'ayakkabi']) {
+      const st = p.chk[ck]; if (!st?.rfTs || !cfg.rules[ck]) continue;
+      if (t - st.rfTs > 8000) { st.votes = []; st.res = null; st.since = 0; delete st.rfTs; continue; } // eski sonuç
+      if (ck === 'ayakkabi' && trained('ayakkabi') && p.fullBody) continue; // zaten judge() değerlendirdi
+      const yok = st.votes.filter((v) => v === 'yok').length;
+      st.res = st.votes.length < 2 ? null : yok / st.votes.length >= 0.6 ? 'yok' : 'var';
+      if (st.res === 'yok') st.since ||= t; else st.since = 0;
+      p.known[ck] = st.res ?? p.known[ck];
+      if (st.res === 'yok' && t - st.since >= cfg[`${ck}Sure`] * 1000 && !live[ck].some((x) => (x.pid ?? x.id) === p.id)) live[ck].push(p);
+    }
+  }
+  state.faceOnly = faces.filter((f) => !f.pid);
 
   // Yiyecek/içecek: elektronik/batarya masası bölgelerinde
   const masalar = cfg.zones.filter((z) => z.type === 'masa');
@@ -1073,7 +1426,12 @@ function loop() {
     if (cfg.rules.koridor && full && t - z.fullSince >= cfg.koridorSure * 1000) live.koridor.push(z);
   }
 
+  qrTick(t, persons, faces);
+  ocrTick(t, persons, faces);
+  for (const p of persons) hregAdd(p);
+  try { kiyafetTick(t, persons); } catch (e) { console.warn('kıyafet', e); }
   lastLive = live;
+  state.visible = persons;
   drawOverlay();
   renderRulesLive();
   handleViolations(live, persons.length);
@@ -1092,6 +1450,7 @@ function zoneHot(z, live) {
   if (z.type === 'makine') return live.makine?.some((m) => m.zone === z);
   if (z.type === 'koridor') return live.koridor?.includes(z);
   if (z.type === 'masa') return live.yiyecek?.length > 0;
+  if (z.type === 'el') return live.el?.some((x) => x.zone === z);
   return false;
 }
 function drawOverlay() {
@@ -1132,9 +1491,10 @@ function drawOverlay() {
     const tags = badP.get(p.id), isBad = !!tags || live.kalabalik;
     ctx.strokeStyle = isBad ? '#ff453a' : '#2ecc71';
     ctx.strokeRect(p.box.x, p.box.y, p.box.w, p.box.h);
-    let txt = tags ? tags.join(' · ') : `kişi ${Math.round(p.box.s * 100)}%`;
+    let txt = `${disp(p.id)}${tags ? ` ${tags.join(' · ')}` : ''}`;
     const ay = p.chk.ayakkabi?.res;
     if (!tags && ay === 'var') txt += ' · ayakkabı ✓';
+    if (!tags && p.known.gozluk === 'var') txt += ' · gözlük ✓';
     label(txt, p.box.x, p.box.y, isBad ? '#ff453a' : '#2ecc71', fs);
     if (p.fullBody && cfg.rules.ayakkabi && trained('ayakkabi')) { // ayak bölgesi
       ctx.save(); ctx.setLineDash([lw * 2, lw * 2]); ctx.strokeStyle = ay === 'yok' ? '#ff453a' : ay === 'var' ? '#2ecc71' : '#9a9a9a';
@@ -1150,10 +1510,31 @@ function drawOverlay() {
     const parts = [];
     if (f.small) parts.push('uzak');
     else {
-      if (cfg.rules.gozluk) parts.push(!trained('gozluk') ? 'gözlük: eğitim yok' : g === 'yok' ? 'GÖZLÜK YOK' : g === 'var' ? 'gözlük ✓' : 'gözlük …');
+      if (cfg.rules.gozluk) parts.push(!canCheck('gozluk') ? 'gözlük: eğitim yok' : g === 'yok' ? 'GÖZLÜK YOK' : g === 'var' ? 'gözlük ✓' : 'gözlük …');
       if (cfg.rules.sac && trained('sac')) parts.push(s === 'yok' ? 'SAÇ/TAKI' : s === 'var' ? 'saç ✓' : 'saç …');
     }
+    if (!f.pid) parts.unshift(disp(f.id));
     if (parts.length) label(parts.join(' · '), f.box.x, f.box.y + f.box.h + fs * 1.5, col, fs * 0.85);
+  }
+  // Roboflow tespitleri (son 2,5 sn)
+  if (rfActive() && RF.ts && now() - RF.ts < 2500) {
+    for (const q of RF.preds) {
+      const m = rfMap(q.c); if (!m) continue;
+      const col = m.label === 'yok' ? '#ff453a' : '#bf5af2';
+      ctx.save(); ctx.strokeStyle = col; ctx.setLineDash([lw * 3, lw * 2]); ctx.strokeRect(q.x, q.y, q.w, q.h); ctx.restore();
+      label(`${m.ck === 'gozluk' ? (m.label === 'yok' ? 'GÖZLÜK YOK' : 'gözlük') : (m.label === 'yok' ? 'AYAKKABI YOK' : 'iş ayakkabısı')} ${Math.round(q.s * 100)}%`, q.x, q.y + q.h + fs * 1.3, col, fs * 0.8);
+    }
+  }
+  // Eller: iskelet ve parmak uçları
+  const hot = new Set((live.el || []).map((x) => x.hand));
+  for (const h of state.hands || []) {
+    const col = hot.has(h) ? '#ff453a' : '#00e5ff';
+    ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = lw * 0.9;
+    for (const c of M.handConn || []) { const a = h.pts[c.start], b = h.pts[c.end]; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+    ctx.fillStyle = col;
+    for (const [k, q] of h.pts.entries()) { ctx.beginPath(); ctx.arc(q[0], q[1], lw * ([4, 8, 12, 16, 20].includes(k) ? 1.8 : 1.1), 0, 7); ctx.fill(); }
+    ctx.restore();
+    if (hot.has(h)) label(`EL! ${h.pid ? `#${h.pid}` : ''}`, h.box.x, h.box.y, '#ff453a', fs * 0.85);
   }
   for (const o of state.objects) {
     const isFood = FOOD.includes(o.c), inMasa = isFood && (live.yiyecek || []).includes(o);
@@ -1178,7 +1559,7 @@ function ruleState(k) {
   const ok = (txt) => ({ txt: ready ? txt : '—', dot: ready ? 'ok' : '' });
   switch (k) {
     case 'gozluk': case 'ayakkabi': case 'sac':
-      if (!trained(k)) return need('Eğitim gerekli (her sınıftan 3+ örnek)');
+      if (!canCheck(k)) return need(k === 'sac' ? 'Eğitim gerekli (her sınıftan 3+ örnek)' : 'Eğitim veya Roboflow modeli gerekli');
       return live[k]?.length ? bad(`${live[k].length} kişi`) : ok('Sorun yok');
     case 'kosma': return live.kosma?.length ? bad(`${live.kosma.length} kişi koşuyor`) : ok('Sorun yok');
     case 'bolge': return !zonesOf('yasak').length ? need('Yasak bölge çizilmedi') : live.bolge?.length ? bad(`${live.bolge.length} kişi bölgede`) : ok(`${zonesOf('yasak').length} bölge izleniyor`);
@@ -1194,6 +1575,11 @@ function ruleState(k) {
     }
     case 'yiyecek': return !zonesOf('masa').length ? need('Elektronik/batarya masası çizilmedi') : live.yiyecek?.length ? bad(live.yiyecek.map((o) => FOOD_TR[o.c]).join(', ')) : ok('Sorun yok');
     case 'kalabalik': return live.kalabalik ? bad(`Sınır ${cfg.maxKisi} aşıldı`) : ok(`Sınır ${cfg.maxKisi} kişi`);
+    case 'el':
+      if (!cfg.elTakip) return need('El takibi kapalı (Ayarlar)');
+      if (!zonesOf('el').length) return need('El tehlike bölgesi çizilmedi');
+      if (live.el?.length) return bad(live.el.map((x) => `${x.zone.name}${x.pid ? ` #${x.pid}` : ''}`).join(', '));
+      return ok(`${(state.hands || []).length} el izleniyor`);
   }
   return ok('');
 }
@@ -1222,15 +1608,36 @@ function beep() {
     });
   } catch { /* ses yok */ }
 }
+const who = (tr) => disp(tr.pid ?? tr.id);
 function handleViolations(live, people) {
   const t = now(), msgs = [];
-  const fire = (rule, detail, boxes) => {
+  const fire = (rule, detail, boxes, key = rule, pids = []) => {
     msgs.push(`${RULES[rule].name}${detail ? ` — ${detail}` : ''}`);
-    if (t - (state.cooldown[rule] ?? -1e9) < cfg.bekleme * 1000) return;
-    state.cooldown[rule] = t;
-    saveEvent(rule, detail, boxes, people);
+    if (t - (state.cooldown[key] ?? -1e9) < cfg.bekleme * 1000) return;
+    state.cooldown[key] = t;
+    for (const id of pids) state.violCount[id] = (state.violCount[id] || 0) + 1;
+    saveEvent(rule, detail, boxes, people, pids);
   };
-  for (const k of ['gozluk', 'ayakkabi', 'sac', 'kosma', 'bolge']) if (live[k].length) fire(k, `${live[k].length} kişi`, live[k].map((x) => x.box));
+  // Kişiye bağlı kurallar: her kişi için ayrı olay (ayrı bekleme süresi)
+  for (const k of ['gozluk', 'ayakkabi', 'sac', 'kosma', 'bolge']) {
+    if (!live[k].length) continue;
+    msgs.push(`${RULES[k].name} — ${live[k].map(who).join(', ')}`);
+    for (const tr of live[k]) {
+      const id = tr.pid ?? tr.id, key = `${k}:${id}`;
+      if (t - (state.cooldown[key] ?? -1e9) < cfg.bekleme * 1000) continue;
+      state.cooldown[key] = t; state.violCount[id] = (state.violCount[id] || 0) + 1;
+      saveEvent(k, `Kişi ${disp(id)}`, [tr.box], people, [id]);
+    }
+  }
+  if (live.el.length) {
+    msgs.push(`${RULES.el.name} — ${[...new Set(live.el.map((x) => x.zone.name))].join(', ')}`);
+    for (const x of live.el) {
+      const id = x.pid ?? 'el', key = `el:${x.zone.id}:${id}`;
+      if (t - (state.cooldown[key] ?? -1e9) < Math.min(cfg.bekleme, 10) * 1000) continue;
+      state.cooldown[key] = t; if (x.pid) state.violCount[x.pid] = (state.violCount[x.pid] || 0) + 1;
+      saveEvent('el', `${x.zone.name}${x.pid ? ` · ${disp(x.pid)}` : ''} (${x.hand.side} el)`, [x.box], people, x.pid ? [x.pid] : []);
+    }
+  }
   if (live.makine.length) fire('makine', live.makine.map((m) => `${m.zone.name}: ${m.persons.length} kişi (sınır ${m.zone.max ?? 1})`).join(', '), live.makine.flatMap((m) => m.persons.map((p) => p.box)));
   if (live.koridor.length) fire('koridor', live.koridor.map((z) => `${z.name}${z.obst?.length ? ` (${[...new Set(z.obst.map((o) => OBST_TR[o.c]))].join(', ')})` : ''}`).join(', '), live.koridor.flatMap((z) => (z.obst || []).map((o) => o)));
   if (live.yiyecek.length) fire('yiyecek', [...new Set(live.yiyecek.map((o) => FOOD_TR[o.c]))].join(', '), live.yiyecek);
@@ -1272,15 +1679,24 @@ function pixelate(c, x, y, w, h) {
   tmp.getContext('2d').drawImage(c.canvas, x, y, w, h, 0, 0, tmp.width, tmp.height);
   c.save(); c.imageSmoothingEnabled = false; c.drawImage(tmp, 0, 0, tmp.width, tmp.height, x, y, w, h); c.restore();
 }
-async function saveEvent(rule, detail, boxes, people) {
+async function saveEvent(rule, detail, boxes, people, pids = []) {
   beep();
   try {
+    // Kişi fotoğrafları karenin kendisinden önce alınır (aynı an)
+    const kisiler = await Promise.all(pids.map(async (id) => {
+      const tr = state.persons.find((q) => q.id === id) || state.faces.find((q) => q.id === id);
+      const foto = tr ? await personPhoto(tr).catch(() => null) : null;
+      const pr = profOfTrack(id);
+      return pr ? { tid: id, pid: pr.id, ad: pr.ad, foto } : { tid: id, foto };
+    }));
     const image = await captureFrame(boxes);
-    const ev = { id: newId(), ts: Date.now(), rule, title: RULES[rule].name, detail, camera: sourceLabel, people, image, reviewed: false };
+    const ev = { id: newId(), ts: Date.now(), rule, title: RULES[rule].name, detail, camera: sourceLabel, people, pids, kisiler, image, reviewed: false };
     await db.put('events', ev);
     events.unshift(ev);
     if (!$('#view-olaylar').hidden) renderEvents();
     updateUnread();
+    if (cfg.aiAuto) aiQueue(ev);
+    if (!$('#view-ekip').hidden) renderEkip();
     writeToFolder(ev).catch((e) => { console.warn(e); $('#dirInfo').textContent = 'Klasöre yazılamadı. İzni yenilemek için tekrar seç.'; });
   } catch (e) { console.error('Olay kaydedilemedi', e); toast('Olay kaydedilemedi: depolama dolu olabilir.'); }
 }
@@ -1297,8 +1713,8 @@ async function loadEvents() {
 }
 function updateUnread() { const n = events.filter((e) => !e.reviewed).length; $('#unreadCount').textContent = n ? (n > 99 ? '99+' : n) : ''; }
 function filtered() {
-  const r = $('#filterRule').value, s = $('#filterState').value;
-  return events.filter((e) => (!r || e.rule === r) && (!s || (s === 'new' ? !e.reviewed : e.reviewed)));
+  const r = $('#filterRule').value, s = $('#filterState').value, k = $('#filterKisi').value;
+  return events.filter((e) => (!r || e.rule === r) && (!s || (s === 'new' ? !e.reviewed : e.reviewed)) && (!k || (e.kisiler || []).some((x) => x.pid === k)));
 }
 function renderEvents() {
   evUrls.forEach((u) => URL.revokeObjectURL(u)); evUrls = [];
@@ -1312,11 +1728,20 @@ function renderEvents() {
     el.innerHTML = `<img alt="${esc(e.title)} karesi" src="${u}" loading="lazy"><div class="body">
       <div class="row" style="justify-content:space-between"><span class="t">${esc(e.title)}</span><span class="tag">${e.reviewed ? 'İncelendi' : 'Yeni'}</span></div>
       <div class="m">${fmtTime(e.ts)} · ${esc(e.camera)}</div>
+      ${(e.kisiler || []).some((k) => k.foto || k.ad) ? `<div class="who">${e.kisiler.map((k) => { const u = k.foto ? URL.createObjectURL(k.foto) : null; if (u) evUrls.push(u); return `<div>${u ? `<img src="${u}" alt="">` : ''}<span>${esc(k.ad || `#${k.tid}`)}</span></div>`; }).join('')}</div>` : ''}
       <div class="d">${esc(e.detail || '')} · kadrajda ${e.people} kişi</div>
-      <div class="row"><button class="btn btn-sm" data-a="rev">${e.reviewed ? 'Yeniye al' : 'İncelendi'}</button><button class="btn btn-sm" data-a="dl">İndir</button><button class="btn btn-sm btn-danger" data-a="del">Sil</button></div></div>`;
+      <div class="row"><button class="btn btn-sm" data-a="rev">${e.reviewed ? 'Yeniye al' : 'İncelendi'}</button><button class="btn btn-sm" data-a="dl">İndir</button><button class="btn btn-sm" data-a="ai">${e.ai ? 'Yeniden analiz' : 'Claude ile incele'}</button><button class="btn btn-sm btn-danger" data-a="del">Sil</button></div><div class="ai-slot"></div></div>`;
     el.querySelector('img').onclick = () => { $('#viewerImg').src = u; $('#viewerCap').textContent = `${e.title} · ${fmtTime(e.ts)}`; $('#viewer').showModal(); };
     el.querySelector('[data-a=rev]').onclick = async () => { e.reviewed = !e.reviewed; await db.put('events', e); renderEvents(); updateUnread(); };
     el.querySelector('[data-a=dl]').onclick = () => download(e.image, fileName(e));
+    const slot = el.querySelector('.ai-slot');
+    if (e.ai) renderAi(slot, e.ai);
+    el.querySelector('[data-a=ai]').onclick = async (btn) => {
+      const b = btn.currentTarget; b.disabled = true; slot.innerHTML = '<div class="ai-box">Claude inceliyor…</div>';
+      try { await analyzeEvent(e); renderAi(slot, e.ai); b.textContent = 'Yeniden analiz'; }
+      catch (err) { slot.innerHTML = ''; const d = document.createElement('div'); d.className = 'ai-box'; d.textContent = aiErrText(err); slot.appendChild(d); }
+      b.disabled = false;
+    };
     el.querySelector('[data-a=del]').onclick = async () => { await db.del('events', e.id); events = events.filter((x) => x !== e); renderEvents(); updateUnread(); };
     box.appendChild(el);
   }
@@ -1330,8 +1755,619 @@ function download(blob, name) {
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 const csvCell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-const CSV_HEAD = ['Tarih', 'Kural', 'Ayrıntı', 'Kaynak', 'Kişi sayısı', 'Dosya', 'İncelendi'];
-const csvRow = (e) => [new Date(e.ts).toLocaleString('tr-TR'), e.title, e.detail, e.camera, e.people, fileName(e), e.reviewed ? 'evet' : 'hayır'].map(csvCell).join(';');
+const CSV_HEAD = ['Tarih', 'Kural', 'Ayrıntı', 'Kişi', 'Kaynak', 'Kişi sayısı', 'Dosya', 'İncelendi'];
+const csvRow = (e) => [new Date(e.ts).toLocaleString('tr-TR'), e.title, e.detail, (e.kisiler || []).map((x) => x.ad || `#${x.tid}`).join(', '), e.camera, e.people, fileName(e), e.reviewed ? 'evet' : 'hayır'].map(csvCell).join(';');
+
+// ─────────────────────────── Roboflow PPE modeli (barındırılan çıkarım) ───────────────────────────
+let rfKey = null;
+const RF = { busy: false, last: 0, err: null, preds: [], ts: 0, ms: 0 };
+const rfCanvas = document.createElement('canvas');
+function rfMap(c) {
+  const s = String(c).toLowerCase().replace(/[_-]+/g, ' ').trim();
+  const neg = /^(no|without|not)\b/.test(s);
+  if (/goggle|glass|eyewear|eye protection/.test(s)) return { ck: 'gozluk', label: neg ? 'yok' : 'var' };
+  if (/shoe|boot|footwear/.test(s)) return { ck: 'ayakkabi', label: neg ? 'yok' : 'var' };
+  return null;
+}
+async function rfTick(t, persons) {
+  if (RF.busy || t - RF.last < cfg.rfAralik * 1000 || video.readyState < 2) return;
+  RF.busy = true; RF.last = t;
+  const W = video.videoWidth, H = video.videoHeight, sc = Math.min(1, 640 / Math.max(W, H));
+  rfCanvas.width = Math.round(W * sc); rfCanvas.height = Math.round(H * sc);
+  rfCanvas.getContext('2d').drawImage(video, 0, 0, rfCanvas.width, rfCanvas.height);
+  const b64 = rfCanvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+  const snap = persons.map((p) => ({ id: p.id, box: { ...p.box } })); // karenin çekildiği andaki konumlar
+  const t0 = now();
+  try {
+    const url = `https://serverless.roboflow.com/${cfg.rfModel.split('/').map(encodeURIComponent).join('/')}?api_key=${encodeURIComponent(rfKey)}&confidence=${Math.round(cfg.rfGuven * 100)}`;
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: b64 });
+    if (!res.ok) {
+      const msg = res.status === 403 || res.status === 401 ? 'API anahtarı geçersiz veya yetkisiz' : res.status === 404 ? 'Model bulunamadı' : `HTTP ${res.status}`;
+      throw new Error(msg);
+    }
+    const j = await res.json();
+    const k = W / (j.image?.width || rfCanvas.width);
+    const preds = (j.predictions || []).map((q) => ({ c: q.class, s: q.confidence, x: (q.x - q.width / 2) * k, y: (q.y - q.height / 2) * k, w: q.width * k, h: q.height * k }));
+    RF.preds = preds; RF.ts = now(); RF.ms = Math.round(RF.ts - t0); RF.err = null;
+    for (const q of preds) {
+      const m = rfMap(q.c); if (!m) continue;
+      const cx = q.x + q.w / 2, cy = q.y + q.h / 2;
+      // Gözlük: kişi kutusunun üst kısmı; ayakkabı: alt kısmı
+      const owner = snap.filter((p) => cx >= p.box.x && cx <= p.box.x + p.box.w &&
+        (m.ck === 'gozluk' ? cy >= p.box.y - p.box.h * 0.05 && cy <= p.box.y + p.box.h * 0.4 : cy >= p.box.y + p.box.h * 0.65 && cy <= p.box.y + p.box.h * 1.05))
+        .sort((a, b) => a.box.w * a.box.h - b.box.w * b.box.h)[0];
+      const tr = owner && state.persons.find((p) => p.id === owner.id);
+      if (!tr) continue;
+      const st = tr.chk[m.ck] ??= { votes: [], lastEmbed: 0, since: 0, res: null };
+      st.votes.push(m.label, m.label); // model sonucu iki oy sayılır
+      while (st.votes.length > 9) st.votes.shift();
+      st.rfTs = now();
+    }
+  } catch (e) { RF.err = e.message || String(e); console.warn('Roboflow', e); }
+  RF.busy = false;
+  showRf();
+}
+function showRf() {
+  const el = $('#rfInfo'); if (!el) return;
+  if (!cfg.rfOn) el.textContent = 'Kapalı';
+  else if (!rfKey) el.textContent = 'Açık ama API anahtarı kayıtlı değil';
+  else if (RF.err) el.textContent = `Hata: ${RF.err}`;
+  else if (RF.ts) el.textContent = `Çalışıyor · son yanıt ${RF.ms} ms · ${RF.preds.length} tespit`;
+  else el.textContent = running ? 'Bekleniyor…' : 'Kamera başlayınca çalışır';
+  el.style.color = RF.err && cfg.rfOn ? 'var(--danger)' : '';
+}
+async function showRfKey() {
+  rfKey = (await db.get('rfKey').catch(() => null)) || null;
+  $('#rfKeyInfo').textContent = rfKey ? `Kayıtlı (…${rfKey.slice(-4)}). Yalnızca bu tarayıcıda saklanıyor.` : 'Kayıtlı değil (app.roboflow.com → Settings → API Keys)';
+  $('#rfKeyDel').hidden = !rfKey; showRf(); renderRulesLive();
+}
+
+// ─────────────────────────── Ekip ve dijital kimlik ───────────────────────────
+// Kimlik yüzle değil, QR yaka kartı veya elle atamayla belirlenir; biyometrik veri tutulmaz.
+let ekip = []; // {id, ad, rol, takim, renk, onay, ts, son}
+const COLORS = ['#ffd60a', '#30d158', '#64d2ff', '#ff9f0a', '#bf5af2', '#ff375f', '#66d4cf', '#a2845e'];
+async function loadEkip() { ekip = (await db.get('ekip').catch(() => null)) || []; refreshKisiFilter(); }
+let ekipT;
+const saveEkip = () => { clearTimeout(ekipT); ekipT = setTimeout(() => db.set('ekip', ekip).catch(() => {}), 300); };
+const prof = (pid) => ekip.find((x) => x.id === pid);
+const profOfTrack = (id) => { const pid = state?.idmap?.[id]; return pid ? prof(pid) : null; };
+function disp(id) { const p = profOfTrack(id); return p ? `${p.ad} #${id}` : `#${id}`; }
+const initials = (ad) => ad.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toLocaleUpperCase('tr-TR')).join('');
+const fotoCache = new Map(); // Blob → object URL
+function blobUrl(b) { if (!b) return null; let u = fotoCache.get(b); if (!u) { u = URL.createObjectURL(b); fotoCache.set(b, u); } return u; }
+const avatar = (p) => p.foto ? `<img class="av" src="${blobUrl(p.foto)}" alt="">` : `<span class="av" style="background:${p.renk}">${esc(initials(p.ad))}</span>`;
+// Kişinin o anki fotoğrafı (gövde; yüz gizleme açıksa yüzler pikselli)
+const cropCv = document.createElement('canvas');
+function personPhoto(tr) {
+  const W = video.videoWidth, H = video.videoHeight, b = tr.box;
+  let x, y, w, h;
+  if (state.faces.includes(tr)) { x = b.x - b.w * 1.2; y = b.y - b.h * 0.8; w = b.w * 3.4; h = b.h * 4.5; } // yalnız yüz izi: üst gövdeyi al
+  else { x = b.x - b.w * 0.1; y = b.y - b.h * 0.05; w = b.w * 1.2; h = b.h * 1.1; }
+  x = Math.max(0, x); y = Math.max(0, y); w = Math.min(W - x, w); h = Math.min(H - y, h);
+  if (w < 8 || h < 8) return Promise.resolve(null);
+  const sc = 240 / h;
+  cropCv.width = Math.max(1, Math.round(w * sc)); cropCv.height = Math.max(1, Math.round(h * sc));
+  const g = cropCv.getContext('2d'); g.drawImage(video, x, y, w, h, 0, 0, cropCv.width, cropCv.height);
+  if (cfg.yuzGizle) for (const f of state.faces) {
+    if (state.lastRun - f.last > 400) continue;
+    const fb = f.box, pad = fb.w * 0.15;
+    pixelate(g, (fb.x - pad - x) * sc, (fb.y - pad * 1.6 - y) * sc, (fb.w + pad * 2) * sc, (fb.h + pad * 2.4) * sc);
+  }
+  return new Promise((r) => cropCv.toBlob(r, 'image/jpeg', 0.8)); // toBlob o anki görüntüyü hemen kopyalar
+}
+function newMemId() { const a = 'abcdefghjkmnpqrstuvwxyz23456789'; let x = ''; for (let i = 0; i < 6; i++) x += a[Math.floor(Math.random() * a.length)]; return ekip.some((p) => p.id === x) ? newMemId() : x; }
+function assign(trackId, pid, how) {
+  for (const k of Object.keys(state.idmap)) if (state.idmap[k] === pid || +k === trackId) { delete state.idmap[k]; delete state.idhow[k]; }
+  if (!pid) return;
+  state.idmap[trackId] = pid; state.idhow[trackId] = how;
+  const p = prof(pid); if (p) { p.son = Date.now(); saveEkip(); }
+  const tr = state.persons.find((q) => q.id === trackId) || state.faces.find((q) => q.id === trackId);
+  if (p && tr && (!p.foto || p.fotoGun !== dayKey()) && tr.box.h >= 60 && video.readyState >= 2) {
+    personPhoto(tr).then((b) => { if (b) { p.foto = b; p.fotoGun = dayKey(); saveEkip(); if (!$('#view-ekip').hidden) renderEkip(); } });
+  }
+}
+// Görülen profillerin "son görülme" zamanını güncelle
+setInterval(() => {
+  if (!running) return;
+  const t = state.lastRun, vis = new Set([...(state.visible || []), ...(state.faceOnly || [])].map((x) => x.id));
+  let ch = false;
+  for (const [tid, pid] of Object.entries(state.idmap)) {
+    if (!state.persons.some((p) => p.id === +tid) && !state.faces.some((f) => f.id === +tid)) { delete state.idmap[tid]; continue; } // takip bitti
+    if (vis.has(+tid)) { const p = prof(pid); if (p) { p.son = Date.now(); p.sure = (p.sure || 0) + 5; ch = true; } }
+  }
+  if (ch) saveEkip();
+  if (!$('#view-ekip').hidden) renderEkip();
+}, 5000);
+
+function loadScript(src, name) {
+  return new Promise((res, rej) => {
+    if (window[name]) return res(window[name]);
+    const sc = document.createElement('script'); sc.src = src; sc.async = true;
+    sc.onload = () => (window[name] ? res(window[name]) : rej(new Error(`${name} yüklenemedi`)));
+    sc.onerror = () => rej(new Error(`${src} yüklenemedi`));
+    document.head.appendChild(sc);
+  });
+}
+// ── QR yaka kartı okuma ──
+const qrCanvas = document.createElement('canvas'), qrCtx = qrCanvas.getContext('2d', { willReadFrequently: true });
+let qrLast = 0, qrLoad = null;
+function qrTick(t, persons, faces) {
+  if (!cfg.qrOn || !ekip.length || t - qrLast < 600) return;
+  qrLast = t;
+  if (!window.jsQR) { qrLoad ??= loadScript(JSQR_URL, 'jsQR').catch((e) => { console.warn(e); qrLoad = null; }); return; }
+  const W = video.videoWidth, H = video.videoHeight;
+  // Önce adı olmayan kişiler, sonra 5 sn'de bir doğrulama; kimse yoksa (yakın plan) tüm kare
+  const regions = persons.filter((p) => !state.idmap[p.id] || t - (p.qrAt || 0) > 5000)
+    .sort((a, b) => (state.idmap[a.id] ? 1 : 0) - (state.idmap[b.id] ? 1 : 0)).slice(0, 3)
+    .map((p) => ({ tr: p, x: p.box.x - p.box.w * 0.15, y: p.box.y + p.box.h * 0.1, w: p.box.w * 1.3, h: p.box.h * 0.6 }));
+  if (!persons.length) regions.push({ tr: null, x: 0, y: 0, w: W, h: H });
+  for (const r of regions) {
+    const x = Math.max(0, r.x), y = Math.max(0, r.y), w = Math.min(W - x, r.w), h = Math.min(H - y, r.h);
+    if (w < 24 || h < 24) continue;
+    const sc = Math.min(2.5, 640 / Math.max(w, h));
+    qrCanvas.width = Math.round(w * sc); qrCanvas.height = Math.round(h * sc);
+    qrCtx.drawImage(video, x, y, w, h, 0, 0, qrCanvas.width, qrCanvas.height);
+    if (r.tr) r.tr.qrAt = t;
+    let code = null;
+    try { const img = qrCtx.getImageData(0, 0, qrCanvas.width, qrCanvas.height); code = window.jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' }); } catch (e) { console.warn(e); }
+    if (!code || !code.data.startsWith('PITK:')) continue;
+    const pid = code.data.slice(5), p = prof(pid);
+    if (!p) continue;
+    let target = r.tr;
+    if (!target) { // tüm karede: QR'a en yakın yüz
+      const cx = x + (code.location.topLeftCorner.x + code.location.bottomRightCorner.x) / 2 / sc, cy = y + (code.location.topLeftCorner.y + code.location.bottomRightCorner.y) / 2 / sc;
+      target = faces.slice().sort((a, b) => Math.hypot(a.box.x + a.box.w / 2 - cx, a.box.y + a.box.h / 2 - cy) - Math.hypot(b.box.x + b.box.w / 2 - cx, b.box.y + b.box.h / 2 - cy))[0];
+    }
+    if (target && state.idmap[target.id] !== pid) { assign(target.id, pid, 'qr'); toast(`${p.ad} tanındı (QR kart)`); }
+  }
+}
+// ── Kıyafet imzası: üst/alt giysi renk dağılımı + üst gövde görünüm gömmesi (tarz) ──
+const sigCanvas = Object.assign(document.createElement('canvas'), { width: 48, height: 96 });
+const sigCtx = sigCanvas.getContext('2d', { willReadFrequently: true });
+const styleCanvas = Object.assign(document.createElement('canvas'), { width: 128, height: 128 });
+function colorHist(d, y0, y1, W) {
+  const h = new Array(16).fill(0); let n = 0, r = 0, g = 0, b = 0;
+  for (let y = y0; y < y1; y++) for (let x = Math.floor(W * 0.18); x < Math.ceil(W * 0.82); x++) {
+    const i = (y * W + x) * 4, R = d[i] / 255, G = d[i + 1] / 255, B = d[i + 2] / 255;
+    const mx = Math.max(R, G, B), mn = Math.min(R, G, B), sat = mx ? (mx - mn) / mx : 0;
+    r += d[i]; g += d[i + 1]; b += d[i + 2]; n++;
+    if (sat > 0.25 && mx > 0.2) { // renkli: 12 ton kutusu
+      const c = mx - mn; let hh = mx === R ? ((G - B) / c + 6) % 6 : mx === G ? (B - R) / c + 2 : (R - G) / c + 4;
+      h[Math.floor(hh * 2) % 12]++;
+    } else h[12 + Math.min(3, Math.floor(mx * 4))]++; // siyah / koyu gri / açık gri / beyaz
+  }
+  return { h: h.map((v) => v / (n || 1)), mean: [r, g, b].map((v) => Math.round(v / (n || 1))) };
+}
+const occluded = (tr) => state.persons.some((o) => o !== tr && o.last === tr.last && iou(o.box, tr.box) > 0.08);
+// ── Boy: zemin düzlemi kalibrasyonu. Sabit kamerada kişinin piksel boyu, ayağının görüntüdeki
+// yüksekliğiyle yaklaşık doğrusal değişir: h/H ≈ a·(ayak_y/H) + b. Kadrajdaki herkesten öğrenilir.
+function hregAdd(tr) {
+  const b = tr.box, H = video.videoHeight;
+  if (b.y < H * 0.01 || b.y + b.h > H * 0.985 || b.h < 60 || occluded(tr)) return;
+  if (state.lastRun - (tr.hAt || 0) < 500) return; tr.hAt = state.lastRun;
+  const x = (b.y + b.h) / H, y = b.h / H, r = cfg.hreg ??= { n: 0, sx: 0, sy: 0, sxx: 0, sxy: 0 };
+  // kayan pencere gibi davranması için eski ağırlığı azalt
+  if (r.n > 400) { const k = 400 / r.n; r.n *= k; r.sx *= k; r.sy *= k; r.sxx *= k; r.sxy *= k; }
+  r.n++; r.sx += x; r.sy += y; r.sxx += x * x; r.sxy += x * y;
+}
+function hregPredict(footY) {
+  const r = cfg.hreg; if (!r || r.n < 25) return null;
+  const den = r.n * r.sxx - r.sx * r.sx;
+  if (Math.abs(den) < 1e-6) return r.sy / r.n; // ayak hep aynı yükseklikte: ortalama
+  const a = (r.n * r.sxy - r.sx * r.sy) / den, b0 = (r.sy - a * r.sx) / r.n;
+  const v = a * footY + b0; return v > 0.02 ? v : null;
+}
+/** Bağıl boy: 1,00 = kadrajdaki ortalama kişi. Ayakları görünmüyorsa null. */
+function relHeight(tr) {
+  const b = tr.box, H = video.videoHeight;
+  if (b.y < H * 0.01 || b.y + b.h > H * 0.985) return null;
+  const pred = hregPredict((b.y + b.h) / H); return pred ? (b.h / H) / pred : null;
+}
+function clothesSig(tr) {
+  const b = tr.box;
+  if (b.h < 90 || occluded(tr)) return null;
+  sigCtx.drawImage(video, b.x, b.y + b.h * 0.18, b.w, b.h * 0.72, 0, 0, 48, 96); // omuzdan dize
+  const d = sigCtx.getImageData(0, 0, 48, 96).data;
+  const up = colorHist(d, 0, 44, 48), lo = colorHist(d, 52, 96, 48);
+  // Saç: kutunun en üstü (baş üstü). Baret/şapka varsa onu görür — o gün için yine ayırt edici.
+  sigCtx.drawImage(video, b.x + b.w * 0.2, b.y, b.w * 0.6, b.h * 0.1, 0, 0, 48, 20);
+  const hd = colorHist(sigCtx.getImageData(0, 0, 48, 20).data, 0, 20, 48);
+  const sc = styleCanvas.getContext('2d'); sc.fillStyle = '#000'; sc.fillRect(0, 0, 128, 128);
+  sc.drawImage(video, b.x, b.y + b.h * 0.15, b.w, b.h * 0.45, 0, 0, 128, 128);
+  return { h: [...up.h, ...lo.h], hh: hd.h, e: Array.from(embed(styleCanvas)), up: up.mean, lo: lo.mean, sac: hd.mean, rel: relHeight(tr) };
+}
+const bc = (a, b, i0, i1) => { let s = 0; for (let i = i0; i < i1; i++) s += Math.sqrt(a[i] * b[i]); return s; };
+/** Görünüm benzerliği 0–1: kıyafet renkleri, kıyafet tarzı, saç ve (biliniyorsa) boy. */
+function sigSim(a, b, boyA = a.rel, boyB = b.rel) {
+  let w = 0, v = 0; const add = (wt, x) => { if (x == null || Number.isNaN(x)) return; w += wt; v += wt * x; };
+  add(0.45, (bc(a.h, b.h, 0, 16) + bc(a.h, b.h, 16, 32)) / 2);
+  add(0.25, Math.max(0, cosine(a.e, b.e)));
+  if (a.hh && b.hh) add(0.15, bc(a.hh, b.hh, 0, 16));
+  if (boyA && boyB) add(0.15, Math.exp(-(((boyA - boyB) / 0.07) ** 2)));
+  return w ? v / w : 0;
+}
+const rgbHex = (c) => `#${c.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+const kiyafetOf = (p) => (!p.kiyafet?.ornek?.length ? null : (cfg.kiyafetGunluk && p.kiyafet.gun !== dayKey()) ? null : p.kiyafet);
+let kyLast = 0, kyRR = 0;
+function kiyafetTick(t, persons) {
+  if (!cfg.kiyafetOn || !ekip.length || !M.gomme || t - kyLast < 700) return;
+  kyLast = t;
+  // 1) Öğren: adı bağlı ve tek başına görünen kişilerden 2 sn'de bir örnek
+  for (const tr of persons) {
+    const pid = state.idmap[tr.id]; if (!pid || state.idhow[tr.id] === 'kiyafet' && (tr.kyConf || 0) < 0.9) continue;
+    if (t - (tr.sigAt || 0) < 2000) continue;
+    const sig = clothesSig(tr); tr.sigAt = t; if (!sig) continue;
+    const p = prof(pid); if (!p) continue;
+    if (!p.kiyafet || (cfg.kiyafetGunluk && p.kiyafet.gun !== dayKey())) p.kiyafet = { gun: dayKey(), ornek: [] };
+    p.kiyafet.gun = dayKey(); p.kiyafet.ornek.push(sig); if (p.kiyafet.ornek.length > 12) p.kiyafet.ornek.shift();
+    p.kiyafet.renk = { up: rgbHex(sig.up), lo: rgbHex(sig.lo), sac: rgbHex(sig.sac) };
+    if (sig.rel) { p.boyN = Math.min(50, (p.boyN || 0) + 1); p.boyOran = (p.boyOran ?? sig.rel) + (sig.rel - (p.boyOran ?? sig.rel)) / p.boyN; }
+    saveEkip();
+    return; // bir turda bir gömme hesabı yeter
+  }
+  // 2) Tanı: adı olmayan bir kişiyi sırayla dene
+  const cands = persons.filter((tr) => !state.idmap[tr.id] && tr.hits >= 5 && tr.box.h >= 90);
+  if (!cands.length) return;
+  const tr = cands[kyRR++ % cands.length];
+  const busy = new Set(persons.map((q) => state.idmap[q.id]).filter(Boolean));
+  const pool = ekip.filter((p) => !busy.has(p.id) && kiyafetOf(p));
+  if (!pool.length) return;
+  const sig = clothesSig(tr); if (!sig) return;
+  const scores = pool.map((p) => {
+    // boyu çok farklıysa aynı kişi olamaz
+    if (sig.rel && p.boyOran && (p.boyN || 0) >= 3 && Math.abs(sig.rel - p.boyOran) > 0.12) return [p, 0];
+    const sims = p.kiyafet.ornek.map((o) => sigSim(sig, o, sig.rel, p.boyOran ?? o.rel)).sort((a, b) => b - a);
+    return [p, (sims[0] + (sims[1] ?? sims[0])) / 2];
+  }).sort((a, b) => b[1] - a[1]);
+  const [best, sc] = scores[0], second = scores[1]?.[1] ?? 0;
+  const ok = sc >= cfg.kiyafetEsik && (scores.length === 1 ? sc >= cfg.kiyafetEsik + 0.04 : sc - second >= 0.04);
+  if (!ok) { tr.kyCand = null; tr.kyHits = 0; return; }
+  if (tr.kyCand === best.id) tr.kyHits++; else { tr.kyCand = best.id; tr.kyHits = 1; }
+  if (tr.kyHits >= 2) { // iki kez üst üste aynı sonuç
+    assign(tr.id, best.id, 'kiyafet'); tr.kyConf = sc;
+    toast(`${best.ad} kıyafetinden tanındı (%${Math.round(sc * 100)})`);
+  }
+}
+
+setInterval(() => {
+  if (running && cfg.hreg) saveCfg();
+  const el = $('#boyInfo'); if (!el) return;
+  const n = Math.round(cfg.hreg?.n || 0);
+  el.textContent = n >= 25 ? `Hazır (${n} gözlem). Kamera yerini değiştirirsen sıfırla.` : `Öğreniyor: ${n}/25 gözlem (kadrajda boydan görünen kişiler)`;
+}, 3000);
+$('#boyReset').onclick = () => { cfg.hreg = null; for (const p of ekip) { delete p.boyOran; delete p.boyN; } saveCfg(); saveEkip(); toast('Boy kalibrasyonu sıfırlandı.'); };
+
+// ── Formanın arkasındaki yazıyı okuma (Tesseract.js, tarayıcıda) ──
+const TRMAP = { 'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U' };
+const normTxt = (x) => String(x || '').toLocaleUpperCase('tr-TR').replace(/[ÇĞİÖŞÜ]/g, (c) => TRMAP[c]).replace(/[^A-Z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+function lev(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+/** OCR metnini profillerin forma yazısıyla eşleştirir; tek ve kesin aday yoksa null. */
+function formaMatch(text) {
+  const toks = normTxt(text).split(' ').filter((w) => w.length >= 1), flat = toks.join('');
+  const hits = ekip.filter((p) => p.forma).filter((p) => normTxt(p.forma).split(' ').every((tk) => {
+    if (/^\d+$/.test(tk)) return toks.includes(tk);
+    if (tk.length < 3) return toks.includes(tk);
+    const tol = tk.length >= 7 ? 2 : tk.length >= 4 ? 1 : 0;
+    return toks.some((w) => Math.abs(w.length - tk.length) <= tol && lev(w, tk) <= tol) || flat.includes(tk);
+  }));
+  return hits.length === 1 ? hits[0] : null;
+}
+let ocrInit = null, ocrBusy = false, ocrLast = 0;
+function getOcr() {
+  ocrInit ??= (async () => {
+    $('#ocrInfo').textContent = 'Yazı tanıma modeli indiriliyor…';
+    await loadScript(TESS_URL, 'Tesseract');
+    const w = await window.Tesseract.createWorker('tur', 1, { workerPath: TESS_WORKER, corePath: TESS_CORE });
+    await w.setParameters({ tessedit_pageseg_mode: '11', tessedit_char_whitelist: 'ABCÇDEFGĞHIİJKLMNOÖPQRSŞTUÜVWXYZ0123456789' });
+    $('#ocrInfo').textContent = 'Hazır. Arkası dönük kişilerin formaları okunuyor.';
+    return w;
+  })().catch((e) => { ocrInit = null; $('#ocrInfo').textContent = `Yazı tanıma yüklenemedi: ${e.message}`; throw e; });
+  return ocrInit;
+}
+const ocrCanvas = document.createElement('canvas');
+function ocrTick(t, persons, faces) {
+  if (!cfg.formaOn || ocrBusy || t - ocrLast < 1500 || !ekip.some((p) => p.forma)) return;
+  const facing = (p) => (faces.some((f) => f.pid === p.id) ? 1 : 0);
+  const c = persons.filter((p) => p.box.h >= 140 && !occluded(p) && t - (p.ocrAt || 0) > 4000)
+    .sort((a, b) => (state.idmap[a.id] ? 1 : 0) - (state.idmap[b.id] ? 1 : 0) || facing(a) - facing(b) || b.box.h - a.box.h)[0];
+  if (!c) return;
+  ocrLast = t; c.ocrAt = t; ocrBusy = true;
+  const b = c.box, x = b.x + b.w * 0.06, y = b.y + b.h * 0.1, w = b.w * 0.88, h = b.h * 0.38; // sırt: omuzdan bele
+  const sc = Math.min(3, 520 / w);
+  ocrCanvas.width = Math.round(w * sc); ocrCanvas.height = Math.round(h * sc);
+  const g = ocrCanvas.getContext('2d', { willReadFrequently: true });
+  g.filter = 'grayscale(1) contrast(1.6)'; g.drawImage(video, x, y, w, h, 0, 0, ocrCanvas.width, ocrCanvas.height); g.filter = 'none';
+  const tid = c.id;
+  getOcr().then((wk) => wk.recognize(ocrCanvas)).then(({ data }) => {
+    const txt = normTxt(data.text);
+    if (txt) $('#ocrInfo').textContent = `Son okunan: "${txt.slice(0, 30)}" (#${tid})`;
+    const m = formaMatch(data.text);
+    if (m && state.persons.some((p) => p.id === tid) && state.idmap[tid] !== m.id) { assign(tid, m.id, 'forma'); toast(`${m.ad} formasındaki yazıdan tanındı`); }
+  }).catch((e) => console.warn('OCR', e)).finally(() => { ocrBusy = false; });
+}
+
+// ── Elle atama ──
+let assignTid = null;
+function openAssign(tid) {
+  assignTid = tid;
+  const cur = profOfTrack(tid);
+  $('#assignT').textContent = `#${tid} kim?${cur ? ` (şu an: ${cur.ad})` : ''}`;
+  const used = new Set(Object.entries(state.idmap).filter(([k]) => +k !== tid).map(([, v]) => v));
+  $('#assignList').innerHTML = ekip.length ? ekip.map((p) => `<button type="button" data-pid="${p.id}">${avatar(p)}<span><b>${esc(p.ad)}</b><br><span class="hint">${esc(p.rol)}${p.takim ? ` · ${esc(p.takim)}` : ''}${used.has(p.id) ? ' · başka numaraya bağlı' : ''}</span></span></button>`).join('')
+    : '<div class="hint">Henüz ekip üyesi yok. "+ Yeni üye" ile ekle.</div>';
+  $('#assignClear').hidden = !cur;
+  $('#assignDlg').showModal();
+}
+$('#assignList').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-pid]'); if (!b) return;
+  assign(assignTid, b.dataset.pid, 'elle'); $('#assignDlg').close(); renderPeople(); drawOverlay();
+  toast(`#${assignTid} → ${prof(b.dataset.pid).ad}`);
+});
+$('#assignClear').onclick = () => { assign(assignTid, null); delete state.idmap[assignTid]; $('#assignDlg').close(); renderPeople(); };
+$('#assignNew').onclick = () => { $('#assignDlg').close(); showView('ekip'); $('#memAd').focus(); };
+overlay.addEventListener('click', (ev) => {
+  if (drawing || !running) return;
+  const r = overlay.getBoundingClientRect(), x = (ev.clientX - r.left) / r.width * overlay.width, y = (ev.clientY - r.top) / r.height * overlay.height;
+  const t = state.lastRun;
+  const hit = [...state.persons.filter((p) => p.last === t), ...state.faces.filter((f) => f.last === t && !f.pid)]
+    .filter((q) => x >= q.box.x && x <= q.box.x + q.box.w && y >= q.box.y && y <= q.box.y + q.box.h)
+    .sort((a, b) => a.box.w * a.box.h - b.box.w * b.box.h)[0];
+  if (hit) openAssign(hit.id);
+});
+// ── Ekip sekmesi ──
+function memberStats(p) {
+  const mine = events.filter((e) => (e.kisiler || []).some((x) => x.pid === p.id));
+  const today = mine.filter((e) => dayKey(new Date(e.ts)) === dayKey());
+  const byRule = {};
+  for (const e of mine) byRule[e.rule] = (byRule[e.rule] || 0) + 1;
+  return { total: mine.length, today: today.length, byRule };
+}
+function refreshKisiFilter() {
+  const sel = $('#filterKisi'), v = sel.value;
+  sel.innerHTML = '<option value="">Tüm kişiler</option>' + ekip.map((p) => `<option value="${p.id}">${esc(p.ad)}</option>`).join('');
+  sel.value = ekip.some((p) => p.id === v) ? v : '';
+}
+function renderEkip() {
+  const live = new Set(Object.values(state?.idmap || {}));
+  const box = $('#ekipList');
+  if (!ekip.length) { box.innerHTML = '<div class="empty-state" style="grid-column:1/-1">Henüz ekip üyesi yok. Yukarıdan ekle, sonra QR kartlarını yazdır.</div>'; return; }
+  box.innerHTML = ekip.map((p) => {
+    const st = memberStats(p);
+    const rules = Object.entries(st.byRule).sort((a, b) => b[1] - a[1]).map(([k, n]) => `<span class="tag">${esc(RULES[k]?.name || k)} · ${n}</span>`).join(' ');
+    const son = p.son ? new Date(p.son).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' }) : 'hiç';
+    const sure = p.sure ? (p.sure >= 3600 ? `${(p.sure / 3600).toFixed(1)} sa` : `${Math.round(p.sure / 60)} dk`) : '0 dk';
+    return `<div class="mem" data-pid="${p.id}">
+      <div class="mem-h">${avatar(p)}<div style="flex:1;min-width:0"><div class="nm">${esc(p.ad)}</div><div class="rl">${esc(p.rol)}${p.takim ? ` · ${esc(p.takim)}` : ''}${p.forma ? ` · forma: ${esc(p.forma)}` : ''}</div></div>${live.has(p.id) ? '<span class="live">● pitte</span>' : ''}</div>
+      <div class="stats"><div><b>${st.today}</b><span>bugün olay</span></div><div><b>${st.total}</b><span>toplam olay</span></div><div><b>${sure}</b><span>kamerada</span></div></div>
+      <div class="hint">Son görülme: ${son}${p.boyOran && (p.boyN || 0) >= 3 ? ` · Boy ≈ ${Math.round(p.boyOran * cfg.ortBoy)} cm` : ''}</div>
+      <div class="hint" style="display:flex;align-items:center;gap:6px;margin-top:4px">${kiyafetOf(p) ? `Kıyafet: <span title="üst" style="width:14px;height:14px;border-radius:4px;border:1px solid var(--border);background:${p.kiyafet.renk.up}"></span><span title="alt" style="width:14px;height:14px;border-radius:4px;border:1px solid var(--border);background:${p.kiyafet.renk.lo}"></span>${p.kiyafet.renk.sac ? ` Saç: <span title="saç / baş" style="width:14px;height:14px;border-radius:50%;border:1px solid var(--border);background:${p.kiyafet.renk.sac}"></span>` : ''} ${p.kiyafet.ornek.length} örnek · <a href="#" data-a2="kysil" style="text-decoration:underline">sıfırla</a>` : 'Kıyafet: henüz öğrenilmedi (QR veya elle ad bağlayınca öğrenir)'}</div>
+      ${rules ? `<div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap">${rules}</div>` : '<div class="hint" style="margin-top:6px">Kayıtlı ihlal yok ✓</div>'}
+      ${(() => {
+        const mine = events.filter((e) => (e.kisiler || []).some((x) => x.pid === p.id)).slice(0, 8);
+        return mine.length ? `<div class="strip">${mine.map((e) => { const k = e.kisiler.find((x) => x.pid === p.id); return `<img src="${blobUrl(k.foto || e.image)}" data-ev="${e.id}" title="${esc(e.title)} · ${fmtTime(e.ts)}" alt="${esc(e.title)}">`; }).join('')}</div>` : '';
+      })()}
+      <div class="row" style="margin-top:10px"><button class="btn btn-sm" data-a="card">QR kart</button><button class="btn btn-sm" data-a="ev">Olayları</button><button class="btn btn-sm" data-a="ren">Düzenle</button><button class="btn btn-sm btn-danger" data-a="del">Sil</button></div>
+    </div>`;
+  }).join('');
+}
+$('#ekipList').addEventListener('click', async (e) => {
+  const im = e.target.closest('img[data-ev]');
+  if (im) { const ev = events.find((x) => x.id === im.dataset.ev); if (ev) { $('#viewerImg').src = blobUrl(ev.image); $('#viewerCap').textContent = `${ev.title} · ${fmtTime(ev.ts)} · ${ev.detail || ''}`; $('#viewer').showModal(); } return; }
+  const k2 = e.target.closest('[data-a2=kysil]');
+  if (k2) { e.preventDefault(); const p = prof(k2.closest('[data-pid]').dataset.pid); if (p) { delete p.kiyafet; saveEkip(); renderEkip(); } return; }
+  const b = e.target.closest('button[data-a]'); if (!b) return;
+  const p = prof(b.closest('[data-pid]').dataset.pid); if (!p) return;
+  if (b.dataset.a === 'card') printBadges([p]);
+  if (b.dataset.a === 'ev') { showView('olaylar'); $('#filterKisi').value = p.id; renderEvents(); }
+  if (b.dataset.a === 'ren') {
+    const ad = prompt('Ad Soyad:', p.ad); if (ad === null) return;
+    if (ad.trim()) p.ad = ad.trim().slice(0, 40);
+    const tk = prompt('Alt ekip:', p.takim || ''); if (tk !== null) p.takim = tk.trim().slice(0, 30);
+    const fo = prompt('Formanın arkasındaki yazı:', p.forma || ''); if (fo !== null) p.forma = fo.trim().slice(0, 24);
+    saveEkip(); refreshKisiFilter(); renderEkip();
+  }
+  if (b.dataset.a === 'del') {
+    if (!confirm(`${p.ad} profili silinsin mi? Olay kayıtlarındaki adı da silinir (olaylar kalır).`)) return;
+    ekip = ekip.filter((x) => x !== p);
+    for (const [k, v] of Object.entries(state.idmap)) if (v === p.id) delete state.idmap[k];
+    for (const ev of events) if ((ev.kisiler || []).some((x) => x.pid === p.id)) {
+      ev.kisiler = ev.kisiler.map((x) => (x.pid === p.id ? { tid: x.tid } : x));
+      ev.detail = (ev.detail || '').split(p.ad).join('Silinmiş üye');
+      await db.put('events', ev);
+    }
+    saveEkip(); refreshKisiFilter(); renderEkip();
+  }
+});
+$('#memForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const ad = $('#memAd').value.trim(); if (!ad) return;
+  if (!$('#memOnay').checked) { toast('Önce onay kutusunu işaretle.'); return; }
+  const p = { id: newMemId(), ad: ad.slice(0, 40), rol: $('#memRol').value, takim: $('#memTakim').value.trim().slice(0, 30), forma: $('#memForma').value.trim().slice(0, 24), renk: COLORS[ekip.length % COLORS.length], onay: Date.now(), ts: Date.now() };
+  ekip.push(p); saveEkip(); refreshKisiFilter(); renderEkip();
+  $('#memAd').value = ''; $('#memTakim').value = ''; $('#memForma').value = ''; $('#memOnay').checked = false;
+  toast(`${p.ad} eklendi. QR kartını yazdırabilirsin.`);
+});
+async function printBadges(list) {
+  if (!list.length) { toast('Yazdırılacak üye yok.'); return; }
+  const w = window.open('', '_blank');
+  if (!w) { toast('Açılır pencere engellendi. Tarayıcıda bu sayfaya izin ver.'); return; }
+  try { await loadScript(QRGEN_URL, 'qrcode'); } catch (e) { w.close(); toast(`QR kütüphanesi yüklenemedi: ${e.message}`); return; }
+  const cards = list.map((p) => {
+    const q = window.qrcode(0, 'L'); q.addData(`PITK:${p.id}`); q.make();
+    return `<div class="b"><div class="qr">${q.createSvgTag({ cellSize: 4, margin: 8, scalable: true })}</div><div class="n">${esc(p.ad)}</div><div class="r">${esc(p.rol)}${p.takim ? ` · ${esc(p.takim)}` : ''}</div><div class="f">Pit Kamera kartı · göğüs hizasında, görünür tak · katlama, buruşturma</div></div>`;
+  }).join('');
+  w.document.write(`<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>Pit Kamera yaka kartları</title><style>
+@page { size: A4; margin: 10mm } body { font-family: system-ui, sans-serif; margin: 0; color: #000; background: #fff }
+.g { display: grid; grid-template-columns: repeat(2, 90mm); gap: 6mm; justify-content: center }
+.b { border: 1px dashed #999; border-radius: 4mm; padding: 5mm; text-align: center; break-inside: avoid; box-sizing: border-box }
+.qr svg { width: 72mm; height: 72mm; display: block; margin: 0 auto } .n { font-size: 20pt; font-weight: 800; margin-top: 2mm }
+.r { font-size: 11pt; color: #444 } .f { font-size: 8pt; color: #777; margin-top: 2mm }
+</style></head><body><div class="g">${cards}</div><script>onload = () => setTimeout(() => print(), 400)<\/script></body></html>`);
+  w.document.close();
+}
+$('#printAllBtn').onclick = () => printBadges(ekip);
+
+// ─────────────────────────── Kişiler paneli ───────────────────────────
+function stChip(name, res) {
+  if (res === 'var') return `<span class="st ok">${name} ✓</span>`;
+  if (res === 'yok') return `<span class="st bad">${name} ✗</span>`;
+  return `<span class="st unk">${name} ?</span>`;
+}
+function renderPeople() {
+  const box = $('#peopleList');
+  if (!running) { $('#peopleCount').textContent = ''; return; }
+  const t = state.lastRun, live = lastLive;
+  const flags = (id) => {
+    const f = [];
+    if ((live.kosma || []).some((p) => p.id === id)) f.push('KOŞMA');
+    if ((live.bolge || []).some((p) => p.id === id)) f.push('YASAK BÖLGE');
+    if ((live.makine || []).some((m) => m.persons.some((p) => p.id === id))) f.push('MAKİNE');
+    if ((live.el || []).some((x) => x.pid === id)) f.push('EL');
+    return f;
+  };
+  const rows = [];
+  for (const p of state.visible || []) {
+    const fc = state.faces.find((f) => f.id === p.faceId && f.last === t);
+    const g = fc?.chk.gozluk?.res ?? p.known.gozluk, sc = fc?.chk.sac?.res ?? p.known.sac, ay = p.chk.ayakkabi?.res ?? p.known.ayakkabi;
+    rows.push({ id: p.id, first: p.first, g, sc, ay, fl: flags(p.id) });
+  }
+  for (const f of state.faceOnly || []) rows.push({ id: f.id, first: f.first, g: f.chk.gozluk?.res, sc: f.chk.sac?.res, ay: null, fl: [], faceOnly: true });
+  $('#peopleCount').textContent = rows.length ? `· ${rows.length} kişi` : '';
+  $('#peopleStats').textContent = `Bu oturumda ${state.seen.size} kişi görüldü.`;
+  if (!rows.length) { box.innerHTML = '<div class="hint">Kadrajda kimse yok.</div>'; return; }
+  const ctl = (k) => cfg.rules[k] && canCheck(k);
+  // Satırları yerinde güncelle: tıklanan satır yeniden çizimde kaybolmasın
+  const old = new Map([...box.querySelectorAll('[data-tid]')].map((el) => [el.dataset.tid, el]));
+  [...box.children].forEach((el) => { if (!el.dataset.tid) el.remove(); });
+  for (const r of rows.sort((a, b) => a.id - b.id)) {
+    const bad = r.g === 'yok' || r.sc === 'yok' || r.ay === 'yok' || r.fl.length;
+    const chips = [ctl('gozluk') ? stChip('Gözlük', r.g) : '', ctl('ayakkabi') && !r.faceOnly ? stChip('Ayakkabı', r.ay) : '', ctl('sac') ? stChip('Saç', r.sc) : '', ...r.fl.map((x) => `<span class="st bad">${x}</span>`)].join('');
+    const sec = Math.round((t - r.first) / 1000), dur = sec >= 60 ? `${Math.floor(sec / 60)} dk` : `${sec} sn`;
+    const v = state.violCount[r.id];
+    const pr = profOfTrack(r.id), how = state.idhow[r.id];
+    const inner = `<span class="pid">#${r.id}</span>${pr ? `<span class="pn" title="${{ qr: 'QR kart', elle: 'elle atandı', kiyafet: 'görünümden', forma: 'formadaki yazıdan' }[how] || ''}">${esc(pr.ad)}${{ kiyafet: ' 👕', qr: ' ▣', forma: ' 🔤' }[how] || ''}</span>` : ''}<span class="ps">${chips || '<span class="st unk">izleniyor</span>'}</span><span class="pt">${dur}${v ? ` · ${v} olay` : ''}</span>`;
+    let el = old.get(String(r.id));
+    if (!el) { el = document.createElement('div'); el.dataset.tid = r.id; el.title = 'Ad atamak için tıkla'; }
+    old.delete(String(r.id));
+    el.className = `person${bad ? ' bad' : ''}`;
+    if (el._h !== inner) { el.innerHTML = inner; el._h = inner; }
+    box.appendChild(el);
+  }
+  old.forEach((el) => el.remove());
+}
+setInterval(() => { if (running && !$('#view-canli').hidden && !$('#assignDlg').open) renderPeople(); }, 500);
+$('#peopleList').addEventListener('click', (e) => { const el = e.target.closest('[data-tid]'); if (el) openAssign(+el.dataset.tid); });
+
+// ─────────────────────────── Yapay zekâ analizi (Claude) ───────────────────────────
+let sdkMod = null, aiKey = null;
+async function aiClient() {
+  aiKey ??= (await db.get('aiKey').catch(() => null)) || null;
+  if (!aiKey) throw Object.assign(new Error('Önce Ayarlar → Yapay zekâ analizi bölümünden API anahtarını kaydet.'), { code: 'NO_KEY' });
+  sdkMod ??= await import(SDK_URL);
+  const Anthropic = sdkMod.default;
+  return { Anthropic, client: new Anthropic({ apiKey: aiKey, dangerouslyAllowBrowser: true }) };
+}
+const AI_SYSTEM = `Sen bir FRC (FIRST Robotics Competition) takımının pit güvenlik asistanısın. Görevin, otomatik kamera sisteminin yakaladığı olayları FIRST Safety Manual pit kurallarına göre değerlendirmek: yan korumalı iş gözlüğü, kapalı ayakkabı, toplu saç ve sarkan takı olmaması, koşmamak, koridorları açık tutmak, elektronik/batarya masasında yiyecek-içecek olmaması, ağır makineleri yalnızca yetkili kişilerin kullanması, kesici/dönen parçalara el yaklaştırmamak, bataryaların yerde olmaması ve SB50 uçlarının kapaklı olması.
+Pit'te reşit olmayan öğrenciler var. Kimseyi tanımlamaya, adını tahmin etmeye veya görünüşünü yorumlamaya çalışma; yalnızca güvenlikle ilgili durumu değerlendir. Yüzler gizlenmiş olabilir.
+Otomatik sistem yanılabilir: gördüğün şey ihlali gerçekten gösteriyor mu, dürüstçe söyle; emin değilsen "Şüpheli" de.
+Türkçe, kısa ve öğrencilerin anlayacağı dille yaz.`;
+async function aiAsk(content, maxTokens = 16000) {
+  const { Anthropic, client } = await aiClient();
+  try {
+    const r = await client.beta.messages.create({
+      model: AI_MODEL,
+      max_tokens: maxTokens,
+      betas: ['server-side-fallback-2026-07-01'],
+      fallbacks: 'default',
+      output_config: { effort: 'medium' },
+      system: AI_SYSTEM,
+      messages: [{ role: 'user', content }],
+    });
+    if (r.stop_reason === 'refusal') throw Object.assign(new Error('Claude bu isteği yanıtlamadı.'), { code: 'REFUSAL' });
+    return r.content.filter((b) => b.type === 'text').map((b) => b.text).join('\n').trim();
+  } catch (e) {
+    if (e instanceof Anthropic.AuthenticationError) throw Object.assign(new Error('API anahtarı geçersiz. Ayarlar\'dan kontrol et.'), { code: 'AUTH' });
+    if (e instanceof Anthropic.PermissionDeniedError) throw new Error('Bu API anahtarının bu modele erişimi yok.');
+    if (e instanceof Anthropic.RateLimitError) throw new Error('Çok fazla istek. Biraz bekleyip tekrar dene.');
+    if (e instanceof Anthropic.APIConnectionError) throw new Error('Anthropic sunucusuna bağlanılamadı. İnternet bağlantısını kontrol et.');
+    if (e instanceof Anthropic.APIError) throw new Error(`Claude API hatası ${e.status ?? ''}: ${e.message}`);
+    throw e;
+  }
+}
+const aiErrText = (e) => e?.message || String(e);
+const blobB64 = (b) => new Promise((r) => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(',')[1]); fr.readAsDataURL(b); });
+async function analyzeEvent(e) {
+  const data = await blobB64(e.image);
+  const text = await aiAsk([
+    { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data } },
+    { type: 'text', text: `Otomatik sistemin kaydettiği olay:
+- Kural: ${e.title}
+- Ayrıntı: ${e.detail || '-'}
+- Zaman: ${new Date(e.ts).toLocaleString('tr-TR')}
+- Kadrajdaki kişi sayısı: ${e.people}
+Karede kırmızı kutular sistemin işaretlediği yerleri, renkli kesikli çizgiler çizilmiş bölgeleri gösterir.
+
+Şu biçimde yanıt ver:
+Sonuç: Doğrulandı | Şüpheli | Yanlış alarm
+Ne görülüyor: (1-2 cümle)
+Ne yapılmalı: (1-3 kısa madde)` },
+  ], 4000);
+  const m = text.match(/Sonuç:\s*(Doğrulandı|Şüpheli|Yanlış alarm)/i);
+  e.ai = { ts: Date.now(), text, verdict: m ? m[1] : null };
+  await db.put('events', e);
+  return e.ai;
+}
+function renderAi(slot, ai) {
+  slot.innerHTML = '';
+  const d = document.createElement('div'); d.className = 'ai-box';
+  if (ai.verdict) {
+    const v = document.createElement('div');
+    v.className = `v ${/doğru/i.test(ai.verdict) ? 'bad' : /yanlış/i.test(ai.verdict) ? 'ok' : 'warn'}`;
+    v.textContent = `Claude: ${ai.verdict}`; d.appendChild(v);
+  }
+  const body = document.createElement('div'); body.textContent = ai.text.replace(/^Sonuç:.*\n?/i, '').trim(); d.appendChild(body);
+  slot.appendChild(d);
+}
+let aiBusy = Promise.resolve();
+function aiQueue(ev) { // otomatik analiz: sırayla, birer birer
+  aiBusy = aiBusy.then(() => analyzeEvent(ev)).then(() => { if (!$('#view-olaylar').hidden) renderEvents(); })
+    .catch((e) => { console.warn('Otomatik analiz', e); if (e.code === 'AUTH' || e.code === 'NO_KEY') { cfg.aiAuto = false; saveCfg(); bindSettings(); toast(`Otomatik analiz kapatıldı: ${e.message}`, 5000); } });
+}
+async function summarizeDay() {
+  const day = dayKey();
+  const evs = events.filter((e) => dayKey(new Date(e.ts)) === day).sort((a, b) => a.ts - b.ts);
+  const card = $('#aiSumCard'), out = $('#aiSum');
+  card.hidden = false; out.textContent = 'Claude özetliyor…';
+  const lines = evs.map((e) => `${new Date(e.ts).toLocaleTimeString('tr-TR', { timeStyle: 'short' })} · ${e.title} · ${e.detail || ''}${e.ai?.verdict ? ` · Claude: ${e.ai.verdict}` : ''}${e.reviewed ? ' · incelendi' : ''}`);
+  const a = (await db.get(`denetim:${day}`).catch(() => null)) || { checked: {} };
+  const audLines = ALL_ITEMS.map(([id, t]) => `${a.checked?.[id] ? '[x]' : '[ ]'} ${t}`);
+  try {
+    const text = await aiAsk([{ type: 'text', text: `Bugün (${day}) pit kamerasının kaydettiği olaylar (${evs.length} adet):
+${lines.join('\n') || '(olay yok)'}
+
+Günlük denetim listesi${a.by ? ` (kontrol eden: ${a.by})` : ''}:
+${audLines.join('\n')}
+${a.note ? `Not: ${a.note}` : ''}
+
+Safety Captain için kısa bir günlük güvenlik özeti yaz:
+1. Genel durum (1-2 cümle)
+2. En sık görülen sorunlar ve saatleri
+3. Denetimde işaretlenmemiş önemli maddeler
+4. Yarın için 3-5 somut öneri
+Olayları kişilere göre değil, kurallara göre özetle.` }]);
+    out.textContent = text;
+  } catch (e) { out.textContent = aiErrText(e); }
+}
+async function showAiKey() {
+  aiKey = (await db.get('aiKey').catch(() => null)) || null;
+  $('#aiKeyInfo').textContent = aiKey ? `Kayıtlı (…${aiKey.slice(-4)}). Yalnızca bu tarayıcıda saklanıyor.` : 'Kayıtlı değil. Anahtar yalnızca bu tarayıcıda saklanır; ortak bilgisayarda kaydetme.';
+  $('#aiKeyDel').hidden = !aiKey;
+}
 
 // ─────────────────────────── Klasöre kayıt (File System Access API) ───────────────────────────
 let dirHandle = null;
@@ -1499,8 +2535,9 @@ $('#auditCsvBtn').onclick = async () => {
 function showView(v) {
   $$('.tab').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.view === v)));
   $$('.view').forEach((s) => { s.hidden = s.id !== `view-${v}`; });
-  if (v === 'ayarlar') { showStorage(); showDir(); }
+  if (v === 'ayarlar') { showStorage(); showDir(); showAiKey(); showRfKey(); }
   if (v === 'olaylar') renderEvents();
+  if (v === 'ekip') renderEkip();
   if (v === 'denetim') { if (audit.date !== dayKey() && !$('#auditDate').dataset.manual) loadAudit(dayKey()); else renderAudit(); }
   try { history.replaceState(null, '', `#${v}`); } catch { /* file:// */ }
 }
@@ -1515,7 +2552,8 @@ function bindSettings() {
   });
   $$('[data-k]').forEach((el) => {
     const k = el.dataset.k;
-    if (el.type === 'checkbox') { el.checked = !!cfg[k]; el.onchange = () => { cfg[k] = el.checked; saveCfg(); }; }
+    if (el.type === 'checkbox') { el.checked = !!cfg[k]; el.onchange = () => { cfg[k] = el.checked; saveCfg(); renderRulesLive(); showRf(); }; }
+    else if (el.type === 'text') { el.value = cfg[k]; el.onchange = () => { cfg[k] = el.value.trim() || DEFAULTS[k]; el.value = cfg[k]; saveCfg(); }; }
     else {
       el.value = cfg[k];
       el.onchange = () => {
@@ -1539,6 +2577,23 @@ $('#finishBtn').onclick = finishZone;
 $('#undoBtn').onclick = () => { if (drawing?.length) { drawing.pop(); drawOverlay(); } };
 $('#cancelDrawBtn').onclick = () => setDrawing(false);
 $('#refBtn').onclick = () => captureRef(false);
+$('#wizardBtn').onclick = runWizard;
+$('#photoVar').onchange = (e) => { const f = [...e.target.files]; e.target.value = ''; addPhotos('var', f); };
+$('#photoYok').onchange = (e) => { const f = [...e.target.files]; e.target.value = ''; addPhotos('yok', f); };
+$('#aiSumBtn').onclick = summarizeDay;
+$('#aiSumClose').onclick = () => { $('#aiSumCard').hidden = true; };
+$('#aiKeySave').onclick = async () => {
+  const k = $('#aiKey').value.trim();
+  if (!/^sk-ant-/.test(k)) { toast('Anahtar "sk-ant-" ile başlamalı.'); return; }
+  await db.set('aiKey', k); $('#aiKey').value = ''; await showAiKey(); toast('API anahtarı kaydedildi.');
+};
+$('#rfKeySave').onclick = async () => {
+  const k = $('#rfKey').value.trim();
+  if (k.length < 10) { toast('Geçerli bir Roboflow API anahtarı gir.'); return; }
+  await db.set('rfKey', k); $('#rfKey').value = ''; RF.err = null; await showRfKey(); toast('Roboflow anahtarı kaydedildi.');
+};
+$('#rfKeyDel').onclick = async () => { await db.unset('rfKey'); rfKey = null; await showRfKey(); toast('Roboflow anahtarı silindi.'); };
+$('#aiKeyDel').onclick = async () => { await db.unset('aiKey'); aiKey = null; await showAiKey(); toast('API anahtarı silindi.'); };
 $('#addVarBtn').onclick = () => addSamples('var');
 $('#addYokBtn').onclick = () => addSamples('yok');
 $('#clearSamplesBtn').onclick = async () => {
@@ -1548,7 +2603,7 @@ $('#clearSamplesBtn').onclick = async () => {
   samples = samples.filter((s) => s.check !== trainCheck); samplesChanged(); renderSamples();
 };
 $('#filterRule').innerHTML += Object.entries(RULES).map(([k, r]) => `<option value="${k}">${r.name}</option>`).join('');
-$('#filterRule').onchange = renderEvents; $('#filterState').onchange = renderEvents;
+$('#filterRule').onchange = renderEvents; $('#filterState').onchange = renderEvents; $('#filterKisi').onchange = renderEvents;
 $('#markAllBtn').onclick = async () => { for (const e of events) if (!e.reviewed) { e.reviewed = true; await db.put('events', e); } renderEvents(); updateUnread(); };
 $('#csvBtn').onclick = () => {
   const rows = filtered(); if (!rows.length) { toast('İndirilecek olay yok.'); return; }
@@ -1563,8 +2618,8 @@ $('#viewer').addEventListener('click', (e) => { if (e.target === $('#viewer')) $
 const blobToData = (b) => new Promise((r) => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(b); });
 $('#exportCfgBtn').onclick = async () => {
   const s = await Promise.all(samples.map(async (x) => ({ check: x.check, label: x.label, ts: x.ts, embedding: x.embedding, thumb: await blobToData(x.thumb) })));
-  const { cam, ref, ...rest } = cfg;
-  download(new Blob([JSON.stringify({ app: 'pit-kamera', v: 2, cfg: rest, samples: s })], { type: 'application/json' }), 'pit-kamera-ayarlar.json');
+  const { cam, ref, hreg, ...rest } = cfg;
+  download(new Blob([JSON.stringify({ app: 'pit-kamera', v: 3, cfg: rest, samples: s, ekip: ekip.map(({ foto, kiyafet, ...x }) => x) })], { type: 'application/json' }), 'pit-kamera-ayarlar.json');
 };
 $('#importCfg').onchange = async (e) => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
@@ -1574,6 +2629,10 @@ $('#importCfg').onchange = async (e) => {
     cfg = { ...structuredClone(DEFAULTS), ...j.cfg, cam: cfg.cam, ref: null, rules: { ...DEFAULTS.rules, ...(j.cfg?.rules || {}) } };
     cfg.zones = (cfg.zones || []).map((z) => ({ type: 'yasak', max: 1, id: newId(), ...z }));
     saveCfg(); applyTheme(); bindSettings(); renderZones();
+    if (Array.isArray(j.ekip) && j.ekip.length && confirm(`${j.ekip.length} ekip profili de içe aktarılsın mı? (Aynı kimlikliler güncellenir.)`)) {
+      for (const p of j.ekip) { if (!p?.id || !p.ad) continue; const i = ekip.findIndex((x) => x.id === p.id); if (i >= 0) ekip[i] = { ...ekip[i], ...p }; else ekip.push(p); }
+      saveEkip(); refreshKisiFilter();
+    }
     if (Array.isArray(j.samples) && j.samples.length && confirm(`${j.samples.length} eğitim örneği de içe aktarılsın mı? (Mevcut örneklere eklenir.)`)) {
       for (const x of j.samples) {
         const s = { id: newId(), ts: x.ts || Date.now(), check: CHECKS[x.check] ? x.check : 'gozluk', label: x.label === 'var' ? 'var' : 'yok', embedding: x.embedding, thumb: await (await fetch(x.thumb)).blob() };
@@ -1592,12 +2651,14 @@ setInterval(() => { if (running) renderRulesLive(); }, 1000);
 (async () => {
   await loadCfg(); applyTheme(); bindSettings();
   try { samples = (await db.all('samples')).map((s) => ({ check: 'gozluk', ...s })); } catch { samples = []; }
+  await showRfKey().catch(() => {});
+  await loadEkip();
   renderSamples(); renderZones();
   await loadEvents().catch(() => {});
   await loadAudit(dayKey());
   await loadDir();
   if (await preflightCamera()) await listCameras();
-  const h = location.hash.slice(1); if (['canli', 'olaylar', 'denetim', 'ayarlar'].includes(h)) showView(h);
+  const h = location.hash.slice(1); if (['canli', 'olaylar', 'ekip', 'denetim', 'ayarlar'].includes(h)) showView(h);
   loadModels().catch(() => {});
 })();
 </script>
