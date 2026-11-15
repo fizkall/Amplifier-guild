@@ -483,6 +483,7 @@ kbd { font: 12px ui-monospace, monospace; padding: 1px 5px; border: 1px solid va
         <div class="set"><div class="lbl">Analiz hızı (FPS)</div><input class="input" type="number" min="1" max="30" step="1" data-k="fps" aria-label="FPS"></div>
         <div class="set"><div class="lbl">Kişi algılama modeli<small>Doğru: daha çok kişiyi bulur, biraz yavaş. Hızlı: zayıf bilgisayarlar için. Değişince sayfa yenilenir.</small></div>
           <select class="input" id="kisiModelSel" aria-label="Kişi modeli"><option value="lite2">Doğru (Lite2)</option><option value="lite0">Hızlı (Lite0)</option></select></div>
+        <div class="set"><div class="lbl">Göz ve yüz noktalarını çiz<small>Göz konturu, göz bebeği, kaş ve yüz çevresi (yakın yüzlerde)</small></div><label class="switch"><input type="checkbox" data-k="yuzCiz" aria-label="Göz ve yüz noktaları"><span></span></label></div>
         <div class="set"><div class="lbl">Ham tespitleri göster<small>Sorun ararken: eşik altı kişiler, yüzler ve Roboflow'un gördüğü her şey görüntüde yazılır</small></div><label class="switch"><input type="checkbox" data-k="debug" aria-label="Ham tespitler"><span></span></label></div>
         <div class="set"><div class="lbl">Kişi algılama güveni<small>0,25–0,6 arası. Kişiler kaçıyorsa düşür, yanlış kutu çıkıyorsa yükselt.</small></div><input class="input" type="number" min="0.1" max="0.95" step="0.05" data-k="kisiGuven" aria-label="Kişi güveni"></div>
         <div class="set"><div class="lbl">Nesne algılama güveni<small>Yiyecek/içecek ve koridor nesneleri</small></div><input class="input" type="number" min="0.1" max="0.95" step="0.05" data-k="nesneGuven" aria-label="Nesne güveni"></div>
@@ -584,6 +585,7 @@ const MODELS = {
   yuz: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite',
   gomme: 'https://storage.googleapis.com/mediapipe-models/image_embedder/mobilenet_v3_small/float32/1/mobilenet_v3_small.tflite',
   el: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+  yuzNokta: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
 };
 const SDK_URL = 'https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@1.3.0/+esm';
 const JSQR_URL = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
@@ -671,7 +673,7 @@ const DEFAULTS = {
   rfOn: false, rfModel: 'ppe-detection-y/5', rfAralik: 1.5, rfGuven: 0.45,
   gozlukSure: 2, ayakkabiSure: 2, sacSure: 2, bolgeSure: 0.5, maxKisi: 10, kosmaEsik: 1.8,
   koridorSure: 60, koridorOran: 15, yiyecekSure: 2,
-  fps: 10, kisiGuven: 0.35, kisiModel: 'lite2', debug: false, nesneGuven: 0.4, minYuz: 48, minBoy: 160, bekleme: 20,
+  fps: 10, kisiGuven: 0.35, kisiModel: 'lite2', debug: false, yuzCiz: true, nesneGuven: 0.4, minYuz: 48, minBoy: 160, bekleme: 20,
   ses: true, yuzGizle: true, uyanik: true, saklaGun: 30,
   zones: [], cam: '', res: '1280x720', theme: '', ref: null,
 };
@@ -770,11 +772,21 @@ function loadModels() {
     M.lib = mp;
     [M.nesne, M.yuz, M.gomme, M.el] = await Promise.all([
       makeTask(mp.ObjectDetector, cfg.kisiModel === 'lite0' ? MODELS.nesne : MODELS.nesne2, { runningMode: 'VIDEO', scoreThreshold: 0.25, categoryAllowlist: ['person', ...FOOD, ...OBSTACLE], maxResults: 40 }),
-      makeTask(mp.FaceDetector, MODELS.yuz, { runningMode: 'VIDEO', minDetectionConfidence: 0.55 }),
+      makeTask(mp.FaceDetector, MODELS.yuz, { runningMode: 'VIDEO', minDetectionConfidence: 0.45 }, false),
       makeTask(mp.ImageEmbedder, MODELS.gomme, { runningMode: 'IMAGE', l2Normalize: true, quantize: false }, false),
       makeTask(mp.HandLandmarker, MODELS.el, { runningMode: 'VIDEO', numHands: 8, minHandDetectionConfidence: 0.5, minTrackingConfidence: 0.5 }).catch((e) => { console.warn('El modeli yüklenemedi', e); return null; }),
     ]);
     M.handConn = mp.HandLandmarker.HAND_CONNECTIONS;
+    // Baş bölgesinde yüz arama ve göz/yüz noktaları (tek resim modunda, kırpılmış bölge üzerinde)
+    [M.yuzImg, M.lm] = await Promise.all([
+      makeTask(mp.FaceDetector, MODELS.yuz, { runningMode: 'IMAGE', minDetectionConfidence: 0.5 }, false).catch((e) => { console.warn(e); return null; }),
+      makeTask(mp.FaceLandmarker, MODELS.yuzNokta, { runningMode: 'IMAGE', numFaces: 1, minFaceDetectionConfidence: 0.4 }, false).catch((e) => { console.warn('Yüz noktaları yüklenemedi', e); return null; }),
+    ]);
+    const FL = mp.FaceLandmarker;
+    M.eyeConn = [...FL.FACE_LANDMARKS_LEFT_EYE, ...FL.FACE_LANDMARKS_RIGHT_EYE];
+    M.irisConn = [...FL.FACE_LANDMARKS_LEFT_IRIS, ...FL.FACE_LANDMARKS_RIGHT_IRIS];
+    M.ovalConn = FL.FACE_LANDMARKS_FACE_OVAL;
+    M.browConn = [...FL.FACE_LANDMARKS_LEFT_EYEBROW, ...FL.FACE_LANDMARKS_RIGHT_EYEBROW];
     M.ready = true;
     setModel('ok', 'Modeller hazır');
     updateTrainButtons();
@@ -939,6 +951,43 @@ function iou(a, b) {
   return i / (a.w * a.h + b.w * b.h - i || 1);
 }
 let nextTrack = 1;
+// ── Yüz bulma: baş bölgesini büyüterek ──
+const headCv = Object.assign(document.createElement('canvas'), { width: 256, height: 256 });
+const headCtx = headCv.getContext('2d', { willReadFrequently: true });
+function facesFromHeads(pBoxes, fullFaces) {
+  const out = [...fullFaces];
+  if (!M.yuzImg) return out;
+  const W = video.videoWidth, H = video.videoHeight;
+  for (const b of pBoxes.slice().sort((a, z) => z.h - a.h).slice(0, 8)) {
+    const sz = Math.min(Math.max(b.w * 1.0, b.h * 0.32, 24), Math.max(W, H));
+    const x = b.x + b.w / 2 - sz / 2, y = b.y - sz * 0.12;
+    headCtx.fillStyle = '#808080'; headCtx.fillRect(0, 0, 256, 256);
+    headCtx.drawImage(video, x, y, sz, sz, 0, 0, 256, 256);
+    let dets; try { dets = M.yuzImg.detect(headCv).detections; } catch (e) { console.warn(e); continue; }
+    const k = sz / 256;
+    for (const d of dets) {
+      const fb = { x: x + d.boundingBox.originX * k, y: y + d.boundingBox.originY * k, w: d.boundingBox.width * k, h: d.boundingBox.height * k, s: d.categories?.[0]?.score ?? 0 };
+      if (!out.some((o) => iou(o, fb) > 0.3)) out.push(fb);
+    }
+  }
+  return out;
+}
+// ── Göz ve yüz noktaları (478 nokta), kare başına en fazla 2 yüz sırayla ──
+const lmCv = Object.assign(document.createElement('canvas'), { width: 224, height: 224 });
+function landmarkTick(faces, t) {
+  if (!M.lm || !cfg.yuzCiz) return;
+  const c = lmCv.getContext('2d');
+  for (const f of faces.filter((q) => q.box.w >= 18).sort((a, b) => (a.lmAt || 0) - (b.lmAt || 0)).slice(0, 2)) {
+    const b = f.box, sz = Math.max(b.w, b.h) * 1.9, x = b.x + b.w / 2 - sz / 2, y = b.y + b.h / 2 - sz / 2;
+    c.fillStyle = '#808080'; c.fillRect(0, 0, 224, 224);
+    c.drawImage(video, x, y, sz, sz, 0, 0, 224, 224);
+    let r; try { r = M.lm.detect(lmCv); } catch (e) { console.warn(e); continue; }
+    f.lmAt = t;
+    const L = r.faceLandmarks?.[0];
+    f.lm = L ? L.map((q) => [x + q.x * sz, y + q.y * sz]) : null;
+  }
+}
+
 /** Basit çoklu nesne takibi: önce örtüşme (IoU), sonra merkez uzaklığı. Kısa kaybolmalarda numara korunur. */
 function track(list, boxes, now, ttl = 2500) {
   const used = new Set(), matchedT = new Set();
@@ -1301,15 +1350,19 @@ function loop() {
   let det, faceDet;
   try { det = M.nesne.detectForVideo(video, ts).detections; faceDet = M.yuz.detectForVideo(video, ts).detections; }
   catch (e) { console.error(e); return; }
+  const toBox0 = (d) => ({ x: d.boundingBox.originX, y: d.boundingBox.originY, w: d.boundingBox.width, h: d.boundingBox.height, s: d.categories?.[0]?.score ?? 0 });
 
   const toBox = (d) => ({ x: d.boundingBox.originX, y: d.boundingBox.originY, w: d.boundingBox.width, h: d.boundingBox.height, s: d.categories?.[0]?.score ?? 0, c: d.categories?.[0]?.categoryName ?? '' });
   const all = det.map(toBox);
   const pBoxes = all.filter((b) => b.c === 'person' && b.s >= cfg.kisiGuven && b.w > 8 && b.h > 16);
   state.objects = all.filter((b) => b.c !== 'person' && b.s >= cfg.nesneGuven);
   state.rawPersons = all.filter((b) => b.c === 'person' && b.s < cfg.kisiGuven);
-  state.rawFaces = faceDet.length;
+  // Yüzler: tüm karede + her kişinin baş bölgesi büyütülerek (uzaktaki küçük yüzler için)
+  const faceBoxes = facesFromHeads(pBoxes, faceDet.map(toBox0));
+  state.rawFaces = faceBoxes.length;
   state.persons = track(state.persons, pBoxes, t);
-  state.faces = track(state.faces, faceDet.map(toBox), t, 700);
+  state.faces = track(state.faces, faceBoxes, t, 700);
+  landmarkTick(state.faces.filter((f) => f.last === t), t);
 
   const W = video.videoWidth, H = video.videoHeight;
   const live = { gozluk: [], ayakkabi: [], sac: [], kosma: [], bolge: [], makine: [], koridor: [], yiyecek: [], el: [], kalabalik: false };
@@ -1522,8 +1575,19 @@ function drawOverlay() {
     const bad = g === 'yok' || s === 'yok';
     const col = bad ? '#ff453a' : (g === 'var' || s === 'var') ? '#2ecc71' : '#9a9a9a';
     ctx.strokeStyle = col; ctx.strokeRect(f.box.x, f.box.y, f.box.w, f.box.h);
+    if (cfg.yuzCiz && f.lm && t - (f.lmAt || 0) < 900) {
+      const seg = (conns, color, w) => { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.beginPath(); for (const cn of conns) { const a = f.lm[cn.start], z = f.lm[cn.end]; if (a && z) { ctx.moveTo(a[0], a[1]); ctx.lineTo(z[0], z[1]); } } ctx.stroke(); };
+      ctx.save();
+      seg(M.ovalConn || [], 'rgba(255,255,255,.45)', Math.max(1, lw * 0.5));
+      seg(M.browConn || [], 'rgba(255,214,10,.9)', Math.max(1, lw * 0.6));
+      seg(M.eyeConn || [], g === 'yok' ? '#ff453a' : '#00e5ff', Math.max(1, lw * 0.7));
+      seg(M.irisConn || [], '#30d158', Math.max(1, lw * 0.6));
+      ctx.restore(); ctx.lineWidth = lw;
+    }
     const parts = [];
-    if (f.small) parts.push('uzak');
+    const pg = f.pid ? state.persons.find((q) => q.id === f.pid)?.known.gozluk : null; // Roboflow'un kişi sonucu
+    if (f.small && !rfActive()) parts.push('uzak · gözlük için yaklaş');
+    else if (f.small) parts.push(pg === 'yok' ? 'GÖZLÜK YOK' : pg === 'var' ? 'gözlük ✓' : 'gözlük … (RF)');
     else {
       if (cfg.rules.gozluk) parts.push(!canCheck('gozluk') ? 'gözlük: eğitim yok' : g === 'yok' ? 'GÖZLÜK YOK' : g === 'var' ? 'gözlük ✓' : 'gözlük …');
       if (cfg.rules.sac && trained('sac')) parts.push(s === 'yok' ? 'SAÇ/TAKI' : s === 'var' ? 'saç ✓' : 'saç …');
@@ -1809,7 +1873,11 @@ function rfTiles(persons, faces) {
   const H = video.videoHeight, tiles = [];
   for (const p of persons.slice().sort((a, b) => b.box.h - a.box.h)) {
     const b = p.box;
-    if (cfg.rules.gozluk && tiles.length < 16) { const z = Math.max(b.w * 1.1, b.h * 0.34); tiles.push({ id: p.id, kind: 'p', ck: 'gozluk', x: b.x + b.w / 2 - z / 2, y: b.y - z * 0.1, w: z, h: z }); }
+    if (cfg.rules.gozluk && tiles.length < 16) {
+      const fc = faces.find((f) => f.pid === p.id);
+      if (fc) { const z = Math.max(fc.box.w * 2.4, 40); tiles.push({ id: p.id, kind: 'p', ck: 'gozluk', x: fc.box.x + fc.box.w / 2 - z / 2, y: fc.box.y + fc.box.h * 0.4 - z / 2, w: z, h: z }); }
+      else { const z = Math.max(b.w * 1.1, b.h * 0.34); tiles.push({ id: p.id, kind: 'p', ck: 'gozluk', x: b.x + b.w / 2 - z / 2, y: b.y - z * 0.1, w: z, h: z }); }
+    }
     if (cfg.rules.ayakkabi && b.y + b.h < H * 0.985 && tiles.length < 16) { const z = Math.max(b.w * 1.1, b.h * 0.3); tiles.push({ id: p.id, kind: 'p', ck: 'ayakkabi', x: b.x + b.w / 2 - z / 2, y: b.y + b.h - z * 0.85, w: z, h: z }); }
   }
   for (const f of faces.filter((q) => !q.pid)) { // kişi algılanmadıysa yüz üzerinden
