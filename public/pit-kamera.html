@@ -479,7 +479,8 @@ kbd { font: 12px ui-monospace, monospace; padding: 1px 5px; border: 1px solid va
 
       <div class="card">
         <h2>Algılama</h2>
-        <p class="sub">Yavaş bilgisayarda FPS'i düşür.</p>
+        <p class="sub">Bilgisayar kasıyorsa <b>Hafif mod</b>'u uygula: el takibi, yüz noktaları, forma okuma ve kıyafet tanıma kapanır, hızlı kişi modeline ve 5 FPS'e geçilir. Donanım kontrolünü Groq'a bırak.</p>
+        <div class="row" style="margin-bottom:8px"><button class="btn btn-sm btn-primary" id="lightBtn" type="button">Hafif modu uygula</button><button class="btn btn-sm" id="fullBtn" type="button">Tam mod</button></div>
         <div class="set"><div class="lbl">Analiz hızı (FPS)</div><input class="input" type="number" min="1" max="30" step="1" data-k="fps" aria-label="FPS"></div>
         <div class="set"><div class="lbl">Kişi algılama modeli<small>Doğru: daha çok kişiyi bulur, biraz yavaş. Hızlı: zayıf bilgisayarlar için. Değişince sayfa yenilenir.</small></div>
           <select class="input" id="kisiModelSel" aria-label="Kişi modeli"><option value="lite2">Doğru (Lite2)</option><option value="lite0">Hızlı (Lite0)</option></select></div>
@@ -500,6 +501,16 @@ kbd { font: 12px ui-monospace, monospace; padding: 1px 5px; border: 1px solid va
         <div class="set"><div class="lbl">Kaydedilen karelerde yüzleri gizle<small>Algılanan yüzler pikselleştirilir. Algılanmayan yüz açık kalabilir.</small></div><label class="switch"><input type="checkbox" data-k="yuzGizle" aria-label="Yüz gizle"><span></span></label></div>
         <div class="set"><div class="lbl">Ekranı açık tut<small>Analiz sırasında bilgisayar uykuya geçmesin</small></div><label class="switch"><input type="checkbox" data-k="uyanik" aria-label="Ekranı açık tut"><span></span></label></div>
         <div class="set"><div class="lbl">Eski olayları otomatik sil (gün)<small>0 = silme</small></div><input class="input" type="number" min="0" max="365" step="1" data-k="saklaGun" aria-label="Saklama günü"></div>
+      </div>
+
+      <div class="card">
+        <h2>Groq yapay zekâ denetimi</h2>
+        <p class="sub">Bilgisayarı yormadan donanım kontrolü. Birkaç saniyede bir, kadrajdaki kişilerin numaralı baş ve boy görüntüleri Groq'a gider; her kişi için gözlük, ayakkabı, saç ve takı durumu döner. Eğitim gerekmez. Ücretlidir (5 sn aralıkla yaklaşık saatte 1–1,5 $). Yüzler bulanıklaştırılmadan gönderilir.</p>
+        <div class="set"><div class="lbl">Groq denetimini kullan<small id="gqInfo">Kapalı</small></div><label class="switch"><input type="checkbox" data-k="gqOn" aria-label="Groq denetimi"><span></span></label></div>
+        <div class="set"><div class="lbl">API anahtarı<small id="gqKeyInfo">Kayıtlı değil (console.groq.com → API Keys)</small></div></div>
+        <div class="row"><input class="input grow" type="password" id="gqKey" placeholder="gsk_…" autocomplete="off" aria-label="Groq API anahtarı"><button class="btn btn-sm" id="gqKeySave">Kaydet</button><button class="btn btn-sm btn-danger" id="gqKeyDel" hidden>Sil</button></div>
+        <div class="set"><div class="lbl">Model<small>Görüntü anlayan bir Groq modeli</small></div><input class="input" type="text" data-k="gqModel" style="width:170px" aria-label="Groq model"></div>
+        <div class="set"><div class="lbl">Gönderme aralığı (sn)<small>Kısaltırsan daha hızlı tepki, daha çok ücret</small></div><input class="input" type="number" min="2" max="60" step="1" data-k="gqAralik" aria-label="Groq aralığı"></div>
       </div>
 
       <div class="card">
@@ -670,6 +681,7 @@ const DEFAULTS = {
   rules: { gozluk: true, ayakkabi: true, sac: true, kosma: true, koridor: true, yiyecek: true, makine: true, el: true, bolge: true, kalabalik: false },
   elSure: 0.3, elTakip: true, aiAuto: false,
   qrOn: true, formaOn: true, kiyafetOn: true, kiyafetEsik: 0.82, kiyafetGunluk: true, ortBoy: 170, hreg: null,
+  gqOn: false, gqModel: 'qwen/qwen3.8-27b', gqAralik: 5,
   rfOn: false, rfModel: 'ppe-detection-y/5', rfAralik: 1.5, rfGuven: 0.45,
   gozlukSure: 2, ayakkabiSure: 2, sacSure: 2, bolgeSure: 0.5, maxKisi: 10, kosmaEsik: 1.8,
   koridorSure: 60, koridorOran: 15, yiyecekSure: 2,
@@ -774,13 +786,13 @@ function loadModels() {
       makeTask(mp.ObjectDetector, cfg.kisiModel === 'lite0' ? MODELS.nesne : MODELS.nesne2, { runningMode: 'VIDEO', scoreThreshold: 0.25, categoryAllowlist: ['person', ...FOOD, ...OBSTACLE], maxResults: 40 }),
       makeTask(mp.FaceDetector, MODELS.yuz, { runningMode: 'VIDEO', minDetectionConfidence: 0.45 }, false),
       makeTask(mp.ImageEmbedder, MODELS.gomme, { runningMode: 'IMAGE', l2Normalize: true, quantize: false }, false),
-      makeTask(mp.HandLandmarker, MODELS.el, { runningMode: 'VIDEO', numHands: 8, minHandDetectionConfidence: 0.5, minTrackingConfidence: 0.5 }).catch((e) => { console.warn('El modeli yüklenemedi', e); return null; }),
+      !cfg.elTakip ? Promise.resolve(null) : makeTask(mp.HandLandmarker, MODELS.el, { runningMode: 'VIDEO', numHands: 8, minHandDetectionConfidence: 0.5, minTrackingConfidence: 0.5 }).catch((e) => { console.warn('El modeli yüklenemedi', e); return null; }),
     ]);
     M.handConn = mp.HandLandmarker.HAND_CONNECTIONS;
     // Baş bölgesinde yüz arama ve göz/yüz noktaları (tek resim modunda, kırpılmış bölge üzerinde)
     [M.yuzImg, M.lm] = await Promise.all([
       makeTask(mp.FaceDetector, MODELS.yuz, { runningMode: 'IMAGE', minDetectionConfidence: 0.5 }, false).catch((e) => { console.warn(e); return null; }),
-      makeTask(mp.FaceLandmarker, MODELS.yuzNokta, { runningMode: 'IMAGE', numFaces: 1, minFaceDetectionConfidence: 0.4 }, false).catch((e) => { console.warn('Yüz noktaları yüklenemedi', e); return null; }),
+      !cfg.yuzCiz ? Promise.resolve(null) : makeTask(mp.FaceLandmarker, MODELS.yuzNokta, { runningMode: 'IMAGE', numFaces: 1, minFaceDetectionConfidence: 0.4 }, false).catch((e) => { console.warn('Yüz noktaları yüklenemedi', e); return null; }),
     ]);
     const FL = mp.FaceLandmarker;
     M.eyeConn = [...FL.FACE_LANDMARKS_LEFT_EYE, ...FL.FACE_LANDMARKS_RIGHT_EYE];
@@ -1042,8 +1054,10 @@ const counts = (check) => ({ var: samples.filter((s) => s.check === check && s.l
 const trainedCache = {};
 const trained = (check) => trainedCache[check] ??= (() => { const c = counts(check); return c.var >= 3 && c.yok >= 3; })();
 const rfActive = () => cfg.rfOn && !!rfKey;
+const gqActive = () => cfg.gqOn && !!gqKey;
+const apiActive = () => rfActive() || gqActive();
 /** Kural çalışabiliyor mu: kendi eğitimi veya (gözlük/ayakkabı için) Roboflow modeli. */
-const canCheck = (ck) => trained(ck) || (rfActive() && (ck === 'gozluk' || ck === 'ayakkabi'));
+const canCheck = (ck) => trained(ck) || (rfActive() && (ck === 'gozluk' || ck === 'ayakkabi')) || gqActive();
 function samplesChanged() { for (const k in trainedCache) delete trainedCache[k]; }
 function classify(check, vec) {
   const scored = [];
@@ -1453,12 +1467,14 @@ function loop() {
   }
   for (const p of persons) if (p.chk.ayakkabi?.res) p.known.ayakkabi = p.chk.ayakkabi.res;
   // Roboflow sonuçları kişinin oylarına eklenir (rfTick); burada karar ver
-  if (rfActive()) {
-    rfTick(t, persons);
-    for (const p of persons) for (const ck of ['gozluk', 'ayakkabi']) {
+  if (apiActive()) {
+    if (rfActive()) rfTick(t, persons);
+    if (gqActive()) gqTick(t, persons);
+    for (const p of persons) for (const ck of ['gozluk', 'ayakkabi', 'sac']) {
       const st = p.chk[ck]; if (!st?.rfTs || !cfg.rules[ck]) continue;
       if (t - st.rfTs > 8000) { st.votes = []; st.res = null; st.since = 0; delete st.rfTs; continue; } // eski sonuç
       if (ck === 'ayakkabi' && trained('ayakkabi') && p.fullBody) continue; // zaten judge() değerlendirdi
+      if (ck === 'sac' && trained('sac')) continue;
       const yok = st.votes.filter((v) => v === 'yok').length;
       st.res = st.votes.length < 2 ? null : yok / st.votes.length >= 0.6 ? 'yok' : 'var';
       if (st.res === 'yok') st.since ||= t; else st.since = 0;
@@ -1563,6 +1579,7 @@ function drawOverlay() {
     const ay = p.chk.ayakkabi?.res;
     if (!tags && ay === 'var') txt += ' · ayakkabı ✓';
     if (!tags && p.known.gozluk === 'var') txt += ' · gözlük ✓';
+    if (p.known.gozluk === 'yok') txt += ' · GÖZLÜK YOK';
     label(txt, p.box.x, p.box.y, isBad ? '#ff453a' : '#2ecc71', fs);
     if (p.fullBody && cfg.rules.ayakkabi && trained('ayakkabi')) { // ayak bölgesi
       ctx.save(); ctx.setLineDash([lw * 2, lw * 2]); ctx.strokeStyle = ay === 'yok' ? '#ff453a' : ay === 'var' ? '#2ecc71' : '#9a9a9a';
@@ -1586,8 +1603,8 @@ function drawOverlay() {
     }
     const parts = [];
     const pg = f.pid ? state.persons.find((q) => q.id === f.pid)?.known.gozluk : null; // Roboflow'un kişi sonucu
-    if (f.small && !rfActive()) parts.push('uzak · gözlük için yaklaş');
-    else if (f.small) parts.push(pg === 'yok' ? 'GÖZLÜK YOK' : pg === 'var' ? 'gözlük ✓' : 'gözlük … (RF)');
+    if (f.small && !apiActive()) parts.push('uzak · gözlük için yaklaş');
+    else if (f.small) parts.push(pg === 'yok' ? 'GÖZLÜK YOK' : pg === 'var' ? 'gözlük ✓' : 'gözlük …');
     else {
       if (cfg.rules.gozluk) parts.push(!canCheck('gozluk') ? 'gözlük: eğitim yok' : g === 'yok' ? 'GÖZLÜK YOK' : g === 'var' ? 'gözlük ✓' : 'gözlük …');
       if (cfg.rules.sac && trained('sac')) parts.push(s === 'yok' ? 'SAÇ/TAKI' : s === 'var' ? 'saç ✓' : 'saç …');
@@ -1599,7 +1616,7 @@ function drawOverlay() {
   if (rfActive() && RF.ts && now() - RF.ts < 2500) {
     for (const q of RF.preds) {
       const m = rfMap(q.c);
-      if (!m) { if (cfg.debug) { ctx.save(); ctx.strokeStyle = '#8e8e93'; ctx.setLineDash([lw * 2, lw * 2]); ctx.strokeRect(q.x, q.y, q.w, q.h); ctx.restore(); label(`RF: ${q.c} ${Math.round(q.s * 100)}%`, q.x, q.y + q.h + fs * 1.3, '#8e8e93', fs * 0.75); } continue; }
+      if (!m) { if (cfg.debug && rfActive()) { ctx.save(); ctx.strokeStyle = '#8e8e93'; ctx.setLineDash([lw * 2, lw * 2]); ctx.strokeRect(q.x, q.y, q.w, q.h); ctx.restore(); label(`RF: ${q.c} ${Math.round(q.s * 100)}%`, q.x, q.y + q.h + fs * 1.3, '#8e8e93', fs * 0.75); } continue; }
       const col = m.label === 'yok' ? '#ff453a' : '#bf5af2';
       ctx.save(); ctx.strokeStyle = col; ctx.setLineDash([lw * 3, lw * 2]); ctx.strokeRect(q.x, q.y, q.w, q.h); ctx.restore();
       label(`${m.ck === 'gozluk' ? (m.label === 'yok' ? 'GÖZLÜK YOK' : 'gözlük') : (m.label === 'yok' ? 'AYAKKABI YOK' : 'iş ayakkabısı')} ${Math.round(q.s * 100)}%`, q.x, q.y + q.h + fs * 1.3, col, fs * 0.8);
@@ -1611,13 +1628,14 @@ function drawOverlay() {
       label(`kişi? ${Math.round(b.s * 100)}% (eşik ${Math.round(cfg.kisiGuven * 100)})`, b.x, b.y, '#8e8e93', fs * 0.75);
     }
     const info = [`kişi ${(state.visible || []).length}`, `yüz ${state.rawFaces ?? 0}`, `el ${(state.hands || []).length}`,
-      rfActive() ? (RF.err ? `RF hata: ${RF.err}` : RF.ts ? `RF ${RF.preds.length} tespit · ${RF.ms} ms · ${Math.round((now() - RF.ts) / 100) / 10} sn önce` : 'RF bekleniyor') : 'RF kapalı'];
+      rfActive() ? (RF.err ? `RF hata: ${RF.err}` : RF.ts ? `RF ${RF.preds.length} tespit · ${RF.ms} ms · ${Math.round((now() - RF.ts) / 100) / 10} sn önce` : 'RF bekleniyor') : 'RF kapalı',
+      gqActive() ? (GQ.err ? `Groq hata: ${GQ.err}` : GQ.ts ? `Groq ${GQ.n} kişi · ${GQ.ms} ms · ${Math.round((now() - GQ.ts) / 100) / 10} sn önce` : 'Groq bekleniyor') : 'Groq kapalı'];
     ctx.font = `600 ${fs * 0.85}px Inter, system-ui, sans-serif`;
     const tw = Math.max(...info.map((x) => ctx.measureText(x).width)) + fs;
     ctx.fillStyle = 'rgba(0,0,0,.65)'; ctx.fillRect(W - tw - 8, 8, tw, info.length * fs * 1.2 + fs * 0.5);
     ctx.fillStyle = '#fff'; info.forEach((x, i) => ctx.fillText(x, W - tw, 8 + fs * (1.1 + i * 1.2)));
     ctx.font = `600 ${fs}px Inter, system-ui, sans-serif`;
-    if (RF.mosaic && rfActive()) {
+    if (RF.mosaic && apiActive()) {
       RF.mImg ??= new Image();
       if (RF.mImg.dataset.src !== RF.mosaic) { RF.mImg.src = RF.mosaic; RF.mImg.dataset.src = RF.mosaic; }
       const mw = Math.min(W * 0.22, 240);
@@ -2343,6 +2361,114 @@ async function printBadges(list) {
 }
 $('#printAllBtn').onclick = () => printBadges(ekip);
 
+// ─────────────────────────── Groq görüntü denetimi ───────────────────────────
+let gqKey = null;
+const GQ = { busy: false, last: 0, err: null, ts: 0, ms: 0, n: 0, raw: '' };
+const gqCanvas = document.createElement('canvas');
+const GQ_PROMPT = `You are a safety assistant for a FIRST Robotics Competition (FRC) pit. The image is a grid. Each row is one person, labelled with a yellow number like "#12": the left cell is a close-up of the head and shoulders, the right cell shows the whole body.
+For every labelled person decide:
+- "gozluk": "var" if they wear safety glasses / goggles with eye protection (prescription glasses alone without side shields count as "yok"), "yok" if their eyes are uncovered, "belirsiz" if you cannot see the eyes clearly.
+- "ayakkabi": "kapali" for closed-toe shoes covering toes and heel, "acik" for sandals, slippers, Crocs or mesh/open shoes, "belirsiz" if feet are not visible.
+- "sac": "toplu" if long hair is tied back or hair is short, "acik" if long hair hangs loose, "belirsiz" if unclear.
+- "taki": "yok" or "var" (dangling necklace, scarf, loose jewelry), or "belirsiz".
+Do not identify or describe the person. Only judge the safety equipment. Answer only with JSON in this form:
+{"kisiler":[{"no":12,"gozluk":"var","ayakkabi":"kapali","sac":"toplu","taki":"yok"}]}`;
+function gqBuild(persons) {
+  const W = video.videoWidth, H = video.videoHeight, t = state.lastRun;
+  const list = persons.slice().sort((a, b) => b.box.h - a.box.h).slice(0, 6);
+  if (!list.length) return null;
+  const C = 300, rows = list.length;
+  gqCanvas.width = C * 2; gqCanvas.height = C * rows;
+  const g = gqCanvas.getContext('2d');
+  g.fillStyle = '#808080'; g.fillRect(0, 0, gqCanvas.width, gqCanvas.height);
+  list.forEach((p, i) => {
+    const b = p.box, fc = state.faces.find((f) => f.pid === p.id && f.last === t);
+    let z, x, y;
+    if (fc) { z = Math.max(fc.box.w * 2.6, 48); x = fc.box.x + fc.box.w / 2 - z / 2; y = fc.box.y + fc.box.h * 0.45 - z / 2; }
+    else { z = Math.max(b.w * 1.05, b.h * 0.32); x = b.x + b.w / 2 - z / 2; y = b.y - z * 0.08; }
+    g.drawImage(video, x, y, z, z, 0, i * C, C, C);
+    const sc = Math.min(C / b.w, C / b.h), dw = b.w * sc, dh = b.h * sc;
+    g.drawImage(video, b.x, b.y, b.w, b.h, C + (C - dw) / 2, i * C + (C - dh) / 2, dw, dh);
+    g.fillStyle = '#000'; g.fillRect(0, i * C, 70, 34); g.fillStyle = '#ffd60a'; g.font = 'bold 26px sans-serif'; g.fillText(`#${p.id}`, 6, i * C + 26);
+    g.strokeStyle = '#000'; g.lineWidth = 3; g.strokeRect(0, i * C, C * 2, C);
+  });
+  return { list, url: gqCanvas.toDataURL('image/jpeg', 0.85) };
+}
+const GQ_MAP = {
+  gozluk: { var: 'var', yok: 'yok' },
+  ayakkabi: { kapali: 'var', acik: 'yok' },
+  sac: { toplu: 'var', acik: 'yok' },
+};
+async function gqTick(t, persons) {
+  if (GQ.busy || t - GQ.last < cfg.gqAralik * 1000 || video.readyState < 2) return;
+  const pack = gqBuild(persons); if (!pack) return;
+  GQ.busy = true; GQ.last = t;
+  if (cfg.debug) RF.mosaic = pack.url;
+  const t0 = now();
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${gqKey}` },
+      body: JSON.stringify({
+        model: cfg.gqModel, temperature: 0.1, max_completion_tokens: 800, response_format: { type: 'json_object' },
+        messages: [{ role: 'user', content: [{ type: 'text', text: GQ_PROMPT }, { type: 'image_url', image_url: { url: pack.url } }] }],
+      }),
+    });
+    if (!res.ok) {
+      let msg = `HTTP ${res.status}`;
+      try { msg = (await res.json()).error?.message || msg; } catch { /* yok */ }
+      throw new Error(res.status === 401 ? 'API anahtarı geçersiz' : res.status === 429 ? 'Hız sınırı aşıldı, aralığı artır' : msg);
+    }
+    const j = await res.json();
+    const txt = j.choices?.[0]?.message?.content || '{}';
+    GQ.raw = txt.slice(0, 400);
+    const data = JSON.parse(txt.replace(/^```(json)?|```$/g, '').trim());
+    let n = 0;
+    for (const r of data.kisiler || []) {
+      const id = Number(String(r.no).replace('#', ''));
+      const tr = state.persons.find((p) => p.id === id); if (!tr) continue;
+      n++;
+      const set = (ck, v) => {
+        const lab = GQ_MAP[ck][String(v || '').toLowerCase()]; if (!lab) return;
+        const st = tr.chk[ck] ??= { votes: [], lastEmbed: 0, since: 0, res: null };
+        st.votes.push(lab, lab); while (st.votes.length > 9) st.votes.shift(); st.rfTs = now();
+      };
+      set('gozluk', r.gozluk); set('ayakkabi', r.ayakkabi);
+      // saç: açık saç veya sarkan takı → uygun değil
+      const sac = String(r.sac || '').toLowerCase(), taki = String(r.taki || '').toLowerCase();
+      if (sac === 'acik' || taki === 'var') set('sac', 'acik'); else if (sac === 'toplu' && taki !== 'belirsiz') set('sac', 'toplu');
+    }
+    GQ.ts = now(); GQ.ms = Math.round(GQ.ts - t0); GQ.n = n; GQ.err = null;
+  } catch (e) { GQ.err = e.message || String(e); console.warn('Groq', e); }
+  GQ.busy = false;
+  showGq();
+}
+function showGq() {
+  const el = $('#gqInfo'); if (!el) return;
+  el.textContent = !cfg.gqOn ? 'Kapalı' : !gqKey ? 'Açık ama API anahtarı kayıtlı değil' : GQ.err ? `Hata: ${GQ.err}` : GQ.ts ? `Çalışıyor · son yanıt ${GQ.ms} ms · ${GQ.n} kişi değerlendirildi` : running ? 'Kadrajda kişi bekleniyor…' : 'Kamera başlayınca çalışır';
+  el.style.color = GQ.err && cfg.gqOn ? 'var(--danger)' : '';
+}
+async function showGqKey() {
+  gqKey = (await db.get('gqKey').catch(() => null)) || null;
+  $('#gqKeyInfo').textContent = gqKey ? `Kayıtlı (…${gqKey.slice(-4)}). Yalnızca bu tarayıcıda saklanıyor.` : 'Kayıtlı değil (console.groq.com → API Keys)';
+  $('#gqKeyDel').hidden = !gqKey; showGq(); renderRulesLive();
+}
+$('#gqKeySave').onclick = async () => {
+  const k = $('#gqKey').value.trim();
+  if (k.length < 20) { toast('Geçerli bir Groq API anahtarı gir.'); return; }
+  await db.set('gqKey', k); $('#gqKey').value = ''; GQ.err = null; await showGqKey(); toast('Groq anahtarı kaydedildi.');
+};
+$('#gqKeyDel').onclick = async () => { await db.unset('gqKey'); gqKey = null; await showGqKey(); toast('Groq anahtarı silindi.'); };
+// ── Hafif / tam mod ──
+$('#lightBtn').onclick = async () => {
+  Object.assign(cfg, { kisiModel: 'lite0', fps: 5, elTakip: false, yuzCiz: false, formaOn: false, kiyafetOn: false, qrOn: false, debug: false });
+  await db.set('cfg', cfg).catch(() => {}); toast('Hafif mod uygulandı, sayfa yenileniyor…'); setTimeout(() => location.reload(), 700);
+};
+$('#fullBtn').onclick = async () => {
+  Object.assign(cfg, { kisiModel: 'lite2', fps: 10, elTakip: true, yuzCiz: true, formaOn: true, kiyafetOn: true, qrOn: true });
+  await db.set('cfg', cfg).catch(() => {}); toast('Tam mod, sayfa yenileniyor…'); setTimeout(() => location.reload(), 700);
+};
+
 // ─────────────────────────── Kişiler paneli ───────────────────────────
 function stChip(name, res) {
   if (res === 'var') return `<span class="st ok">${name} ✓</span>`;
@@ -2666,7 +2792,7 @@ $('#auditCsvBtn').onclick = async () => {
 function showView(v) {
   $$('.tab').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.view === v)));
   $$('.view').forEach((s) => { s.hidden = s.id !== `view-${v}`; });
-  if (v === 'ayarlar') { showStorage(); showDir(); showAiKey(); showRfKey(); }
+  if (v === 'ayarlar') { showStorage(); showDir(); showAiKey(); showRfKey(); showGqKey(); }
   if (v === 'olaylar') renderEvents();
   if (v === 'ekip') renderEkip();
   if (v === 'denetim') { if (audit.date !== dayKey() && !$('#auditDate').dataset.manual) loadAudit(dayKey()); else renderAudit(); }
@@ -2683,7 +2809,7 @@ function bindSettings() {
   });
   $$('[data-k]').forEach((el) => {
     const k = el.dataset.k;
-    if (el.type === 'checkbox') { el.checked = !!cfg[k]; el.onchange = () => { cfg[k] = el.checked; saveCfg(); renderRulesLive(); showRf(); }; }
+    if (el.type === 'checkbox') { el.checked = !!cfg[k]; el.onchange = () => { cfg[k] = el.checked; saveCfg(); renderRulesLive(); showRf(); showGq(); }; }
     else if (el.type === 'text') { el.value = cfg[k]; el.onchange = () => { cfg[k] = el.value.trim() || DEFAULTS[k]; el.value = cfg[k]; saveCfg(); }; }
     else {
       el.value = cfg[k];
@@ -2785,6 +2911,7 @@ setInterval(() => { if (running) renderRulesLive(); }, 1000);
   await loadCfg(); applyTheme(); bindSettings();
   try { samples = (await db.all('samples')).map((s) => ({ check: 'gozluk', ...s })); } catch { samples = []; }
   await showRfKey().catch(() => {});
+  await showGqKey().catch(() => {});
   await loadEkip();
   renderSamples(); renderZones();
   await loadEvents().catch(() => {});
