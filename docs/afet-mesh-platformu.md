@@ -15,7 +15,7 @@ Projeyi güvenilir kılan şey, sınırlarını bilmesidir. Mimarinin her karar�
 | **Saf PWA Bluetooth mesh kuramaz** | Web Bluetooth yalnızca *central* (bağlanan) rolünü destekler; tarayıcı BLE *reklam* (advertise/peripheral) yapamaz. iOS Safari Web Bluetooth'u hiç desteklemez. Wi-Fi Direct'e tarayıcıdan erişim yoktur. | **Hibrit çekirdek:** Ortak kod tabanı PWA'dır. Mesh radyo katmanı ise aynı web kodunu saran ince bir **Capacitor yerel kabuğunda** çalışır (Android: BLE + Wi-Fi Aware/Nearby, iOS: CoreBluetooth). Protokol olarak açık kaynak **bitchat** (Unlicense / kamu malı) mesh protokolü uyumlu biçimde kullanılır. Saf PWA modu yine çalışır: akustik modem, QR ve LAN üzerinden. |
 | **Service Worker HTTPS ister** | Muhtarlık bilgisayarının yerel ağda `http://192.168.x.x` ile sunduğu bir PWA çevrimdışı önbellek kuramaz. | PWA **afetten önce**, internet varken kurulur ve önbelleğe alınır (kampanya: okul, cami, muhtarlık QR'ları). Afet anında yerel ağdan yalnızca *veri* senkronize edilir. Yerel sunucu için muhtarlığa önceden kurulan bir yerel CA sertifikası (mkcert) ikinci yoldur. |
 | **Tarayıcıda arka plan çalışması kısıtlı** | Kapalı ekranda PWA uyur. | Röle ve "data mule" rolleri yerel kabukta *foreground service* (Android) olarak çalışır. Saf PWA'da "Röle Modu" ekranı açık bırakılır (Wake Lock API). |
-| **"Enkaz derinliği sonarı"** | Telefon hoparlörüyle, içinde boşluk olan beton yığınından yankı alarak derinlik ölçmek fiziksel olarak güvenilir değildir. | Doğru olan **iki cihaz arası akustik mesafe ölçümüdür** (BeepBeep yöntemi, saat senkronu gerektirmez, ±10–30 cm). Kurtarıcının telefonu ile enkazdaki telefon karşılıklı "chirp" atar. Sonuç bir *"yaklaşık X m"* bilgisidir, derinlik ölçümü olarak sunulmaz. |
+| **Enkazda yer tespiti** | Telefon ölçüm yapmaz. Yer ve derinlik tespiti yetkili ekiplerin (AFAD, UMKE, JAK) dinleme cihazları ve uzmanlığıyla yapılır. | Telefon yalnızca **ses kaynağıdır**: ekiplerin dinleme cihazlarının iyi algıladığı 2–4 kHz bandında sabit ritimli bir bulunma sinyali çalar. Yeri ve mesafeyi ekip belirler. |
 | **Ultrasonik sivrisinek kovucu** | Hakemli çalışmalar ultrasonik kovucuların sivrisineklere **etkisiz** olduğunu gösteriyor (Cochrane derlemesi, 2007; sonraki saha testleri). Telefon hoparlörleri 18 kHz üzerinde zaten çok zayıftır. | Modül "deneysel / kanıtı zayıf" etiketiyle sunulur. Asıl haşere koruması **Edge AI rehberindeki kanıta dayalı yöntemlerdir** (cibinlik, durgun su tahliyesi, giysi). Bu dürüstlük jüri gözünde puan kazandırır. |
 | **Tıbbi yapay zekâ halüsinasyonu** | Küçük yerel LLM'ler tıbbi bilgi uydurabilir. | LLM *bilgi üretmez*. Yalnızca AFAD / Kızılay / Sağlık Bakanlığı onaylı protokollerden **RAG ile alıntı yapar** ve adımları sıralar. Kritik akışlar (CPR, kanama durdurma) LLM'siz, deterministik karar ağaçlarıdır. |
 | **Telefonlarda ortam sıcaklığı sensörü yok** | Hipotermi riski doğrudan ölçülemez. | Risk tahmin edilir: saat, mevsim, önbellekteki iklim normalleri, gökyüzü analizi ve kullanıcının "üşüyorum / ıslağım" girdisi birleştirilir. Batarya sıcaklığı ancak zayıf bir işaret olarak eklenir. |
@@ -121,7 +121,6 @@ konum kaynağı (2 bit): GPS / Visual-GPS / güneş+adım / manuel
                                                      │
                                   Akıllı TV konsolu ◄┘──► AFAD'a internet dönünce aktarım
  Kurtarıcı RSSI / düdük algısı ─► enkazdaki telefon: flaş Mors + 3 kHz yanıt düdüğü
-                                   + akustik mesafe ölçümü
 ```
 
 ### Ev ekolojisi ve eski cihazlar (Modül 8)
@@ -129,7 +128,7 @@ konum kaynağı (2 bit): GPS / Visual-GPS / güneş+adım / manuel
 | Cihaz | Yeni rolü | Nasıl |
 |---|---|---|
 | Çekmecedeki eski Android | **Sabit mesh rölesi** (pencere kenarı, şarj aletine takılı) | Capacitor kabuğunda "Röle Modu": foreground service, ekran kapalı, yalnızca yönlendirme. Android 6+ yeterli. Powerbank veya araç aküsüyle günlerce çalışır. |
-| Bluetooth hoparlör | **Akustik güçlendirici** | Telefonun ses çıkışı A2DP ile hoparlöre yönlendirilir. Düdük ve FSK yayını 10–20 dB daha yüksek olur. *Not:* A2DP gecikmesi (100–300 ms) FSK'yı bozmaz ama mesafe ölçümünde kalibrasyon gerektirir. |
+| Bluetooth hoparlör | **Akustik güçlendirici** | Telefonun ses çıkışı A2DP ile hoparlöre yönlendirilir. Düdük ve FSK yayını 10–20 dB daha yüksek olur. |
 | İnternetsiz eski modem | **Apartman yerel ağı** | Modem sadece Wi-Fi AP olarak açılır (çoğu modem internetsiz de DHCP dağıtır). Prizdeki eski telefon veya Raspberry/eski laptop yerel düğüm sunucusu olur. Komşular aynı Wi-Fi'ye bağlanıp Mbps hızında senkronize olur. Elektrik yoksa 12 V akü + DC dönüştürücü kullanılır. |
 | Akıllı TV | **Mahalle afet durum konsolu** (muhtarlık, çadır kent) | TV tarayıcısı muhtarlık düğümünün yerel adresini açar (`/konsol`): canlı SOS haritası, kaynak panosu, resmi duyurular, kayıp listesi. Kiosk modu, uzaktan kumanda ile gezinme. |
 | Muhtarlık PC | **Ana düğüm** | Node.js tabanlı tek tık kurulum (`mahalle-dugum.exe`). Yerel HTTPS sunucusu, CRDT deposu, BLE dongle'ı veya bağlı Android ile mesh köprüsü, internet dönünce AFAD'a toplu aktarım. |
@@ -157,7 +156,7 @@ konum kaynağı (2 bit): GPS / Visual-GPS / güneş+adım / manuel
 2. **Ekip binaya yaklaşır:** Kurtarıcı telefonu "Kurtarıcı Modu"nda özel bir BLE işaret paketi yayar. Enkazdaki Ayşe Hanım'ın telefonu RSSI'yı izler:
    - RSSI −90 dBm'den −70'e çıkınca (yaklaşma), telefon otomatik **flaş Mors SOS** (···−−−···) çakmaya ve **3–4 kHz yanıt düdüğü** çalmaya başlar. İnsan kulağının en hassas olduğu bu aralık beton içinden daha iyi geçer.
    - Kurtarıcı **düdük çalarsa**: mikrofon FFT ile düdük bandını algılar ve telefon "eko yanıt" verir. Bu, AFAD'ın "sessiz dinleme" protokolüyle uyumludur.
-3. **Akustik mesafe ölçümü:** Kurtarıcının telefonu ve enkazdaki telefon karşılıklı chirp atar (BeepBeep algoritması) ve "~4,5 m, sol-aşağı yönde" tahmini üretir. Birkaç farklı noktadan ölçüm yapılınca trilaterasyonla yer daraltılır.
+3. **Bulunma sinyali:** Ekip sessizlik istediğinde telefon sabit ritimli bulunma sinyali çalar. Yeri ve derinliği yetkili ekip kendi dinleme cihazlarıyla belirler; telefon ölçüm yapmaz.
 4. **Radyo yoksa FSK:** BLE beton nedeniyle bağlanamıyorsa enkazdaki telefon SOS paketini FSK ile çalar. Kurtarıcının mikrofonu bunu çözer ve kişi sayısı, yaralanma türü ve çocuk varlığı ekipte görünür. Ekip doğru ekipman ve sağlık personeliyle girer.
 5. **Batarya koruma:** Enkazdaki telefon her 10 dakikada 30 saniyelik "dinleme penceresi" açar ve kalan sürede uyur. Böylece %30 batarya 3 gün dayanır.
 
@@ -265,7 +264,7 @@ function playSymbols(ctx: AudioContext, bytes: Uint8Array, symMs = 40) {
 // Alıcı: AudioWorklet içinde Goertzel filtresi ile 4 frekansın enerjisi → sembol
 ```
 - [ ] **Düdük detektörü:** AnalyserNode FFT ile 2–4 kHz bandında dar ve sürekli tepe aranır (>300 ms) → olay.
-- [ ] **Akustik mesafe (BeepBeep):** İki cihaz sırayla doğrusal chirp çalar, her biri hem kendi hem karşı chirp'in varış zamanını çapraz korelasyonla bulur. `d = c/2 · ((tA2−tA1) − (tB2−tB1))`. Saat senkronu gerekmez.
+- [ ] **Bulunma sinyali:** Ekiplerin dinleme cihazlarının iyi algıladığı 2–4 kHz bandında, sabit ritimli ve kolay ayırt edilen bir ses deseni. Ölçüm ve yer tespiti yetkili ekibe aittir.
 - [ ] **Flaş Mors:** `torch` kısıtı ile ···−−−··· çakılır. iOS'ta tarayıcıdan torch çalışmaz, bu yüzden Capacitor `Torch` eklentisi kullanılır. Ekran beyaz/siyah yanıp sönmesi her yerde çalışan yedektir.
 - [ ] **RSSI tetikleyici:** Kurtarıcı işaret paketinin RSSI'sı kayan ortalamayla izlenir. Eşik aşılınca flaş + düdük + titreşim tetiklenir.
 
@@ -324,7 +323,7 @@ const heading = (sunAz - pixelOffsetDeg + 360) % 360;          // telefonun bakt
 1. Uçak modundaki 5 telefon + 1 laptop (muhtarlık) + 1 TV/monitör.
 2. Telefon A'ya panikle sesli mesaj söylenir → triage → paket 3 hop üzerinden muhtarlığa gider → TV haritasında belirir → A'ya ACK gelir.
 3. Telefon B "enkazda" (kutunun içinde), BLE kapalı → FSK ile SOS çalar → kurtarıcı telefonu çözer.
-4. Kurtarıcı telefon yaklaşır → B otomatik flaş Mors + yanıt düdüğü üretir → akustik mesafe "≈2,1 m" gösterir.
+4. Kurtarıcı telefon yaklaşır → B otomatik flaş Mors + yanıt düdüğü üretir → ekip sesin geldiği yeri kendisi bulur.
 5. Bir fotoğraf çekilir → Visual GPS konumu haritada gösterilir.
 
 ---
