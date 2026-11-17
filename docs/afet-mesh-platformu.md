@@ -81,18 +81,19 @@ Taşıma Soyutlama Arayüzü (TAI) tüm kanalları tek bir `send(packet)` / `onP
   3. Muhtarlık düğümü menzile girince toplanan her şey otomatik yüklenir ve kullanıcıya "**X kişinin sesini muhtarlığa taşıdın**" bildirimi çıkar (oyunlaştırma + motivasyon).
   4. Muhtarlık, ulaşılan paketler için *imzalı alındı (ACK)* yayar. Bu ACK ağda geri yayılır, gönderen "SOS'un muhtarlığa ulaştı" bilgisini alır ve gereksiz tekrar yayın durur.
 
-### SOS paketi — standart sıkıştırılmış format (≤ 64 bayt, FSK ile ~5 sn)
+### SOS paketi — standart sıkıştırılmış format (13 bayt yük; imzalı 125 bayt; ses kanalında 25 bayt, ~7 sn)
 
 ```
 ┌────┬────┬──────────┬───────────────┬────┬────┬────────┬──────┬───────┐
 │ver │tip │ kimlik 8B│ konum 8B      │acil│kişi│ durum  │çevre │ imza  │
-│ 4b │ 4b │          │ lat/lon int32 │ 3b │ 5b │ bayrak │ 1B   │ 32B*  │
+│ 4b │ 4b │          │ lat/lon int32 │ 3b │ 5b │ bayrak │ 1B   │ 96B*  │
 └────┴────┴──────────┴───────────────┴────┴────┴────────┴──────┴───────┘
 durum bayrakları (16 bit): sıkışma, kanama, kırık, nefes güçlüğü, bilinç,
 çocuk, yaşlı, hamile, kronik ilaç (insülin vb.), engelli, evcil hayvan…
 çevre (8 bit): yağmur riski, soğuk riski, gaz kokusu, yangın, su baskını
 konum kaynağı (2 bit): GPS / Visual-GPS / güneş+adım / manuel
-* FSK kanalında imza 8 bayta kısaltılır (kesik HMAC), BLE'de tam imza.
+* İmza Ed25519: 64 bayt imza + 32 bayt açık anahtar (BLE/LAN/QR). FSK kanalında yalnızca 25 baytlık
+  özet + CRC-16 gider; sesi çözen telefon özeti kendi imzasıyla ağa aktarır.
 ```
 
 ### K5–K6 — Uygulama ve Edge AI
@@ -179,7 +180,7 @@ konum kaynağı (2 bit): GPS / Visual-GPS / güneş+adım / manuel
 2. **Çoklu fiziksel kanal yedekliliği:** Radyo → ışık → ses → QR. Bilinen afet uygulamalarının çoğu tek kanala bağımlıdır. Mahalle Ağı'nda **SOS bilgisi beton içinden ses olarak bile çıkabilir.**
 3. **İnsan hareketini ağ altyapısına çevirmek (Data Mule):** Mahallede yürüyen her gönüllü bir "veri kuryesi"dir. Toplumsal dayanışma teknik altyapıya dönüşür ve bu ölçülebilir bir değerdir ("bugün 1.240 SOS taşındı").
 4. **Muhtarlığı dijital afet merkezine dönüştürmek:** Mevcut kurumsal yapıyı (muhtarlık) ve mevcut donanımı (PC, TV) kullanır. Yeni bir kurum yaratmaz, Türkiye'nin idari yapısına özgüdür ve ölçeklenebilir.
-5. **Cihazda yapay zekâ ile triage:** Panik metni 64 baytlık standart bir pakete dönüşür. Bant genişliği 100 kat azalır ve kurtarma ekibi okunamaz mesaj yığını yerine sıralı bir liste görür.
+5. **Cihazda yapay zekâ ile triage:** Panik metni 13 baytlık standart bir SOS yüküne dönüşür. Bant genişliği 100 kat azalır ve kurtarma ekibi okunamaz mesaj yığını yerine sıralı bir liste görür.
 6. **Konum kesintisine karşı üç katmanlı yedek:** GPS → Visual GPS → güneş pusulası + adım sayar (PDR).
 7. **Aktif kurtarma etkileşimi:** Enkazdaki telefon *pasif bir cihaz* değil, kurtarıcıya **kendi kendine cevap veren bir işaret fişeği**dir.
 8. **Çekmece ekonomisi:** Türkiye'de milyonlarca atıl eski telefon var. Proje e-atığı afet altyapısına dönüştürür (sürdürülebilirlik ve döngüsel ekonomi kriterleri).

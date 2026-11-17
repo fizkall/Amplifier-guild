@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#14161a" />
+    <meta name="description" content="İnternet ve baz istasyonu olmadan çalışan mahalle afet iletişim ağı" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <title>Mahalle Ağı</title>
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand"><span class="dot"></span> Mahalle Ağı</div>
+      <div id="netbadge" class="badge">Düğüm yok</div>
+    </header>
+
+    <main>
+      <!-- SOS -->
+      <section id="v-sos" class="view">
+        <h1>Yardım iste</h1>
+        <p class="muted">Ne olduğunu kısaca yaz. Uygulama mesajını küçük bir SOS paketine çevirir ve internet olmadan yayar.</p>
+        <label class="field">
+          <span>Durumun</span>
+          <textarea id="sos-text" rows="4" placeholder="Örn: Bacağım dolabın altında, çok kanıyor, yanımda 4 yaşında oğlum var"></textarea>
+        </label>
+        <div class="row">
+          <button id="sos-mic" class="ghost" hidden>Konuşarak yaz</button>
+          <button id="sos-analyze" class="ghost">Analiz et</button>
+        </div>
+
+        <div id="sos-form" class="card">
+          <div class="field">
+            <span>Aciliyet</span>
+            <div id="sos-urg" class="seg"></div>
+            <small class="muted">1 = iyiyim, bekleyebilirim · 5 = hayati tehlike</small>
+          </div>
+          <div class="field">
+            <span>Kişi sayısı</span>
+            <div class="stepper"><button data-d="-1">−</button><output id="sos-people">1</output><button data-d="1">+</button></div>
+          </div>
+          <div class="field"><span>Durum</span><div id="sos-flags" class="chips"></div></div>
+          <div class="field"><span>Çevre</span><div id="sos-env" class="chips"></div></div>
+          <div class="field">
+            <span>Konum</span>
+            <div class="row">
+              <button id="loc-gps" class="ghost">GPS al</button>
+              <input id="loc-lat" inputmode="decimal" placeholder="Enlem" aria-label="Enlem" />
+              <input id="loc-lon" inputmode="decimal" placeholder="Boylam" aria-label="Boylam" />
+            </div>
+            <small id="loc-note" class="muted">Konum yoksa adresi durum metnine yaz.</small>
+          </div>
+        </div>
+
+        <button id="sos-send" class="sos">SOS GÖNDER</button>
+        <div id="sos-status"></div>
+      </section>
+
+      <!-- ENKAZ -->
+      <section id="v-enkaz" class="view" hidden>
+        <h1>Enkaz modu</h1>
+        <p class="muted">Telefon ölçüm yapmaz; yerini belli eder. Yer ve derinliği yetkili ekip kendi cihazlarıyla bulur.</p>
+        <div class="grid">
+          <button id="enk-beacon" class="tile"><b>Bulunma sinyali</b><span>3 kHz, sabit ritim</span></button>
+          <button id="enk-morse" class="tile"><b>Işıkla SOS</b><span>Flaş veya ekran · ··· ––– ···</span></button>
+          <button id="enk-whistle" class="tile"><b>Düdüğe yanıt ver</b><span>Dışarıdan düdük duyunca otomatik sinyal</span></button>
+          <button id="enk-fsk" class="tile"><b>SOS'u sesle yayınla</b><span>Radyo çekmiyorsa, 30 sn arayla</span></button>
+        </div>
+        <label class="check"><input type="checkbox" id="enk-saver" checked /> Pil tasarrufu (30 sn çal, 2 dk sus)</label>
+        <div id="enk-log" class="log"></div>
+        <div class="card warn">Pili koru: ekran parlaklığını en aza indir, gereksiz uygulamaları kapat.</div>
+      </section>
+
+      <!-- AĞ -->
+      <section id="v-ag" class="view" hidden>
+        <h1>Ağ ve kurtarma</h1>
+        <div class="stats">
+          <div><b id="st-sos">0</b><span>SOS</span></div>
+          <div><b id="st-total">0</b><span>paket</span></div>
+          <div><b id="st-carried">0</b><span>taşıdığın</span></div>
+        </div>
+        <div class="card">
+          <div class="field">
+            <span>Muhtarlık düğümü</span>
+            <div class="row">
+              <input id="node-url" placeholder="ws://192.168.1.10:8080/ws" aria-label="Düğüm adresi" />
+              <button id="node-connect" class="ghost">Bağlan</button>
+            </div>
+            <small class="muted">Düğümden açıldıysa kendiliğinden bağlanır. Yürürken topladığın SOS'lar bağlandığın an muhtarlığa aktarılır.</small>
+          </div>
+        </div>
+        <div class="row wrap">
+          <button id="ag-listen" class="ghost">Sesten SOS dinle</button>
+          <button id="ag-qr-show" class="ghost">Paketlerimi QR ile ver</button>
+          <button id="ag-qr-scan" class="ghost">QR tara</button>
+        </div>
+        <div id="ag-level" class="meter" hidden><i></i></div>
+        <div id="ag-qr" class="qrbox" hidden></div>
+        <h2>Yakındaki SOS'lar <small class="muted">önceliğe göre</small></h2>
+        <ol id="sos-list" class="list"></ol>
+      </section>
+
+      <!-- KONUM -->
+      <section id="v-konum" class="view" hidden>
+        <h1>Konum ve yön</h1>
+        <div class="card">
+          <div class="field"><span>Son konum</span><div id="kn-fix" class="mono">—</div></div>
+          <button id="kn-gps" class="ghost">GPS al</button>
+        </div>
+        <div class="card">
+          <h2>Güneş pusulası</h2>
+          <p class="muted">Manyetik pusula enkaz demirinden sapabilir. Güneş her zaman doğru yönü verir.</p>
+          <div id="kn-sun" class="mono">Konum gerekiyor</div>
+          <div class="compass"><div id="kn-needle" class="needle"></div><span class="n">K</span></div>
+          <div id="kn-head" class="mono"></div>
+          <button id="kn-cal" class="ghost">Telefonun üst kenarını güneşe çevir ve bas: Kalibre et</button>
+        </div>
+      </section>
+
+      <!-- REHBER -->
+      <section id="v-rehber" class="view" hidden>
+        <h1>Rehber</h1>
+        <p class="muted">İnternetsiz çalışır. Bu bilgiler profesyonel tıbbi yardımın yerini tutmaz; ilk fırsatta sağlık ekibine ulaş.</p>
+        <input id="rh-search" placeholder="Ara: kanama, su, ishal…" aria-label="Rehberde ara" />
+        <h2>İlk yardım</h2>
+        <div id="rh-fa" class="topics"></div>
+        <h2>Afet sonrası yaşam</h2>
+        <div id="rh-ps" class="topics"></div>
+        <div id="rh-detail" class="card" hidden></div>
+      </section>
+
+      <!-- PANO -->
+      <section id="v-pano" class="view" hidden>
+        <h1>Mahalle panosu</h1>
+        <h2>Resmi duyurular</h2>
+        <ol id="pn-ann" class="list"></ol>
+        <h2>Kaynak paylaşımı</h2>
+        <div class="card">
+          <div class="seg" id="pn-kind"><button data-k="0" class="on">Bende var</button><button data-k="1">Lazım</button></div>
+          <textarea id="pn-text" rows="2" maxlength="280" placeholder="Örn: 20 litre içme suyum var, Atatürk Cd. 12"></textarea>
+          <button id="pn-post" class="ghost">Panoya ekle</button>
+        </div>
+        <ol id="pn-res" class="list"></ol>
+        <h2>Belirti bildir</h2>
+        <div class="card">
+          <p class="muted">Anonimdir. Aynı bölgede vakalar artarsa muhtarlık sağlık ekibini uyarır.</p>
+          <div id="pn-sym" class="chips"></div>
+          <div class="stepper"><button data-d="-1">−</button><output id="pn-sym-n">1</output><button data-d="1">+</button><span class="muted">kişi</span></div>
+          <button id="pn-sym-send" class="ghost">Bildir</button>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabs">
+      <button data-v="sos" class="on">SOS</button>
+      <button data-v="enkaz">Enkaz</button>
+      <button data-v="ag">Ağ</button>
+      <button data-v="konum">Konum</button>
+      <button data-v="rehber">Rehber</button>
+      <button data-v="pano">Pano</button>
+    </nav>
+
+    <div id="flash" class="flash" hidden></div>
+    <div id="toast" class="toast" hidden></div>
+    <div id="scanner" class="scanner" hidden>
+      <video id="scan-video" playsinline muted></video>
+      <div id="scan-info">QR koduna tut</div>
+      <button id="scan-close" class="ghost">Kapat</button>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

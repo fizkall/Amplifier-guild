@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#14161a" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <title>Mahalle Afet Konsolu</title>
+  </head>
+  <body class="konsol">
+    <header class="top">
+      <div class="brand"><span class="dot"></span> <span id="k-name">Mahalle Afet Konsolu</span></div>
+      <div id="k-badge" class="badge">Bağlanıyor…</div>
+    </header>
+    <main class="kgrid">
+      <section>
+        <div class="stats">
+          <div><b id="k-sos">0</b><span>SOS</span></div>
+          <div><b id="k-crit">0</b><span>kritik</span></div>
+          <div><b id="k-people">0</b><span>kişi</span></div>
+        </div>
+        <div id="k-alarms"></div>
+        <canvas id="k-map" width="900" height="600" aria-label="SOS konumları"></canvas>
+        <p class="muted">Harita: SOS konumlarının birbirine göre yerleşimi (kuzey yukarı). Renk öncelik düzeyini gösterir.</p>
+      </section>
+      <section>
+        <h2>Kurtarma sırası</h2>
+        <ol id="k-list" class="list"></ol>
+        <h2>Resmi duyuru yayınla</h2>
+        <div class="card">
+          <textarea id="k-ann" rows="3" maxlength="600" placeholder="Örn: Su dağıtımı 14:00'te okul bahçesinde."></textarea>
+          <div class="row"><input id="k-pin" placeholder="Düğüm PIN'i" aria-label="Düğüm PIN'i" inputmode="numeric" /><button id="k-send" class="ghost">İmzala ve yayınla</button></div>
+          <small class="muted">Duyuru muhtarlık anahtarıyla imzalanır; telefonlar imzasız duyuruları göstermez.</small>
+        </div>
+        <div class="row wrap">
+          <a class="ghost btnlink" href="/disa-aktar.csv">CSV indir</a>
+          <a class="ghost btnlink" href="/disa-aktar.geojson">GeoJSON indir</a>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/src/konsol.ts"></script>
+  </body>
+</html>
